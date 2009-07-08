@@ -1,0 +1,13 @@
+; $Id: subdomain.info,v 1.2 2008/06/12 23:15:22 setvik Exp $
+name = Subdomain
+core = 6.x
+description = extends pathauto to subdomains, allowing content to be automatically placed on subdomains
+dependencies[] = pathauto
+package = Other
+
+; Information added by drupal.org packaging script on 2009-03-20
+version = "6.x-1.5"
+core = "6.x"
+project = "subdomain"
+datestamp = "1237557362"
+

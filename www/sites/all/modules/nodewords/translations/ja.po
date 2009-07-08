@@ -1,0 +1,651 @@
+# $Id: ja.po,v 1.1.2.2 2008/11/13 04:44:18 imagine Exp $
+#
+# Japanese translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  nodewords-edit-attributes.tpl.php,v 1.1.2.2 2008/03/14 08:22:52 robrechtj
+#  nodewords.module,v 1.57.4.8 2008/03/14 13:12:42 robrechtj
+#  nodewords-list.tpl.php,v 1.1.2.1 2008/02/15 14:08:32 robrechtj
+#  nodewords.admin.inc,v 1.1.4.9 2008/03/14 13:12:42 robrechtj
+#  nodewords-edit-defaults.tpl.php,v 1.1.2.3 2008/03/14 10:34:05 robrechtj
+#  nodewords.inc,v 1.1.2.4 2008/03/14 13:12:42 robrechtj
+#  nodewords.info,v 1.3.4.2 2008/02/15 14:08:32 robrechtj
+#  nodewords.install,v 1.10.4.5 2008/03/14 10:25:03 robrechtj
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2008-11-12 17:44+0900\n"
+"PO-Revision-Date: 2008-11-13 10:57+0900\n"
+"Last-Translator: PineRay <matsudaterutaka@gmail.com>\n"
+"Language-Team: Japanese <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+
+#: nodewords-edit-attributes.tpl.php:27
+#: nodewords.module:129
+msgid "Delete"
+msgstr "削除"
+
+#: nodewords-edit-attributes.tpl.php:28
+#: nodewords-list.tpl.php:32
+#: nodewords.admin.inc:138
+msgid "Name"
+msgstr "名前"
+
+#: nodewords-edit-attributes.tpl.php:29
+msgid "Value"
+msgstr "値"
+
+#: nodewords-edit-attributes.tpl.php:30
+#: nodewords-list.tpl.php:36
+msgid "Weight"
+msgstr "ウェイト"
+
+#: nodewords-edit-attributes.tpl.php:46
+msgid "No meta tag attributes available."
+msgstr "利用可能なメタタグの属性がありません。"
+
+#: nodewords-edit-defaults.tpl.php:28
+msgid "Context"
+msgstr "コンテクスト"
+
+#: nodewords-edit-defaults.tpl.php:29
+msgid "Output in HEAD?"
+msgstr "HEADに出力しますか？"
+
+#: nodewords-edit-defaults.tpl.php:30
+msgid "Editable?"
+msgstr "編集可能にしますか？"
+
+#: nodewords-edit-defaults.tpl.php:31
+msgid "Default value"
+msgstr "デフォルト値"
+
+#: nodewords-list.tpl.php:33
+#: nodewords.admin.inc:166
+msgid "Type"
+msgstr "タイプ"
+
+#: nodewords-list.tpl.php:34
+#: nodewords.module:111
+msgid "Widget"
+msgstr "ウィジェット"
+
+#: nodewords-list.tpl.php:35
+#: nodewords.admin.inc:146
+#: nodewords.inc:456;532;715;778
+msgid "Description"
+msgstr "説明"
+
+#: nodewords-list.tpl.php:37
+msgid "Operations"
+msgstr "操作"
+
+#: nodewords-list.tpl.php:56
+msgid "No meta tags available."
+msgstr "利用可能なメタタグがありません。"
+
+#: nodewords.admin.inc:30
+msgid "Ignored"
+msgstr "無視"
+
+#: nodewords.admin.inc:34
+msgid "edit"
+msgstr "編集"
+
+#: nodewords.admin.inc:35
+msgid "delete"
+msgstr "削除"
+
+#: nodewords.admin.inc:42
+msgid "Save meta tags"
+msgstr "メタタグを保存"
+
+#: nodewords.admin.inc:63
+msgid "The meta tag settings have been updated."
+msgstr "メタタグの設定を更新しました。"
+
+#: nodewords.admin.inc:101
+msgid "Are you sure you want to delete the %tag_name meta tag?"
+msgstr "%tag_nameのメタタグを本当に削除しますか？"
+
+#: nodewords.admin.inc:103
+msgid "This action cannot be undone."
+msgstr "この操作は元に戻すことができませんので、十分に注意して実行してください。"
+
+#: nodewords.admin.inc:104;224
+msgid "Delete meta tag"
+msgstr "メタタグを削除"
+
+#: nodewords.admin.inc:105
+msgid "Cancel"
+msgstr "キャンセル"
+
+#: nodewords.admin.inc:115
+msgid "Deleted %tag_name meta tag."
+msgstr "%tag_nameのメタタグを削除しました。"
+
+#: nodewords.admin.inc:129
+msgid "Edit %tag_name meta tag"
+msgstr "%tag_nameのメタタグを編集"
+
+#: nodewords.admin.inc:133;216
+msgid "Create new meta tag"
+msgstr "新しいメタタグを作成"
+
+#: nodewords.admin.inc:140
+msgid "The name of the meta tag."
+msgstr "メタタグの名前。"
+
+#: nodewords.admin.inc:147
+msgid "Short description for administrators."
+msgstr "管理者用の短い説明。"
+
+#: nodewords.admin.inc:160
+msgid "<p>Select one of the available meta tag types.</p>"
+msgstr "<p>利用可能なメタタグのタイプからひとつ選択してください。</p>"
+
+#: nodewords.admin.inc:175
+msgid "Content construction"
+msgstr "コンテンツの構成"
+
+#: nodewords.admin.inc:182
+msgid "Use all inheritted values"
+msgstr "継承された値をすべて使用"
+
+#: nodewords.admin.inc:183
+msgid "The normal way of handling different context defaults is that the more specific context default overrides the broader one. For some meta tags (such as <code>keywords</code>) it is more useful to use all defaults from all broader contexts. Checking this option will use the user-inputted value and all context default values as values for this meta tag. If unsure, unselect this option."
+msgstr "異なるコンテクストのデフォルト値を扱う通常の方法は、指定したコンテクストでデフォルト値を上書きする方法です。いくつかのメタタグ (例えば<code>keywords</code>) にとっては、より幅広いコンテクストからのデフォルト値を使用することが役に立ちます。このオプションにチェックを入れると、ユーザが入力した値およびすべてのコンテクストのデフォルト値を、このメタタグの値として使用します。良く分からなければ、このオプションを選択しないでください。"
+
+#: nodewords.admin.inc:188
+msgid "Allow empty value"
+msgstr "空の値を許可"
+
+#: nodewords.admin.inc:189
+msgid "If a meta tag value is empty, normally there is no use of outputting the meta tag. Check this option if you want to output an empty-valued meta tag."
+msgstr "メタタグの値が空であれば、通常はメタタグを出力しません。空の値のメタタグを出力したければ、このオプションにチェックを入れます。"
+
+#: nodewords.admin.inc:194
+msgid "Suppress duplicate values"
+msgstr "値の重複を抑制"
+
+#: nodewords.admin.inc:195
+msgid "Normally there is no use of outputting the same value of a meta tag multiple times. For meta tags as <code>keywords</code> or <code>DC.Subject</code> this is even discouraged as it may lower your SEO ranking. Checking this option will remove duplicate values for this meta tag. If unsure, select this option."
+msgstr "通常、メタタグの同じ値を複数回出力することに意味はありません。<code>keywords</code>や<code>DC.Subject</code>といったメタタグでは、検索順位を落とすことにもなりかねません。このオプションにチェックを入れると、このメタタグの値から重複しているものを取り除きます。良く分からなければ、このオプションを選択してください。"
+
+#: nodewords.admin.inc:200
+msgid "Combine multiple values"
+msgstr "複数の値を結合"
+
+#: nodewords.admin.inc:201
+msgid "If a meta tag has multiple values, either by checking the option above or when the widget supports multiple values, one meta tag is outputted for each value. For some meta tags (such as <code>keywords</code>) it is more usefull to combine all those values into one single value. Checking this option will combine all inputted or automatic values into a single one separated by the separator below. If unsure, unselect this option."
+msgstr "メタタグに複数の値がある場合、上記のオプションにチェックを入れるか、またはウィジェットが複数の値をサポートしていれば、すべての値を含んだひとつのメタタグを出力します。メタタグによっては (<code>keywords</code>など)、それらの値をすべて結合してひとつの値とすることがより役立ちます。このオプションにチェックを入れると、入力された値や自動で割り振られる値を下記のセパレータで区切ってひとつにします。良く分からなければ、このオプションを選択しないでください。"
+
+#: nodewords.admin.inc:206
+msgid "Separator"
+msgstr "セパレータ"
+
+#: nodewords.admin.inc:207
+msgid "For the <em>Combine multiple values</em> option above we need a separator. If unsure, input <em>, (comma)</em>."
+msgstr "上記の<em>複数の値を結合</em>オプションにはセパレータが必要となります。良く分からなければ、<em>, (コンマ)</em> を入力してください。"
+
+#: nodewords.admin.inc:216
+msgid "Save meta tag"
+msgstr "メタタグを保存"
+
+#: nodewords.admin.inc:240
+msgid "Updated %tag_name meta tag."
+msgstr "%tag_nameのメタタグを更新しました。"
+
+#: nodewords.admin.inc:244
+msgid "Created new %tag_name meta tag."
+msgstr "%tag_nameのメタタグを新しく作成しました。"
+
+#: nodewords.admin.inc:270
+msgid "Edit %tag_name meta tag attributes"
+msgstr "%tag_nameのメタタグの属性を編集"
+
+#: nodewords.admin.inc:273
+msgid "You can not set attributes for a meta tag which is an alias."
+msgstr "エイリアスであるメタタグに属性を設定できません。"
+
+#: nodewords.admin.inc:306
+msgid "Save attributes"
+msgstr "属性を保存"
+
+#: nodewords.admin.inc:313
+msgid "Add new attribute"
+msgstr "新しい属性を追加"
+
+#: nodewords.admin.inc:344
+msgid "The name of an attribute can not be empty."
+msgstr "属性の名前を入力してください。"
+
+#: nodewords.admin.inc:355
+msgid "Updated %tag_name meta tag attributes."
+msgstr "%tag_nameのメタタグの属性を更新しました。"
+
+#: nodewords.admin.inc:387
+msgid "Edit %tag_name meta tag widget"
+msgstr "%tag_nameのメタタグのウィジェットを編集"
+
+#: nodewords.admin.inc:413
+msgid "<p>Select the widget to use to edit this meta tag.</p>"
+msgstr "<p>このメタタグの編集に使用するウィジェットを選択してください。</p>"
+
+#: nodewords.admin.inc:419
+msgid "Widget type"
+msgstr "ウィジェットタイプ"
+
+#: nodewords.admin.inc:428
+msgid "Widget options"
+msgstr "ウィジェットオプション"
+
+#: nodewords.admin.inc:430
+msgid "Here you can customize the widget. The available options depend on the selected widget."
+msgstr "ウィジェットをカスタマイズできるようになりました。利用可能なオプションは選択したウィジェットによって異なります。"
+
+#: nodewords.admin.inc:441
+msgid "There are no options available for this widget."
+msgstr "このウィジェットで利用可能なオプションがありません。"
+
+#: nodewords.admin.inc:449
+msgid "Save widget"
+msgstr "ウィジェットを保存"
+
+#: nodewords.admin.inc:480
+msgid "You have changed the widget to use, please fill in the widget options."
+msgstr "使用するウィジェットを変更しましたので、ウィジェットのオプションを入力してください。"
+
+#: nodewords.admin.inc:484
+msgid "Updated %tag_name meta tag widget."
+msgstr "%tag_nameのメタタグのウィジェットを更新しました。"
+
+#: nodewords.admin.inc:492
+msgid "Edit %tag_name meta tag defaults"
+msgstr "%tag_nameのメタタグのデフォルトを編集"
+
+#: nodewords.admin.inc:501
+msgid "Inherit"
+msgstr "継承"
+
+#: nodewords.admin.inc:502
+msgid "Yes"
+msgstr "はい"
+
+#: nodewords.admin.inc:503
+msgid "No"
+msgstr "いいえ"
+
+#: nodewords.admin.inc:541
+msgid "Save defaults"
+msgstr "デフォルトを保存"
+
+#: nodewords.admin.inc:557
+msgid "Updated %tag_name meta tag defaults."
+msgstr "%tag_nameのメタタグのデフォルトを更新しました。"
+
+#: nodewords.admin.inc:597
+msgid "Content length"
+msgstr "コンテンツの長さ"
+
+#: nodewords.admin.inc:598
+msgid "The maximum number of characters the content of a meta tag can contain. Set to 0 to allow any length. If unsure, set it to 255 (a common cut-off length search engines use)."
+msgstr "メタタグの内容に含ませることができる最大文字数。0を設定すると制限無しになります。良く分からなければ、255に設定してください (検索エンジンが使用する一般的な長さ)。"
+
+#: nodewords.admin.inc:605
+msgid "Repeat meta tags for lists"
+msgstr "一覧でメタタグを繰り返す"
+
+#: nodewords.admin.inc:606
+msgid "Some search engines punish sites that use the same meta tags on different pages. Check this option if you want to repeat the same meta tags on pages that use the pager (such as the default front page). If unchecked, Drupal will only display the meta tags on the first page and not for subsequent pages. If unsure, unselect this option."
+msgstr "異なるページで同じメタタグを使用しているサイトを罰する検索エンジンもあります。このオプションにチェックを入れると、ページャー (デフォルトのフロントページのような) を使用している複数のページで同じメタタグを繰り返し使用します。チェックが無ければ、最初のページでのみメタタグを表示して、続くページでは表示しません。良く分からなければ、このオプションを選択しないでください。"
+
+#: nodewords.admin.inc:612
+msgid "Use front page meta tags"
+msgstr "フロントページのメタタグを使用"
+
+#: nodewords.admin.inc:613
+msgid "Check this option if you want to use the meta tags for the front page even if the default front page specified is a view, panel or node - in this case, the meta tags specified for the view, panel or node will be ignored. If you want to use the meta tags of the view, panel or node instead, uncheck this option. If unsure, select this option and specify the meta tags you want on the meta tags for the front page."
+msgstr "指定のフロンとページがビューやパネルまたはノードであるとしても、フロントページのメタタグを使用したければ、このオプションにチェックを入れます。この場合、ビューやパネルまたはノードに設定されているメタタグは無視されます。ビューやパネルまたはノードに設定されているメタタグを使用したければ、このオプションからチェックを外します。良く分からなければ、このオプションを選択して、フロントページ用のメタタグを指定してください。"
+
+#: nodewords.inc:423
+msgid "Dublin Core schema"
+msgstr "ダブリン・コアのスキーマ"
+
+#: nodewords.inc:432
+msgid "Dublin Core Terms schema"
+msgstr "ダブリン・コアのタームスキーマ"
+
+#: nodewords.inc:441
+msgid "Dublin Core Title"
+msgstr "ダブリン・コアのタイトル"
+
+#: nodewords.inc:444
+msgid "Title"
+msgstr "タイトル"
+
+#: nodewords.inc:453
+msgid "Dublin Core Description"
+msgstr "ダブリン・コアの説明"
+
+#: nodewords.inc:460
+msgid "Dublin Core Abstract"
+msgstr "ダブリン・コアの要約"
+
+#: nodewords.inc:463;519
+msgid "Abstract"
+msgstr "要約"
+
+#: nodewords.inc:484
+msgid "Dublin Core Date"
+msgstr "ダブリン・コアの日時"
+
+#: nodewords.inc:493
+msgid "Dublin Core Created"
+msgstr "ダブリン・コアの作成日時"
+
+#: nodewords.inc:502
+msgid "Dublin Core Modified"
+msgstr "ダブリン・コアの更新日時"
+
+#: nodewords.inc:577
+msgid "No widget"
+msgstr "ウィジェット無し"
+
+#: nodewords.inc:578
+msgid "The user will not be able to edit the meta tag for a specific page. The auto-generated value (based on the context) will be used."
+msgstr "ユーザはページごとにメタタグを編集することができません。コンテクストを元に自動生成された値を使用します。"
+
+#: nodewords.inc:581;684
+msgid "Alias"
+msgstr "エイリアス"
+
+#: nodewords.inc:582
+msgid "The user will not be able to edit the meta tag for a specific page. The content of this meta tag will be taken from another meta tag instead. This can for example be used to output the same content for <code>DC.Subject</code> and <code>keywords</code> without the user having to input everything twice. Note that in this case the meta tag type (<em>Meta</em> or <em>Link</em>) will be ignored and the type of the meta tag this tag is an alias for will be used."
+msgstr "ユーザはページごとにメタタグを編集することができなくなります。その代わり、他のメタタグから取ってきた内容をこのメタタグの内容とします。例えば、ユーザにすべて繰り返し入力させることなく<code>DC.Subject</code>や<code>keywords</code>を同じ内容で出力する場合に使用することができます。この場合、メタタグのタイプ (<em>メタ</em>や<em>リンク</em>) は無視され、このメタタグがエイリアスとなるメタタグのタイプが使用されることに注意してください。"
+
+#: nodewords.inc:585
+msgid "Text field"
+msgstr "テキストフィールド"
+
+#: nodewords.inc:586
+msgid "A text field to input a short text."
+msgstr "短いテキストを入力するためのテキストフィールド。"
+
+#: nodewords.inc:589
+msgid "Text area"
+msgstr "テキストエリア"
+
+#: nodewords.inc:590
+msgid "A text area to input a longer text, typically used for <code>DC.Description</code> or <code>description</code>."
+msgstr "<code>DC.Description</code>や<code>description</code>に良く用いられる、長いテキストを入力するためのテキストエリア。"
+
+#: nodewords.inc:610
+msgid "Meta"
+msgstr "メタ"
+
+#: nodewords.inc:611
+msgid "<code>&lt;meta name=\"...\" content=\"...\" /&gt;</code>. If unsure, select this option."
+msgstr "<code>&lt;meta name=\"...\" content=\"...\" /&gt;</code>。良く分からなければ、このオプションを選択してください。"
+
+#: nodewords.inc:615
+msgid "Link"
+msgstr "リンク"
+
+#: nodewords.inc:616
+msgid "<code>&lt;link rel=\"...\" href=\"...\" /&gt;</code>."
+msgstr "<code>&lt;link rel=\"...\" href=\"...\" /&gt;</code>."
+
+#: nodewords.inc:620
+msgid "Http-Equiv"
+msgstr "Http-Equiv"
+
+#: nodewords.inc:621
+msgid "<code>&lt;meta http-equiv=\"...\" content=\"...\" /&gt;</code>."
+msgstr "<code>&lt;meta http-equiv=\"...\" content=\"...\" /&gt;</code>."
+
+#: nodewords.inc:636
+msgid "Global default"
+msgstr "共通のデフォルト"
+
+#: nodewords.inc:637
+msgid "The <em>Global default</em> context is used for all pages of the site unless a more specific context is available."
+msgstr "サイト上のすべてのページにおいて、特定のコンテクストが指定されるまでは<em>共通のデフォルト</em>コンテクストを使用します。"
+
+#: nodewords.inc:640
+msgid "Frontpage"
+msgstr "フロントページ"
+
+#: nodewords.inc:641
+msgid "The <em>Frontpage</em> context is used for the front page of the site only."
+msgstr "<em>フロントページ</em>コンテクストは、サイトのフロントページのみに使用します。"
+
+#: nodewords.inc:644
+msgid "Page not found"
+msgstr "ページが見つかりません"
+
+#: nodewords.inc:645
+msgid "The <em>Page not found</em> context is used for the pages that are not available for the user or that could not be found."
+msgstr "<em>ページが見つかりません</em>コンテクストは、ユーザが閲覧できないページや見つからないページに使用します。"
+
+#: nodewords.inc:648
+msgid "Content"
+msgstr "コンテンツ"
+
+#: nodewords.inc:649
+msgid "The <em>Content</em> context is used for all content pages (<em>Story</em>, <em>Page</em>, ...) unless a more specific default is set below."
+msgstr "<em>コンテンツ</em>コンテクストは、すべてのコンテンツページ (<em>ストーリー</em>、<em>ページ</em>、...) において、固有のデフォルト値が指定されるまで使用します。"
+
+#: nodewords.inc:655
+msgid "@type content"
+msgstr "@typeのコンテンツ"
+
+#: nodewords.inc:656
+msgid "The %type content context is used for all pages of the %type content type."
+msgstr "%typeのコンテンツタイプのページすべてに、%typeのコンテンツのコンテクストを使用します。"
+
+#: nodewords.inc:686
+msgid "Select the meta tag this tag is an alias for."
+msgstr "このタグをエイリアスとするメタタグを選択してください。"
+
+#: nodewords.inc:709;772
+msgid "Label"
+msgstr "ラベル"
+
+#: nodewords.inc:710;773
+msgid "The label that will be used for this widget."
+msgstr "このウィジェットに使用するラベル。"
+
+#: nodewords.inc:716;779
+msgid "The description users see on the edit pages for this widget."
+msgstr "このウィジェットの編集ページでユーザに表示する説明。"
+
+#: nodewords.inc:729;792
+msgid "You need to specify a label for this widget."
+msgstr "このウィジェットのラベルを指定する必要があります。"
+
+#: nodewords.module:33
+msgid "Below is a list of all the meta tags on your site."
+msgstr "下記はサイトのすべてのメタタグの一覧です。"
+
+#: nodewords.module:37
+msgid "On this page you can configure how the meta tag will appear in the HTML HEAD section of your site."
+msgstr "このページでは、サイトのHTML HEADセクションにメタタグをどのように表示させるかを設定することができます。"
+
+#: nodewords.module:40
+msgid "On this page you can configure how users can edit the meta tag."
+msgstr "このページでは、ユーザがメタタグをどのように編集可能かを設定することができます。"
+
+#: nodewords.module:43
+msgid "On this page you can configure the default values for the meta tag depending on the context. A default for a more specific context (such as <em>Story content</em>) will override the setting for a more general one (such as <em>Content</em> or <em>Global default</em>). Next to the default, you can also configure whether a meta tag will be outputted in the HTML HEAD for a given context and/or editable by users with the <em>edit meta tags</em> permission. Select <em>Inherit</em> to inherit those settings from the broader context."
+msgstr "このページでは、コンテクストを基にしたメタタグのデフォルト値を設定することができます。より特定したコンテクスト (<em>ストーリーコンテンツ</em>といった) のデフォルト値は、共通 (<em>コンテンツ</em>や<em>共通のデフォルト</em>) の設定を上書きします。デフォルト値に続いて、所定のコンテクストでHTML HEAD内にメタタグを出力するかどうかや、<em>メタタグの編集</em>権限を持つユーザが編集可能とするかどうかを設定することができます。より幅広いコンテクストからそれらの設定を継承するには<em>継承</em>を選択してください。"
+
+#: nodewords.module:46
+msgid "On this page you can configure the attributes for the meta tag. Examples include <code>scheme=\"DCTERMS.W3CDF\"</code> for specifying dates or <code>xml:lang=\"en\"</code> for specifying the language. If unsure, you can leave this empty."
+msgstr "このページでは、メタタグの属性を設定することができます。例えば、<code>scheme=\"DCTERMS.W3CDF\"</code>を特定の日時に変更したり、<code>xml:lang=\"en\"</code>を特定の言語に変更することができます。良く分からなければ、空欄にすることができます。"
+
+#: nodewords.module:49
+msgid "On this page you can create a new meta tag. You will be able to change the widget to use, the default values and/or the attributes once you have saved the new meta tag."
+msgstr "このページでは、メタタグを新しく作成することができます。新しいメタタグを保存した後、使用するウィジェットや、デフォルトの値、そしてまた属性を変更することができるようになります。"
+
+#: nodewords.module:52
+msgid "On this page you can configure the meta tag module. Most options are for advanced usage only, so if unsure, reset them to the defaults."
+msgstr "このページでは、メタタグモジュールの設定を行うことができます。大部分のオプションは高度な使用についてのものなので、良く分からなければデフォルトに戻してください。"
+
+#: nodewords.module:72
+msgid "Configure which meta tags are defined, can be used and what their default values are."
+msgstr "どのメタタグを定義するか、また使用可能か、そしてそのデフォルト値といった設定を行います。"
+
+#: nodewords.module:145;153;71
+#: nodewords.info:0
+msgid "Meta tags"
+msgstr "メタタグ"
+
+#: nodewords.module:22
+msgid "administer meta tags"
+msgstr "メタタグの管理"
+
+#: nodewords.module:23
+msgid "edit meta tags"
+msgstr "メタタグの編集"
+
+#: nodewords.module:81
+msgid "List"
+msgstr "リスト"
+
+#: nodewords.module:87
+msgid "Add"
+msgstr "追加"
+
+#: nodewords.module:94
+msgid "Settings"
+msgstr "環境設定"
+
+#: nodewords.module:101
+msgid "Edit meta tag"
+msgstr "メタタグの編集"
+
+#: nodewords.module:106
+msgid "Basic"
+msgstr "ベーシック"
+
+#: nodewords.module:117
+msgid "Defaults"
+msgstr "デフォルト"
+
+#: nodewords.module:123
+msgid "Attributes"
+msgstr "属性"
+
+#: nodewords.module:0
+msgid "nodewords"
+msgstr "nodewords"
+
+#: nodewords.install:35
+msgid "List of the available tags."
+msgstr "利用可能なタグの一覧。"
+
+#: nodewords.install:38
+msgid "Unique identifier for a meta tag."
+msgstr "メタタグ固有の識別子。"
+
+#: nodewords.install:44
+msgid "Type of the meta tag (\"meta\", \"link\", \"http-equiv\")."
+msgstr "メタタグのタイプ (「メタ」、「リンク」、「http-equiv」)。"
+
+#: nodewords.install:51
+msgid "Name of the meta tag."
+msgstr "メタタグの名前。"
+
+#: nodewords.install:58
+msgid "Description for the administrator."
+msgstr "管理者用の説明。"
+
+#: nodewords.install:64
+msgid "Type of the widget to use for editing this tag (\"none\", \"alias\", \"textfield\", \"textarea\", ...)."
+msgstr "このタグの編集に使用するウィジェットのタイプ (「なし」、「エイリアス」、「テキストフィールド」、「テキストエリア」、...)。"
+
+#: nodewords.install:71
+msgid "Other widget options (array)."
+msgstr "その他のウィジェットオプション (配列)。"
+
+#: nodewords.install:77
+msgid "Other special options for the content of the metatag (array)."
+msgstr "メタタグの内容に固有のその他のオプション (配列)。"
+
+#: nodewords.install:83
+msgid "Weight of the meta tag. Used in output and for the edit form."
+msgstr "メタタグのウィジェット。出力と編集フォームに使用します。"
+
+#: nodewords.install:94
+msgid "List of attributes for each meta tag."
+msgstr "メタタグごとの属性の一覧。"
+
+#: nodewords.install:97
+msgid "Unique identifier of the meta tag attribute."
+msgstr "メタタグの属性固有の識別子。"
+
+#: nodewords.install:103;138;180
+msgid "Unique identifier of the meta tag, see {nodewords_tags}."
+msgstr "メタタグ固有の識別子。{nodewords_tags}を参照。"
+
+#: nodewords.install:110
+msgid "Name of the meta tag attribute."
+msgstr "メタタグの属性の名前。"
+
+#: nodewords.install:117
+msgid "Value of the meta tag attribute."
+msgstr "メタタグの属性の値。"
+
+#: nodewords.install:124
+msgid "Weight of the meta tag attribute. Used in output."
+msgstr "メタタグの属性のウィジェット。出力に使用します。"
+
+#: nodewords.install:135
+msgid "List of default values for each tag, depending on context."
+msgstr "コンテクストを基にした、タグそれぞれのデフォルト値の一覧"
+
+#: nodewords.install:145
+msgid "Context for this default value (\"default\", \"default:front\", \"default:error\", \"default:node\", \"default:node:story\", ...)."
+msgstr "このデフォルト値のコンテクスト (「default」、「default:front」、「default:error」、「default:node」、「default:node:story」、...)。"
+
+#: nodewords.install:152
+msgid "Default value."
+msgstr "デフォルトの値。"
+
+#: nodewords.install:159
+msgid "Whether the meta tag will be outputted for this context (NODEWORDS_ENABLED, NODEWORD_DISABLED, NODEWORDS_INHERIT)."
+msgstr "このコンテクストでメタタグを出力するかどうか (NODEWORDS_ENABLED、NODEWORD_DISABLED、NODEWORDS_INHERIT)。"
+
+#: nodewords.install:166
+msgid "Whether the meta tag is editable on the edit form for this context (NODEWORDS_ENABLED, NODEWORD_DISABLED, NODEWORDS_INHERIT)."
+msgstr "このコンテクストでメタタグを編集可能とするかどうか (NODEWORDS_ENABLED、NODEWORD_DISABLED、NODEWORDS_INHERIT)。"
+
+#: nodewords.install:177
+msgid "User-inputted value for this tag for node contexts."
+msgstr "ノードコンテクストのこのタグにユーザが入力した値。"
+
+#: nodewords.install:187
+msgid "Unique identifier of the node, see {node}."
+msgstr "ノード固有の識別子。{node}を参照。"
+
+#: nodewords.install:194
+msgid "Unique identifier of a version of the node, see {node_revisions}."
+msgstr "ノードのバージョン固有の識別子。{node_versions}を参照。"
+
+#: nodewords.install:201
+msgid "Delta for multiple values."
+msgstr "複数の値のデルタ。"
+
+#: nodewords.install:208
+msgid "The user-inputted value for this meta tag and node version."
+msgstr "このメタタグとコンテンツのバージョンでユーザが入力した値。"
+
+#: nodewords.info:0
+msgid "Allows users to add HTML meta tags."
+msgstr "ユーザがHTMLのメタタグを追加できるようになります。"
+

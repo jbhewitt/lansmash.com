@@ -1,0 +1,263 @@
+<?php
+// $Id: rsvp_simplenews.module,v 1.2.2.2 2009/03/04 20:09:36 ulf1 Exp $
+
+/**
+ * @module rsvp_simplenews
+ * 
+ * @package rsvp - A drupal module developed for civicspace - a distribution of drupal.
+ * @description Provides functionality to invite people that subscribed to simplenews newsletters
+ * @author crunchywelch (welch@advomatic.com)
+ * @author Omar Abdel-Wahab (owahab@gmail.com)
+ * @author Ulf Schenk (ulf@schenkunlimited.net)
+ *
+ */
+
+/**
+ * RSVP SIMPLENEWS PERMISSIONS
+ */
+define('RSVP_PERM_INVITE_SIMPLENEWS',  'rsvp invite simplenews');
+
+/**
+ * Provides the rsvp simplenews permission information for the drupal system.
+ *
+ * @ingroup rsvp_simplenews
+ */
+function rsvp_simplenews_perm() {
+  return array(RSVP_PERM_INVITE_SIMPLENEWS);
+}
+
+/**
+ * Implementation of hook_menu().
+ *
+ * @ingroup rsvp_simplenews
+ */
+function rsvp_simplenews_menu() {
+
+  $connector = new RsvpConnector();
+  
+  $items = array();
+
+  $items['rsvp/%rsvp/attendees/simplenews/%'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('rsvp_simplenews_add_form', 1, 4),
+    'access callback' => 'rsvp_function_invitation_by_invite_access',
+    'access arguments' => array($connector, 1, NULL, NULL, RSVP_ACCESS_REPLY, RSVP_PERM_INVITE_SIMPLENEWS),
+    'weight' => '2',
+  );
+
+  return $items;
+}
+
+/**
+ * Adding a list of simplenews newsletter subscribers as invitees to the $rsvp.
+ *
+ * @param $rsvp The rsvp object you want to add the newsletter invitees to.
+ * @param $nlid int The newsletter ID.
+ *
+ * @ingroup rsvp_simplenews
+ */
+function rsvp_simplenews_add_form(&$form_state, $rsvp, $nlid) {
+
+  if (is_numeric($nlid)) {
+    $guestsarray = rsvp_simplenews_function_list($nlid);
+    
+    $connector = new RsvpConnector();
+    
+    $statusarray = rsvp_function_add_guests($rsvp, NULL, $guestsarray, false);
+    
+    if (count($statusarray['success_add']) > 0)
+      drupal_set_message('New Guests have been added. Do not forget to send the invitation.');
+ 
+    $content .= theme('rsvp_status', $statusarray);
+    drupal_set_message($content);
+    
+  }
+  
+  drupal_goto(rsvp_function_session_parent(NULL, false));
+    
+}
+
+/**
+ * Returns a list with available newsletters that can be added to the invitation.
+ *
+ * @param $rsvp The RSVP object.
+ * @return a list with links to newsletters that could be added to the invitation.
+ *
+ * @ingroup rsvp_simplenews
+ */
+function rsvp_simplenews_linklist($rsvp) {
+
+  $links = array();
+  
+  if (module_exists('simplenews')) {
+    
+    foreach (taxonomy_get_tree(variable_get('simplenews_vid', '')) as $term) {
+    	$links[] = l($term->name, 'rsvp/'. $rsvp->rid .'/attendees/simplenews/'. $term->tid, array('attributes' => array('title' => t('Add %term members to this invitation', array('%term' => $term->name)))));
+    }
+    
+  }
+  
+  return $links;  
+}
+
+/**
+ * Implementation of hook_form_alter().
+ * 
+ * weigth of plugins is always 40
+ * 
+ * to append the simplenews choice to the attendee form if the permissions are right.
+ * 
+ * @ingroup rsvp_simplenews
+ * 
+ */
+function rsvp_simplenews_form_alter(&$form, $form_state, $form_id) {
+
+	
+	
+  if ($form_id == 'rsvp_add_guests_form') {
+    $rsvp = $form['rsvp_add_guests_form']['rsvp']['#value'];
+	  if ( is_null($rsvp) )
+      return;
+  	
+    $connector = new RsvpConnector();
+    if (rsvp_function_invitation_by_invite_access($connector, $rsvp, NULL, NULL, RSVP_ACCESS_REPLY, RSVP_PERM_INVITE_SIMPLENEWS) == true) {
+  	
+      $links = rsvp_simplenews_linklist($rsvp);
+      //$title = t('Newsletters');
+      
+      $itemlist = theme('item_list', $links, $title);
+  	 
+      // we can not use a real fieldset because of the new frames. So simulate one
+      $form['rsvp']['rsvp_simplenews'] = array(
+        '#weight' => 40,
+        '#value' => '<div class="rsvp_form rsvp_add_guests_form rsvp_color_border rsvp_color_inner">',
+        '#suffix' => '</div>',
+      );
+      
+      $form['rsvp']['rsvp_simplenews']['header'] = array(
+        '#value' => t('You may invite newsletter subscribers'),
+        '#prefix' => '<div class="rsvp_form_header rsvp_add_guests_form_header rsvp_color_outer">',
+        '#suffix' => '</div>',
+      );
+
+      $form['rsvp']['rsvp_simplenews']['list'] = array(
+        '#value' => $itemlist,
+        '#prefix' => '<div class="rsvp_form_content rsvp_add_guests_form_content rsvp_color_inner">',
+        '#suffix' => '</div>',
+      );
+
+    }
+  }
+	
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+* @ingroup rsvp_simplenews_action
+* 
+* Implementation of hook_action_info()
+*/
+/*
+function rsvp_simplenews_action_info() {
+  
+  return array(
+      'rsvp_simplenews_add_guests_action' => array(
+        'description' => t('RSVP: Add newsletter subscribers to invitation'),
+        'type' => 'node',
+        'configurable' => FALSE,
+        'hooks' => array(
+          'any' => TRUE,
+        ),
+      ),
+  );
+}
+*/
+
+/**
+ * A nonconfigurable Drupal action. Adds guests based on a newsletter to an invitation (host permissions) and send the invitation message
+ *   hook = any
+ *
+ *   Required contexts:
+ *    $context['rid'] The invitation id you want to add guests to.
+ *    $context['nid'] The Newsletter id.
+ *    $context['send_rsvp'] Boolean also send the invitations or just add the guests to the invitation.
+ *
+ * @ingroup rsvp_simplenews_actions
+ * 
+ */
+function rsvp_simplenews_add_guests_action(&$object, $context = array()) {
+
+  if ((!isset($context['rid'])) || (!isset($context['nid'])) || (!isset($context['send_rsvp']))  ) {
+    return false;
+  }
+
+  rsvp_simplenews_api_add_guests($context['rid'], NULL, $context['nid'], $context['send_rsvp']);
+} 
+
+/**
+ * Adds a number of guests based on newsletter subscription to an invitation(rsvp) and sends out the invitations
+ * 
+ * The function requires the correct user permissions.
+ * 
+ * @ingroup rsvp_simplenews_api
+ * 
+ * @param $rid The Id of the rsvp instance.
+ * @param $hash The hash of the invitation object of the user who adds the invitees, 
+ *        or NULL if the rsvp owner adds the invitees.
+ * @param $nid The id of the newsletter.
+ * @param $send_rsvp Boolean Also send the invitations or just add the guests to the invitation.
+ */
+function rsvp_simplenews_api_add_guests($rid, $hash, $nid, $send_rsvp) {
+  
+  $invite = NULL;
+  
+  if(!isnull($rid)) {
+    $rsvp = rsvp_function_load_rsvp($rid);
+    if ($rsvp == false)
+      return false;
+  }
+  
+  if(!isnull($hash)) {
+    $invite = rsvp_function_load_invitation_hash($hash);
+    if ($invite == false)
+      return false;
+  }
+  
+  $connector = new RsvpConnector();
+
+  $perm_add = rsvp_function_invitation_by_invite_access($connector, $rsvp, NULL, NULL, RSVP_ACCESS_EDIT, RSVP_PERM_INVITE_SIMPLENEWS);
+  if ($perm_add == true) {
+    $guestarray = rsvp_simplenews_function_list($nid);
+    rsvp_function_add_invitees($rsvp, $invite, $guestsarray, $send_rsvp);
+    watchdog('action', 'Added invitees from newsletter %nid to invitation %rsvp_name(%rid) successfully.', array('%rsvp_name' => $rsvp->name, '%rid' => $rsvp->rid, '%nid' => $nid)); 
+  }
+}
+
+
+/**
+ * Extracting a list of newsletter subscribers.
+ *
+ * The function requires the correct user permissions.
+ *
+ *
+ * @param $nlid int The newsletter ID.
+ * @return array of useremails.
+ *
+ * @ingroup rsvp_simplenews_functions
+ */
+function rsvp_simplenews_function_list($nlid) {
+
+	$guestsarray = array();
+	
+  if (is_numeric($nlid)) {
+    $query = db_query('SELECT DISTINCT s.mail FROM {simplenews_subscriptions} s INNER JOIN simplenews_snid_tid t ON s.snid = t.snid WHERE t.tid = %d ORDER BY mail ASC', $nlid);
+    while ($sub = db_fetch_object($query)) {
+      $guestsarray[] = $sub->mail;
+    }
+  }
+  
+  return $guestsarray;  
+}
+

@@ -1,0 +1,154 @@
+<?php
+// $Id: picasa_photo.module,v 1.1.2.4 2008/11/12 17:32:35 cyberswat Exp $
+
+/**
+ * @file
+ * The picasa photo module for picasa web albums and Drupal integration.  This
+ * module Handles creating, editing, updating, deleting and importing photo
+ * content from picasa.
+ */
+
+ /**
+ * Implementation of hook_node_info().
+ */
+function picasa_photo_node_info() {
+  return array(
+    'picasa_photo' => array(
+      'name' => t('Picasa Photo'),
+      'module' => 'picasa_photo',
+      'description' => t("The Picasa Photo is an image that is stored in Picasa Albums."),
+      'has_title' => TRUE,
+      'title_label' => t('Title'),
+      'has_body' => FALSE,
+    )
+  );
+}
+
+/**
+ * Implementation of hook_access().
+ */
+function picasa_photo_access($op, $node, $account) {
+  if ($op == 'create') {
+    return user_access('create picasa photo', $account);
+  }
+
+  if ($op == 'update') {
+    if (user_access('edit any picasa photo', $account) || (user_access('edit own picasa photo', $account) && ($account->uid == $node->uid))) {
+      return TRUE;
+    }
+  }
+
+  if ($op == 'delete') {
+    if (user_access('delete any picasa photo', $account) || (user_access('delete own picasa photo', $account) && ($account->uid == $node->uid))) {
+      return TRUE;
+    }
+  }
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function picasa_photo_perm() {
+  return array(
+    'create picasa photo',
+    'delete own picasa photo',
+    'delete any picasa photo',
+    'edit own picasa photo',
+    'edit any picasa photo',
+  );
+}
+
+/**
+ * Implementation of hook_form().
+ */
+function picasa_photo_form(&$node) {
+  // Require the user to be authenticated with google
+  google_auth_required();
+
+  $form['#attributes'] = array('enctype' => "multipart/form-data");
+
+  // Get available albums
+  picasa_album_get_select($form);
+
+  print_r($albums);
+
+  $form['upload'] = array(
+    '#type' => 'file',
+    '#title' => t('Select photo to upload'),
+    '#size' => 40,
+  );
+// The site admin can decide if this node type has a title and body, and how
+  // the fields should be labeled. We need to load these settings so we can
+  // build the node form correctly.
+  $type = node_get_types('type', $node);
+
+  if ($type->has_title) {
+    $form['title'] = array(
+      '#type' => 'textfield',
+      '#title' => check_plain($type->title_label),
+      '#required' => TRUE,
+      '#default_value' => $node->title,
+      '#weight' => -5
+    );
+  }
+
+  return $form;
+}
+/**
+ * Implementation of hook_insert()
+ */
+function picasa_photo_insert($node) {
+
+  $file = file_save_upload('upload');
+
+  $feed = "http://picasaweb.google.com/data/feed/api/user/default/albumid/$node->picasa_album";
+  $xml = '<entry xmlns=\'http://www.w3.org/2005/Atom\'><title>plz-to-love-realcat.jpg</title><summary>Real cat wants attention too.</summary><category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/photos/2007#photo"/></entry>';
+
+  $data = "Media multipart posting\r\n";
+  $data .= "--END_OF_PART\r\n";
+
+  $data .= "Content-Type: application/atom+xml\r\n";
+  $data .= "\r\n";
+  $data .= "$xml\r\n";
+  $data .= "--END_OF_PART\r\n";
+  $data .= "Content-Type: $file->filemime\r\n";
+  $data .= "\r\n";
+  $fr = fopen($file->filepath, 'rb');
+  while (!feof($fr)) {
+    $data .= fread($fr, 8192);
+  }
+  $data .= "\r\n";
+  $data .= "--END_OF_PART--";
+
+  $headers['Authorization'] = 'AuthSub token="'. $_SESSION['google_auth_token'] .'"';
+  $headers['Slug'] = $node->title;
+  $headers['Content-Type'] = 'multipart/related; boundary="END_OF_PART"';
+  $node->request = drupal_http_request($feed, $headers, 'POST', $data);
+  file_delete($file->filepath);
+
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function picasa_photo_menu() {
+  $items = array();
+  $items['test'] = array(
+    'title' => 'Picasa Albums',
+    'page callback' => 'picasa_photo_test',
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+function picasa_photo_test() {
+  $xml = '<?xml version="1.0" encoding="UTF-8"?><entry xmlns="http://www.w3.org/2005/Atom" xmlns:exif="http://schemas.google.com/photos/exif/2007" xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#" xmlns:gml="http://www.opengis.net/gml" xmlns:georss="http://www.georss.org/georss" xmlns:batch="http://schemas.google.com/gdata/batch" xmlns:media="http://search.yahoo.com/mrss/" xmlns:gphoto="http://schemas.google.com/photos/2007"><id>http://picasaweb.google.com/data/entry/api/user/cyberswat/albumid/5241204441499747601/photoid/5241204462577479026</id><published>2008-09-01T23:50:08.000Z</published><updated>2008-09-01T23:50:08.000Z</updated><category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/photos/2007#photo"/><title type="text">DSC_0001.JPG</title><summary type="text"/><content type="image/jpeg" src="http://lh4.ggpht.com/_4WXyJYvU0D4/SLx_sIsfbXI/AAAAAAAADlg/Kon0m-NW188/DSC_0001.JPG"/><link rel="http://schemas.google.com/g/2005#feed" type="application/atom+xml" href="http://picasaweb.google.com/data/feed/api/user/cyberswat/albumid/5241204441499747601/photoid/5241204462577479026"/><link rel="alternate" type="text/html" href="http://picasaweb.google.com/lh/photo/nCOC9eN_7P4SQNlLf_k41g"/><link rel="self" type="application/atom+xml" href="http://picasaweb.google.com/data/entry/api/user/cyberswat/albumid/5241204441499747601/photoid/5241204462577479026"/><link rel="edit" type="application/atom+xml" href="http://picasaweb.google.com/data/entry/api/user/cyberswat/albumid/5241204441499747601/photoid/5241204462577479026/1220313008537000?tok=4-z6J2HJaOIBZnow4ERK3YP_PZg"/><link rel="edit-media" type="image/jpeg" href="http://picasaweb.google.com/data/media/api/user/cyberswat/albumid/5241204441499747601/photoid/5241204462577479026/1220313008537000?tok=UySbE1RstZf26f4UehoMDQOSl7c"/><link rel="media-edit" type="image/jpeg" href="http://picasaweb.google.com/data/media/api/user/cyberswat/albumid/5241204441499747601/photoid/5241204462577479026/1220313008537000?tok=UySbE1RstZf26f4UehoMDQOSl7c"/><link rel="http://schemas.google.com/photos/2007#report" type="text/html" href="http://picasaweb.google.com/lh/reportAbuse?uname=cyberswat&amp;aid=5241204441499747601&amp;iid=5241204462577479026"/><gphoto:id>5241204462577479026</gphoto:id><gphoto:version>1220313008537000</gphoto:version><gphoto:albumid>5241204441499747601</gphoto:albumid><gphoto:width>1600</gphoto:width><gphoto:height>1064</gphoto:height><gphoto:size>210306</gphoto:size><gphoto:client>picasa</gphoto:client><gphoto:checksum>644353a8</gphoto:checksum><gphoto:timestamp>1220103247000</gphoto:timestamp><exif:tags><exif:fstop>8.0</exif:fstop><exif:make>NIKON CORPORATION</exif:make><exif:model>NIKON D50</exif:model><exif:exposure>0.0040</exif:exposure><exif:flash>false</exif:flash><exif:focallength>32.0</exif:focallength><exif:time>1220103247000</exif:time><exif:imageUniqueID>b3df173edad642d5fd4a2733bf25b30f</exif:imageUniqueID></exif:tags><gphoto:commentingEnabled>true</gphoto:commentingEnabled><gphoto:commentCount>0</gphoto:commentCount><media:group><media:title type="plain">DSC_0001.JPG</media:title><media:description type="plain"/><media:keywords/><media:content url="http://lh4.ggpht.com/_4WXyJYvU0D4/SLx_sIsfbXI/AAAAAAAADlg/Kon0m-NW188/DSC_0001.JPG" height="1064" width="1600" type="image/jpeg" medium="image"/><media:thumbnail url="http://lh4.ggpht.com/_4WXyJYvU0D4/SLx_sIsfbXI/AAAAAAAADlg/Kon0m-NW188/s72/DSC_0001.JPG" height="48" width="72"/><media:thumbnail url="http://lh4.ggpht.com/_4WXyJYvU0D4/SLx_sIsfbXI/AAAAAAAADlg/Kon0m-NW188/s144/DSC_0001.JPG" height="96" width="144"/><media:thumbnail url="http://lh4.ggpht.com/_4WXyJYvU0D4/SLx_sIsfbXI/AAAAAAAADlg/Kon0m-NW188/s288/DSC_0001.JPG" height="192" width="288"/><media:credit>Kevin Bridges</media:credit></media:group></entry>';
+  $data = (object)picasa_album_parse($xml);
+  print '<pre>';
+  print_r($data);
+  print '</pre>';
+  exit();
+  return 'hai';
+}

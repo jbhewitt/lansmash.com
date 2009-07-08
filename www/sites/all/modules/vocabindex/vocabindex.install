@@ -1,0 +1,85 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Installation and uninstallation functions for Vocabulary Index.
+ */
+
+/**
+ * Implementation of hook_schema().
+ */function vocabindex_schema() {
+  $schema['vocabindex'] = array(
+    'description' => t('The table in which the settings for Vocabulary Index are stored.'),
+    'fields' => array(
+      'viid' => array(
+        'type' => 'serial',
+      ),
+      'type' => array(
+        'type' => 'varchar',
+        'length' => 5,
+        ),
+      'vids' => array(
+        'type' => 'text',
+        'size' => 'medium',
+        ),
+      'enabled' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'default' => 1,
+        ),
+      'module' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        ),
+      'view' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        ),
+      'node_count' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        ),
+      'path' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'default' => '',
+        ),
+      ),
+      'indexes' => array(
+        'vocabindex_viid' => array('viid'),
+      ),
+    );
+  
+  return $schema;
+}
+
+
+/**
+ * Implementation of hook_install().
+ */function vocabindex_install() {  drupal_install_schema('vocabindex');}
+
+/**
+ * Implementation of hook_uninstall().
+ */function vocabindex_uninstall() {
+  vocabindex_delete_variables();
+
+  //Delete DB table.  drupal_uninstall_schema('vocabindex');}
+
+/**
+ * Implementation of hook_enable().
+ */
+function vocabindex_enable() {
+  drupal_set_message(st('Vocabulary Index has been enabled. Please proceed to <a href="!settings">the settings page</a> and <a href="!permissions">set up the permissions</a> to get started.', array('!settings' => url('admin/build/vocabindex/settings'), '!permissions' => url('admin/user/permissions', array('fragment' => 'module-vocabindex')))));
+  if (count(taxonomy_get_vocabularies()) == 0) {
+    drupal_set_message(st('You haven\'t yet got any vocabularies to create index pages for. You can create them at <a href="!link">the Taxonomy page</a>.', array('!link' => url('admin/content/taxonomy'))));
+  }
+}
+
+/**
+ * Delete all Vocabulary Index variables.
+ */
+function vocabindex_delete_variables() {
+  db_query("DELETE FROM {variable} WHERE name LIKE 'vocabindex_%'");
+  cache_clear_all('variables', 'cache');
+}

@@ -1,0 +1,267 @@
+<?php
+// $Id: rsvp_civicrm.module,v 1.1.2.2 2009/03/04 20:09:36 ulf1 Exp $
+
+/**
+ * @module rsvp_civicrm
+ * 
+ * @package rsvp - A drupal module developed for civicspace - a distribution of drupal.
+ * @description Provides functionality to invite people based on your civicrm addressbook
+ * @author Ulf Schenk (ulf@schenkunlimited.net)
+ *
+ */
+
+/**
+ * RSVP CIVICRM PERMISSIONS
+ */
+define('RSVP_PERM_INVITE_CIVICRM',    'rsvp invite by civicrm');
+
+/**
+ * Provides the rsvp civicrm permission information for the drupal system.
+ *
+ * @ingroup rsvp_civicrm
+ */
+function rsvp_civicrm_perm() {
+  return array(RSVP_PERM_INVITE_CIVICRM);
+}
+
+/**
+ * Implementation of hook_menu().
+ *
+ * @ingroup rsvp_civicrm
+ */
+function rsvp_civicrm_menu() {
+
+  $connector = new RsvpConnector();
+  
+  $items = array();
+
+  $items['rsvp/%rsvp/attendees/civicrm/%'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('rsvp_civicrm_add_form', 1, 4),
+    'access callback' => 'rsvp_function_invitation_by_invite_access',
+    'access arguments' => array($connector, 1, NULL, NULL, RSVP_ACCESS_REPLY, RSVP_PERM_INVITE_CIVICRM),
+    'weight' => '2',
+  );
+  
+  return $items;
+}
+
+/**
+ * Adding a list of civicrm adresses as invitees to the $rsvp.
+ *
+ * @param $rsvp The rsvp object you want to add the civicrm adresses to.
+ * @param $roleid int The role ID.
+ *
+ * @ingroup rsvp_civicrm
+ */
+function rsvp_civicrm_add_form(&$form_state, $rsvp, $roleid) {
+
+  if (is_numeric($roleid)) {
+    $guestsarray = rsvp_civicrm_function_list($roleid);
+
+    $connector = new RsvpConnector();
+    
+    $statusarray = rsvp_function_add_guests($rsvp, NULL, $guestsarray, false);
+
+    drupal_set_message('New Guests have been added. Do not forget to send the invitation.');
+    
+    $content .= theme('rsvp_status', $statusarray);
+    drupal_set_message($content);
+  }
+  
+  drupal_goto(rsvp_function_session_parent(NULL, false));
+}
+
+/**
+ * Returns a list with available civicrm that can be added to the invitation.
+ *
+ * @param $rsvp The RSVP object.
+ * @return a list with links to newsletters that could be added to the invitation.
+ *
+ * @ingroup rsvp_civicrm
+ */
+function rsvp_civicrm_linklist($rsvp) {
+
+  $links = array();
+
+//  foreach (user_civicrm(TRUE) as $rid => $role) {
+//    $links[] = l($role, 'rsvp/'. $rsvp->rid .'/attendees/role/'. $rid, array('attributes' => array('title' => t('Add %role members to this invitation', array('%term' => $role)))));
+//  }
+  
+  return $links;  
+}
+
+/**
+ * Implementation of hook_form_alter().
+ * 
+ * weigth of plugins is always 40
+ * 
+ * to append the civicrm choice to the attendee form if the permissions are right.
+ *
+ * @ingroup rsvp_civicrm
+ * 
+ */
+function rsvp_civicrm_form_alter(&$form, $form_state, $form_id) {
+
+//  if ($form_id == 'invite_form' && user_access('send mass invitations') && $form['email']['#description']) {
+//    $form['email']['#description'] = '<a href="#" onclick="showcivicrmABChooser(\'edit-email\', \'/' . drupal_get_path('module', 'civicrm_invite') . '/callback.html\'); return false"><img src="http://www.civicrm.com/images/abc/buttons/add_button.gif" alt="Add from my address book" /></a>&nbsp;&nbsp;OR:&nbsp;' . $form['email']['#description'];
+//  }
+  
+
+  
+  if ($form_id == 'rsvp_add_guests_form') {
+    $rsvp = $form['rsvp_add_guests_form']['rsvp']['#value'];
+	    if ( is_null($rsvp) )
+      return;
+    
+    $connector = new RsvpConnector();
+    if (rsvp_function_invitation_by_invite_access($connector, $rsvp, NULL, NULL, RSVP_ACCESS_REPLY, RSVP_PERM_INVITE_CIVICRM) == true) {
+    
+      $links = rsvp_civicrm_linklist($rsvp);
+      //$title = t('civicrm');
+      
+//      $itemlist = theme('item_list', $links, $title);
+     
+      $form['rsvp']['rsvp_civicrm'] = array(
+        '#weight' => 40,
+        '#value' => '<div class="rsvp_form rsvp_add_guests_form rsvp_color_border rsvp_color_inner">',
+        '#suffix' => '</div>',
+      );
+
+      $form['rsvp']['rsvp_civicrm']['header'] = array(
+        '#value' => t('You may invite persons from civicrm'),
+        '#prefix' => '<div class="rsvp_form_header rsvp_add_guests_form_header rsvp_color_outer">',
+        '#suffix' => '</div>',
+      );
+      
+     
+      $form['rsvp']['rsvp_civicrm']['list'] = array(
+        '#value' => '<a href="#" onclick="showcivicrmABChooser(\'edit-email\', \'/' . drupal_get_path('module', 'rsvp_civicrm') . '/callback.html\'); return false"><img src="http://www.civicrm.com/images/abc/buttons/add_button.gif" alt="Add from my address book" /></a>',
+        '#prefix' => '<div class="rsvp_form_content rsvp_add_guests_form_content rsvp_color_inner">',
+        '#suffix' => '</div>',
+      );
+
+    }
+  }
+  
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+* @ingroup rsvp_civicrm_action
+* 
+* Implementation of hook_action_info()
+*/
+/*
+function rsvp_civicrm_action_info() {
+  
+  return array(
+      'rsvp_civicrm_add_guests_action' => array(
+        'description' => t('RSVP: Add users of a role to invitation'),
+        'type' => 'node',
+        'configurable' => FALSE,
+        'hooks' => array(
+          'any' => TRUE,
+        ),
+      ),
+  );
+}
+*/
+
+/**
+ * A nonconfigurable Drupal action. Adds guests based on a role to an invitation (host permissions) and send the invitation message
+ *   hook = any
+ *
+ *   Required contexts:
+ *    $context['rid'] The invitation id you want to add guests to.
+ *    $context['roleid'] The role id.
+ *    $context['send_rsvp'] Boolean also send the invitations or just add the guests to the invitation.
+ *
+ * @ingroup rsvp_civicrm_actions
+ *
+ *
+ */
+function rsvp_civicrm_add_guests_action(&$object, $context = array()) {
+
+  if ((!isset($context['rid'])) || (!isset($context['roleid'])) || (!isset($context['send_rsvp']))  ) {
+    return false;
+  }
+
+  rsvp_civicrm_api_add_guests($context['rid'], NULL, $context['roleid'], $context['send_rsvp']);
+} 
+
+/**
+ * Adds a number of guests based on role to an invitation(rsvp) and sends out the invitations
+ * 
+ * The function requires the correct user permissions.
+ * 
+ * @ingroup rsvp_civicrm_api
+ * 
+ * @param $rid The Id of the rsvp instance.
+ * @param $hash The hash of the invitation object of the user who adds the invitees, 
+ *        or NULL if the rsvp owner adds the invitees.
+ * @param $roleid The id of the role.
+ * @param $send_rsvp Boolean Also send the invitations or just add the guests to the invitation.
+ */
+function rsvp_civicrm_api_add_guests($rid, $hash, $roleid, $send_rsvp) {
+  
+  $invite = NULL;
+  
+  if(!isnull($rid)) {
+    $rsvp = rsvp_function_load_rsvp($rid);
+    if ($rsvp == false)
+      return false;
+  }
+  
+  if(!isnull($hash)) {
+    $invite = rsvp_function_load_invitation_hash($hash);
+    if ($invite == false)
+      return false;
+  }
+  
+  $connector = new RsvpConnector();
+
+  $perm_add = rsvp_function_invitation_by_invite_access($connector, $rsvp, NULL, NULL, RSVP_ACCESS_EDIT, RSVP_PERM_INVITE_CIVICRM);
+  if ($perm_add == true) {
+    $guestarray = rsvp_civicrm_function_list($nid);
+    rsvp_function_add_invitees($rsvp, $invite, $guestsarray, $send_rsvp);
+    watchdog('action', 'Added invitees from role %roleid to invitation %rsvp_name(%rid) successfully.', array('%rsvp_name' => $rsvp->name, '%rid' => $rsvp->rid, '%roleid' => $roleid)); 
+  }
+}
+
+
+/**
+ * Extracting a list of civicrm.
+ *
+ * The function requires the correct user permissions.
+ *
+ *
+ * @param $roleid int The role ID.
+ * @return array of usernames.
+ *
+ * @ingroup rsvp_civicrm_functions
+ */
+function rsvp_civicrm_function_list($roleid) {
+
+  $guestsarray = array();
+  
+  if (is_numeric($roleid)) {
+    // if the requested role is authenticated, no records will be returned from
+    // normal query
+    if ($roleid == 2) {
+      $query = db_query('SELECT name FROM {users} ORDER BY uid DESC');
+    }
+    else {
+      $query = db_query('SELECT name FROM {users} u INNER JOIN {users_civicrm} ur ON u.uid = ur.uid WHERE ur.rid = %d ORDER BY u.uid DESC', $roleid);
+    }
+    
+    while ($u = db_fetch_object($query)) {
+      $guestsarray[] = $u->name;
+    }
+  }
+  
+  return $guestsarray;  
+}
+

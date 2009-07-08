@@ -1,0 +1,144 @@
+<?php
+// $Id: aggregator_promote.module,v 1.3 2009/02/12 17:45:44 goba Exp $
+
+/**
+ * @file
+ *   Module to promote aggregator items to nodes on admin action. Can be used
+ *   to pick the good from the bad in aggregator feeds and makes nodes out of
+ *   certain human selected ones for reuse on the site (eg. pulication on the
+ *   homepage).
+ */
+
+/**
+ * Implementation of hook_menu().
+ */
+function aggregator_promote_menu() {
+  $items = array();
+  $items['aggregator-promote/%aggregator_promote_item'] = array(
+    'title' => 'Promote item to post',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('aggregator_promote_confirm_form', 1),
+    'access arguments' => array('promote aggregator items to posts')
+  );
+  return $items;
+}
+
+/**
+ * Load an aggregator feed item. Loader function for menu items.
+ *
+ * This should have been in aggregator module, but it is not there.
+ *
+ * @param $iid
+ *   The feed item id.
+ * @return
+ *   An object describing the item, if it exists. Otherwise NULL.
+ */
+function aggregator_promote_item_load($iid) {
+  static $items;
+  if (!isset($items[$iid])) {
+//    $items[$iid] = db_fetch_object(db_query('SELECT * FROM {aggregator_item} WHERE iid = %d', $iid));
+    $items[$iid] = db_fetch_object(db_query('SELECT {aggregator_item}.*, {aggregator_feed}.title AS feed_title FROM {aggregator_item} LEFT JOIN {aggregator_feed} ON {aggregator_item}.fid = {aggregator_feed}.fid WHERE iid = %d', $iid));
+  }
+  return $items[$iid];
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function aggregator_promote_perm() {
+  return array('promote aggregator items to posts');
+}
+
+/**
+ * Implementation of hook_preprocess_aggregator_item().
+ *
+ * Add link at the end of aggregator item displays for users to be able to
+ * promote item to node.
+ */
+function aggregator_promote_preprocess_aggregator_item(&$vars) {
+  if (user_access('promote aggregator items to posts')) {
+    $item = $vars['item'];
+    $vars['content'] .= '<div class="aggregator-promote-link">'. l(t('Promote to a post'), 'aggregator-promote/'. $item->iid) .'</div>';
+  }
+}
+
+/**
+ * Form function to confirm promotion of feed item to node.
+ */
+function aggregator_promote_confirm_form(&$form_state, $item) {
+  return confirm_form(
+    array(
+      'item' => array(
+        '#type' => 'value',
+        '#value' => $item,
+      ),
+    ),
+    t('Are you sure you want to promote the item titled %title to a post?', array('%title' => $item->title)),
+    // @todo: we need to find a way to get back to the same page where the user
+    // clicked to get here; use "destination" arguments instead of a static path.
+    'aggregator',
+    t('The content of the item will be taken and will not be updated later if the feed is updated.'),
+    t('Promote item'),
+    t('Cancel')
+  );
+}
+
+/**
+ * Form submission for the promotion confirm function.
+ *
+ * Promote the selected aggregator item to a node of the type configured
+ * and make it published by default.
+ */
+function aggregator_promote_confirm_form_submit($form, &$form_state) {
+  global $user;
+  
+//	print_r($form_state['values']['item']);
+  $promoted_text = '<br/> [As originally posted on <a href="' .  $form_state['values']['item']->link . '">' . $form_state['values']['item']->feed_title . '</a>]';
+  $node = new stdClass();
+  $node->title = $form_state['values']['item']->title;
+  $node->type = variable_get('aggregator_promote_node_type', 'story');
+  $node->teaser = node_teaser($form_state['values']['item']->description);
+  $node->body =  ltrim ( $form_state['values']['item']->description, count_chars($node->teaser) ) . $promoted_text; 
+//  $node->body =  .'<!--break-->' . $form_state['values']['item']->description ;
+  $node->format = variable_get('filter_default_format', 1);
+  $node->published = 1;
+  $node->comment = 2;
+  $node->promote = variable_get('aggregator_promote_frontpage');
+  $node->uid = $user->uid;
+  node_save($node);
+  
+  drupal_set_message(t('Aggregator item promoted to post.'));
+  $form_state['redirect'] = 'node/'. $node->nid . (variable_get('aggregator_promote_destination', 'edit') ? '/edit' : '');
+}
+
+/**
+ * Alter aggregator settings form to let people pick the node type to use for promotion.
+ */
+function aggregator_promote_form_alter(&$form, $form_state, $form_id) {
+  if ($form_id == 'aggregator_admin_settings') {
+    $form['aggregator_promote'] = array(
+      '#title' => t('Aggregator item promotion settings'),
+      '#type' => 'fieldset',
+      '#weight' => 2,
+    );
+    $form['aggregator_promote']['aggregator_promote_node_type'] = array(
+      '#title' => t('Which content type should aggregator promotion use?'),
+      '#type' => 'radios',
+      '#options' => node_get_types('names'),
+      '#default_value' => variable_get('aggregator_promote_node_type', 'story'),
+    );
+    $form['aggregator_promote']['aggregator_promote_destination'] = array(
+      '#title' => t('Destination when promoting an item'),
+      '#type' => 'radios',
+      '#options' => array('edit' => t('Edit post'), 'view' => t('View post')),
+      '#default_value' => variable_get('aggregator_promote_destination', 'edit'),
+    );
+
+    $form['aggregator_promote']['aggregator_promote_frontpage'] = array(
+      '#title' => t('Determine if post should go to frontpage'),
+      '#type' => 'checkbox',
+      '#default_value' => variable_get('aggregator_promote_frontpage'),
+    );
+    $form['buttons']['#weight'] = 5;
+  }
+}

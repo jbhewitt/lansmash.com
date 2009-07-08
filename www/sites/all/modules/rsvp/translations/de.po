@@ -1,0 +1,1020 @@
+# $Id: de.po,v 1.2 2009/01/11 06:10:28 ulf1 Exp $
+#
+# German translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  rsvp.views.inc,v 1.1 2008/11/30 21:12:07 owahab
+#  rsvp.install,v 1.6.2.4 2008/12/25 22:01:40 ulf1
+#  rsvp.info,v 1.6.2.2 2008/12/06 00:40:21 ulf1
+#  rsvp_dateconnector.info,v 1.1.2.2 2008/12/06 00:40:21 ulf1
+#  rsvp_eventconnector.info,v 1.1.2.2 2008/12/06 00:40:21 ulf1
+#  rsvp.module,v 1.17.2.14 2008/12/30 21:04:48 ulf1
+#  rsvp.theme,v 1.6.2.9 2008/12/30 21:04:48 ulf1
+#  rsvp_dateconnector.module,v 1.1.2.1 2008/12/05 06:56:59 ulf1
+#  rsvp_eventconnector.module,v 1.1.2.1 2008/12/05 06:56:59 ulf1
+#  rsvp_dateconnector.install,v 1.1.2.3 2008/12/29 21:09:35 ulf1
+#  rsvp_eventconnector.install,v 1.1.2.2 2008/12/29 21:09:35 ulf1
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Drupal RSVP V6.x\n"
+"POT-Creation-Date: 2008-12-31 14:29+0100\n"
+"PO-Revision-Date: 2008-12-31 14:35+0100\n"
+"Last-Translator: Frank Tartler <frank.tartler@googlemail.com>\n"
+"Language-Team: Frank Tartler <frank.tartler@googlemail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+"X-Poedit-Language: German\n"
+"X-Poedit-Country: GERMANY\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#: (duplicate) rsvp.views.inc:24;52;55
+#: rsvp.install:442
+#: rsvp.info:0;0
+#: rsvp_dateconnector.info:0
+#: rsvp_eventconnector.info:0
+msgid "RSVP"
+msgstr ""
+
+#: rsvp.views.inc:35
+msgid " Total RSVPs"
+msgstr "RSVPs insgesamt"
+
+#: rsvp.views.inc:36
+msgid "Display total RSVPs for the node."
+msgstr "RSVPs insgeamt für den Beitrag anzeigen"
+
+#: rsvp.views.inc:56
+msgid "Displaying rsvp"
+msgstr "RSVP anzeigen"
+
+#: rsvp.views.inc:72
+msgid "Total Invites"
+msgstr "Einladungen insgesamt"
+
+#: rsvp.views.inc:73
+msgid "Display total invites for all RSVPs on the node."
+msgstr "Einladungen insgesamt für alle RSVPs für den Beitrag anzeigen"
+
+#: rsvp.module:209
+msgid "The RSVP module lets users invite people by email to events and track a list of people who will be attending.    The RSVP module requires either the event module or the date module because it is necessary to specify a content type to invite people to first."
+msgstr "Das RSVP-Modul lässt Benutzer per E-Mail Leute zu Ereignissen einladen und eine Liste der Leute führen, die teilnehmen werden. Das RSVP-Modul benötigt entweder das Event-Modul oder das Date-Modul, weil es zuerst erforderlich ist, einen Inhaltstyp anzugeben, zu dem Leute eingeladen werden."
+
+#: rsvp.module:210
+msgid "The RSVP module also lets users invite users subscribed to newsletters, which requires !simplenews installed, as well as invite other registered users."
+msgstr "Das RSVP-Modul lässt Benutzer auch Benutzer einladen, die Newsletter abonniert haben, was ein installiertes !simplenews erfordert, oder andere registrierte Benutzer einzuladen."
+
+#: rsvp.module:210
+msgid "Simplenews module"
+msgstr "Simplenews-Modul"
+
+#: rsvp.module:211
+msgid "The RSVP page shows an <em>Invitation</em> tab in the content type page and in the users <em>My account</em> page. There are confirmation screens for creating and editing invitations. Email addresses which are input for invitations have input validation.  RSVP also creates an invitation url by hash value access so that invitees can click a URL and be taken directly to their invitation. For each invitation there are view, edit, manage, and send tabs. Users can manage invitees through the \"manage invitees\" tab. Users can also send attendees a message through the send message tab."
+msgstr "Die RSVP-Seite zeigt einen Reiter <em>Einladung</em> auf der Inhaltstyp-Seite und auf der Seite <em>Mein Konto</em>. Es gibt Bestätigungs-Seiten zum Erstellen und Bearbeiten von Einladungen. E-Mail-Adressen, die bei Einladungen eingegeben werden, haben eine Eingabeprüfung. RSVP erstellt auch eine Einladungs-URL mit Hashwert-Zugriff, so dass Eingeladene eine URL anklicken können und direkt zu ihrer Einladung gelangen. Für jede Einladung gibt es Anzeigen-, Bearbeiten-, Verwalten- und Senden-Reiter. Benutzer können im Teilnehmer-Reiter Teilnehmer verwalten. Benutzer können Teilnehmern über den Reiter Nachricht senden auch eine Nachricht senden."
+
+#: rsvp.module:212
+msgid ""
+"<p>You can:</p>\n"
+"<ul>\n"
+"<li>Enable the RSVP module at !admin-modules.</li>\n"
+"<li>Create an invitation by clicking the <strong>Create invitation</strong> link in the Invitation tab when displying your event.</li>\n"
+"<li>View your invitations in your !rsvp-user.</li>\n"
+"<li>View, edit, and invite more people to each invitation.</li>\n"
+"<li>Manage all invitations at !rsvp-content.</li>\n"
+msgstr ""
+"<p>Sie können:</p>\n"
+"<ul>\n"
+"<li>Das RSVP-Modul aktivieren unter !admin-modules.</li>\n"
+"<li>Eine Einladung für ein Ereignis erstellen durch Anklicken des Links <strong>Einladung erstellen</strong> im Reiter Einladung beim Anzeigen des Ereignisses.</li>\n"
+"<li>Ihre Einladungen anzeigen unter !rsvp-manage.</li>\n"
+"<li>Einladungen anzeigen, bearbeiten und weitere Teilnehmer einladen.</li>\n"
+"<li>Alle Einladungen verwalten unter !rsvp-content.</li>\n"
+
+#: rsvp.module:219
+msgid "Administer >> modules"
+msgstr "Verwalten >> Module"
+
+#: rsvp.module:220
+msgid "user profile"
+msgstr "Profil"
+
+#: rsvp.module:221
+msgid "Administer >> Content management >> RSVP management"
+msgstr "Verwalten >> Inhaltsverwaltung >> RSVP-Verwaltung"
+
+#: rsvp.module:223
+msgid "For more information please read the configuration and customization handbook <a href=\"!rsvp\">RSVP page</a>."
+msgstr "Weitere Informationen stehen im Handbuch unter <a href=\"!rsvp\">RSVP</a>."
+
+#: rsvp.module:226
+msgid "Provides rsvp functionality for node types enabled in the rsvp system."
+msgstr "Stellt RSVP-Funktionalität für Inhaltstypen bereit, die im RSVP-System aktiviert sind."
+
+#: rsvp.module:228
+msgid "You can send a message to the attendees of this invitation here."
+msgstr "Hier kann den Teilnehmern dieser Einladung eine Nachricht gesendet werden."
+
+#: rsvp.module:230
+msgid "You can add more persons to the invitation, remove invitees, or view the status of an invitees's invitation here."
+msgstr "Hier können Teilnehmer hinzugefügt oder entfernt sowie der Status der Einladung eines Teilnehmers angezeigt werden."
+
+#: rsvp.module:234
+msgid "You must %login or %register in order to manage your invitations from this site. Otherwise, please use the link provided in your email to reply. If the link does not work, contact the sender of the invitation to see if the event has been deleted."
+msgstr "Sie müssen sich %login oder %register um Ihre Einladungen von dieser Website zu verwalten. Ansonsten kann der Link in der E-Mail für die Antwort verwendet werden. Wenn der Link nicht funktioniert, muss der Absender der Einladung kontaktiert werden um zu sehen, ob das Ereignis gelöscht wurde."
+
+#: rsvp.module:647;654
+msgid "Invitation %rid does not exist."
+msgstr "Einladung %rid existiert nicht."
+
+#: rsvp.module:659
+msgid "Invitation %rid does not belong to Node %node."
+msgstr "Einladung %rid gehört nicht zu Beitrag %node."
+
+#: rsvp.module:742
+msgid "Event"
+msgstr "Ereignis"
+
+#: rsvp.module:744;2418
+msgid "Title"
+msgstr "Titel"
+
+#: rsvp.module:745
+msgid "Owner"
+msgstr "Besitzer"
+
+#: rsvp.module:747
+msgid "Startdate"
+msgstr "Anfangsdatum"
+
+#: rsvp.module:748
+msgid "Inv."
+msgstr "Einl."
+
+#: rsvp.module:749;2173;2538
+msgid "Yes"
+msgstr "Ja"
+
+#: rsvp.module:750;2173;2547;2569;2578
+msgid "No"
+msgstr "Nein"
+
+#: rsvp.module:751;2173;2556
+msgid "Maybe"
+msgstr "Vielleicht"
+
+#: rsvp.module:752
+msgid "No resp."
+msgstr "Keine Antwort"
+
+#: rsvp.module:753;2909;2951
+msgid "Operations"
+msgstr "Vorgänge"
+
+#: rsvp.module:802;445;454
+msgid "View"
+msgstr "Anzeigen"
+
+#: rsvp.module:803;463
+msgid "Edit"
+msgstr "Bearbeiten"
+
+#: rsvp.module:804;472
+msgid "Manage invitees"
+msgstr "Teilnehmer verwalten"
+
+#: rsvp.module:805;409;513
+msgid "Send message"
+msgstr "Nachricht senden"
+
+#: rsvp.module:828;834;1114;1119;1267;1270;1560;1663;1847;2104;2401
+msgid "Home"
+msgstr "Startseite"
+
+#: rsvp.module:859
+msgid "This event has expired. Invitations can only be created for events <br />that have not expired yet."
+msgstr "Dieses Ereigniss ist abgelaufen. Einladungen können nur für Ereignisse gesendet werden <br />die noch nicht abgelaufen sind."
+
+#: rsvp.module:863;435
+msgid "Create invitation"
+msgstr "Einladung erstellen"
+
+#: rsvp.module:868
+msgid "(To create an invitation, select and view an !event, then select tab \"Invitation\" and click on \"Create invitation\")."
+msgstr "(Um eine Einladung zu erstellen muss ein !event ausgewählt und angezeigt, dann der Reiter „Einladung“ ausgewählt und auf „Einladung erstellen“ geklickt werden)."
+
+#: rsvp.module:869
+msgid "event"
+msgstr "Ereignis"
+
+#: rsvp.module:1089;1102;383;391
+msgid "View invitation"
+msgstr "Einladung anzeigen"
+
+#: rsvp.module:1092
+msgid "For event: "
+msgstr "Für Ereignis: "
+
+#: rsvp.module:1092
+msgid "View this node/event"
+msgstr "Diesen Beitrag/Dieses Ereignis anzeigen"
+
+#: rsvp.module:1100
+msgid "Deleted events:"
+msgstr "Gelöschte Ereignisse:"
+
+#: rsvp.module:1260
+msgid "The invitation you are trying to view belongs to a node that has been deleted."
+msgstr "Die Einladung, die Sie versuchen aufzurufen, gehört zu einem Beitrag der gelöscht wurde."
+
+#: rsvp.module:1272
+msgid "Invitation: !name"
+msgstr "Einladung: !name"
+
+#: rsvp.module:1287
+msgid "You can no longer respond to this invitation since the event has expired."
+msgstr "Auf die Einladung kann nicht mehr geantwortet werden, da das Ereignis abgelaufen ist."
+
+#: rsvp.module:1295
+msgid "You may also send the attendees of this invite a !message."
+msgstr "Den Teilnehmern dieser Einladung kann auch eine !message gesendet werden."
+
+#: rsvp.module:1295
+msgid "message"
+msgstr "Nachricht"
+
+#: rsvp.module:1301
+msgid "You may also !add people to this invitation."
+msgstr "Sie können dieser Einladung Leute !add."
+
+#: rsvp.module:1301;3155
+msgid "add"
+msgstr "hinzufügen"
+
+#: rsvp.module:1475
+msgid "No invitation sent"
+msgstr "Keine Einladun gesendet"
+
+#: rsvp.module:1475
+msgid "Send invitation"
+msgstr "Einladung senden"
+
+#: rsvp.module:1475
+msgid "Send invititations to uninvited users"
+msgstr "Einladungen nicht eingeladenen Benutzern senden"
+
+#: rsvp.module:1482
+msgid "ALL "
+msgstr ""
+
+#: rsvp.module:1504
+msgid "No response "
+msgstr "Keine Antwort"
+
+#: rsvp.module:1563
+msgid "Invitee has been sent an invitation."
+msgstr "Dem Eingeladenen wurde eine Einladung gesendet."
+
+#: rsvp.module:1563
+msgid "Invitee has not been sent an invitation."
+msgstr "Dem Eingeladenen wurde keine Einladung gesendet."
+
+#: rsvp.module:1564
+msgid "Invitee has viewed the invitation."
+msgstr "Eingeladener hat die Einladung angesehen."
+
+#: rsvp.module:1564
+msgid "Invitee has not viewed the invitation."
+msgstr "Eingeladener hat die Einladung nicht angesehen."
+
+#: rsvp.module:1566
+msgid "Invitee response: %response"
+msgstr "Eingeladener-Antwort: %response"
+
+#: rsvp.module:1569
+msgid "Invitee will bring a total of %guests guests."
+msgstr "Eingeladener bringt insgesamt %guests Gäste."
+
+#: rsvp.module:1574
+msgid "Invitee comment: %comment"
+msgstr "Eingeladener-Kommentar: %comment"
+
+#: rsvp.module:1578
+msgid "Invitee has been invited by %user"
+msgstr "Teilnehmer wurde eingeladen von %user"
+
+#: rsvp.module:1601
+msgid "The invitation you requested has been deleted."
+msgstr "Die aufgerufene Einladung wurde gelöscht."
+
+#: rsvp.module:1608;2078
+msgid "The invitation you requested belongs to a node that has been deleted."
+msgstr "Die aufgerufene Einladung gehört zu einem Beitrag der gelöscht wurde."
+
+#: rsvp.module:1667
+msgid "You can not add more people because the event has expired."
+msgstr "Dieser Einladung können keine Leute mehr hinzugefügt werden, da das Ereignis abgelaufen ist."
+
+#: rsvp.module:1726
+msgid "People you like to invite"
+msgstr "Leute, die eingeladen werden sollen:"
+
+#: rsvp.module:1731
+msgid "Add Invitees"
+msgstr "Eingeladenen hinzufügen"
+
+#: rsvp.module:1735
+msgid "Enter email addresses or usernames each in a separate line."
+msgstr "E-Mail-Adressen oder Benutzernamen eingeben, eine(r) pro Zeile."
+
+#: rsvp.module:1740;2915;2956
+msgid "Add"
+msgstr "Hinzufügen"
+
+#: rsvp.module:1743
+msgid "Add persons to the list of attendees."
+msgstr "Fügt der Teilnehmerliste Personen hinzu."
+
+#: rsvp.module:1756
+msgid "Attendees list is empty."
+msgstr "Teilnehmerliste ist leer."
+
+#: rsvp.module:1853
+msgid "Are you sure you want to remove invitee "
+msgstr "Soll der folgende Eingeladene wirklich gelöscht werden: "
+
+#: rsvp.module:1855
+msgid "Removing an invitee will delete his responses and remove his access to this invitation!"
+msgstr "Das Entfernen eines Eingeladenen löscht dessen Antworten und entfernt dessen Zugriff auf diese Einladung."
+
+#: rsvp.module:1856
+msgid "Remove Invitee"
+msgstr "Eingeladenen entfernen."
+
+#: rsvp.module:1857;2733;3210
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: rsvp.module:1867
+msgid "Invitee !name has been removed from invitation."
+msgstr "Der Eingeladene !name wurde von dieser Einladung entfernt."
+
+#: rsvp.module:2109
+msgid "Message audience"
+msgstr "Nachrichten-Zielgruppe"
+
+#: rsvp.module:2111
+msgid "Entire guest list"
+msgstr "Vollständige Gäste-Liste"
+
+#: rsvp.module:2111
+msgid "Attending"
+msgstr "Nimmt teil"
+
+#: rsvp.module:2111
+msgid "Not attending"
+msgstr "Nimmt nicht teil"
+
+#: rsvp.module:2111
+msgid "Might attend"
+msgstr "Nimmt möglicherweise teil"
+
+#: rsvp.module:2111
+msgid "No reply"
+msgstr "Keine Antwort"
+
+#: rsvp.module:2115
+msgid "Message Subject"
+msgstr "Nachrichten-Betreff"
+
+#: rsvp.module:2119
+msgid "This is the subject for your email message"
+msgstr "Dies ist der Betreff für die E-Mail-Nachricht"
+
+#: rsvp.module:2123
+msgid "Message Body"
+msgstr "Nachrichten-Textkörper"
+
+#: rsvp.module:2127
+msgid "This is the body of the email message"
+msgstr "Dies ist der Textkörper der E-Mail-Nachricht"
+
+#: rsvp.module:2136
+msgid "Send Message"
+msgstr "Nachricht senden"
+
+#: rsvp.module:2144
+msgid "This invitation contains no attendees."
+msgstr "Diese Einladung enthält keine Eingeladenen."
+
+#: rsvp.module:2183
+msgid "Your Reply"
+msgstr "Ihre Antwort"
+
+#: rsvp.module:2190
+msgid "Your reply has been posted for the host.<br />Click the button below after making changes."
+msgstr "Ihre Antwort wurde an den Gastgeber übermittelt. <br />Klicken Sie nach Änderungen die Schaltfläche unten."
+
+#: rsvp.module:2197
+msgid "Will you attend?"
+msgstr "Nehmen Sie teil?"
+
+#: rsvp.module:2200
+msgid "Select your response to the invitation."
+msgstr "Wählen Sie ihre Antwort auf die Einladung aus."
+
+#: rsvp.module:2208
+msgid "Your comment"
+msgstr "Ihr Kommentar"
+
+#: rsvp.module:2212
+msgid "Add a comment to your response."
+msgstr "Fügen Sie Ihrer Antwort einen Kommentar hinzu."
+
+#: rsvp.module:2216
+msgid "Total Guests (incl. you)"
+msgstr "Gäste insgesamt (inkl. Ihnen)"
+
+#: rsvp.module:2220
+msgid "The number of guests you plan to bring to the event (including yourself)"
+msgstr "Die Anzahl Gäste, die zum Ereignis kommen (einschließlich Sie selbst)"
+
+#: rsvp.module:2228
+msgid "Reply"
+msgstr "Antworten"
+
+#: rsvp.module:2228
+msgid "Change your reply"
+msgstr "Antwort ändern"
+
+#: rsvp.module:2296
+msgid "There was an error creating the invitation. Please try again"
+msgstr "Fehler beim Erstellen der Einladung. Bitte erneut versuchen"
+
+#: rsvp.module:2346
+msgid "Invitation updated."
+msgstr "Einladung aktualisiert."
+
+#: rsvp.module:2350
+msgid "There was an error updating the invitation."
+msgstr "Fehler beim Aktualisieren der Einladung."
+
+#: rsvp.module:2373
+msgid "Create invitation for node \"%title\""
+msgstr "Einladung für Beitrag „%title“ erstellen"
+
+#: rsvp.module:2376
+msgid "Attend"
+msgstr "Teilnehmen"
+
+#: rsvp.module:2377
+msgid "Attend not"
+msgstr "Nicht teilnehmen"
+
+#: rsvp.module:2378
+msgid "Undecided"
+msgstr "unschlüssig"
+
+#: rsvp.module:2379;2529
+msgid "Responses"
+msgstr "Antworten"
+
+#: rsvp.module:2423
+msgid "This is the title of your Invitation. Default is the node title."
+msgstr "Dies ist der Titel der Einladung. Standard ist der Beitragstitel."
+
+#: rsvp.module:2438
+msgid "Event start date"
+msgstr "Ereignis-Startdatum"
+
+#: rsvp.module:2443
+msgid "Field name"
+msgstr "Feldname"
+
+#: rsvp.module:2449
+msgid "Event Start"
+msgstr "Ereignisbeginn"
+
+#: rsvp.module:2453
+msgid "Select one of the available start dates to be used as invitation start date."
+msgstr "Auswahl eines verfügbaren Startdatums, das als Einladungs-Startdatum verwendet werden soll."
+
+#: rsvp.module:2459
+msgid "Message"
+msgstr "Nachricht"
+
+#: rsvp.module:2463
+msgid "This text will be sent to the people you invite."
+msgstr "Dieser Text wird den Leuten gesendet, die eingeladen werden."
+
+#: rsvp.module:2470
+msgid "Moderator"
+msgstr "Moderator"
+
+#: rsvp.module:2475
+msgid "Grant moderator rights to an additional user to manage your invitation."
+msgstr "Moderatoren-Rechte einem zusätzlichen Benutzer gewähren, der diese Einladung verwaltet."
+
+#: rsvp.module:2480
+msgid "Invitation text - view permissions"
+msgstr "Einladungstext - Berechtigungen anzeigen"
+
+#: rsvp.module:2482
+msgid "Select which roles should have permissions to view the invitation besides the invitees."
+msgstr "Auswahl, welche Rolle außer den Eingeladenen die Berechtigung haben sollen, die Einladung anzuzeigen."
+
+#: rsvp.module:2488
+msgid "Guest list options"
+msgstr "Optionen für die Gästeliste"
+
+#: rsvp.module:2491
+msgid "Show guest list"
+msgstr "Gästeliste anzeigen"
+
+#: rsvp.module:2491
+msgid "Hide guest list"
+msgstr "Gästeliste verbergen"
+
+#: rsvp.module:2491
+msgid "Hide guest list until replied"
+msgstr "Gästeliste bis zur Antwort verbergen"
+
+#: rsvp.module:2494
+msgid "Display guest list"
+msgstr "Gästeliste anzeigen"
+
+#: rsvp.module:2497
+msgid "Select when invitees are allowed to see the guest list."
+msgstr "Auswahl, welche Eingeladenen die Gästeliste sehen dürfen."
+
+#: rsvp.module:2500
+msgid "Show invitees and responses"
+msgstr "Eingeladene und Antworten anzeigen"
+
+#: rsvp.module:2500
+msgid "Show invitees but hide their responses until replied"
+msgstr "Eingeladene anzeigen, aber deren Antworten bis zur eigenen Antwort verbergen"
+
+#: rsvp.module:2500
+msgid "Hide invitees"
+msgstr "Eingeladene verbergen"
+
+#: rsvp.module:2503
+msgid "Detail level"
+msgstr "Detailgrad"
+
+#: rsvp.module:2506
+msgid "Select which detail level invitees are allowed to see of the guest list. Field \"Display guest list\" has precedence."
+msgstr "Auswahl, welchem Detailsgrad Eingeladene auf der Gästeliste sehen dürfen. Das Feld „Gästeliste anzeigen“ hat Vorrag."
+
+#: rsvp.module:2521
+msgid "Guest list - view permissions"
+msgstr "Gästeliste - Berechtigungen anzeigen"
+
+#: rsvp.module:2523
+msgid "Select which roles should have permissions to view the guest list besides the invitees."
+msgstr "Auswahl, welche Rollen außer den Eingeladenen die Berechtigung haben sollen, die Gästeliste anzuzeigen"
+
+#: rsvp.module:2534
+msgid "The header text shown for the guest list."
+msgstr "Dies ist der Kopfzeilentext, der für die Gästeliste angezeigt wird."
+
+#: rsvp.module:2543
+msgid "Text shown in the guest list for invitees that will attend."
+msgstr "Dies ist der Text, der auf der Gästeliste für teilnehmende Eingeladene angezeigt wird."
+
+#: rsvp.module:2552
+msgid "Text shown in the guest list for invitees that will not attend."
+msgstr "Dies ist der Text, der auf der Gästeliste für nicht teilnehmende Eingeladene angezeigt wird."
+
+#: rsvp.module:2561
+msgid "Text shown in the guest list for invitees that might attend."
+msgstr "Dies ist der Text, der auf der Gästeliste für möglicherweise teilnehmende Eingeladene angezeigt wird."
+
+#: rsvp.module:2566
+msgid "Invitee options"
+msgstr "Optionen für Eingeladene"
+
+#: rsvp.module:2569;2578
+msgid "Invitees"
+msgstr "Eingeladene"
+
+#: rsvp.module:2569;2578
+msgid "Respondents"
+msgstr "Antworten"
+
+#: rsvp.module:2569;2578;400
+msgid "Attendees"
+msgstr "Teilnehmer"
+
+#: rsvp.module:2572
+msgid "Send messages"
+msgstr "Nachrichten senden"
+
+#: rsvp.module:2575
+msgid "Select which persons are allowed to send messages to other invited people"
+msgstr "Auswahl, welche Personen anderen eingeladenen Leuten Nachrichten senden dürfen"
+
+#: rsvp.module:2581
+msgid "Invite others"
+msgstr "Andere einladen"
+
+#: rsvp.module:2584
+msgid "Select which persons are allowed to invite more people to the event."
+msgstr "Auswahl, welche Personen weitere Leute zum Ereignis einladen dürfen"
+
+#: rsvp.module:2609;2640
+msgid "Submit"
+msgstr "Speichern"
+
+#: rsvp.module:2615;2636;2732;3209
+msgid "Delete"
+msgstr "Löschen"
+
+#: rsvp.module:2647
+msgid "New invitation has been created successfully. Continue adding attendees..."
+msgstr "Neue Einladung wurde erfolgreich erstellt. Es geht weiter mit dem Hinzufügen von Teilnehmern..."
+
+#: rsvp.module:2697
+msgid "Invitation %rid is not a valid type."
+msgstr "Einladung %rid ist kein gültiger Typ."
+
+#: rsvp.module:2729
+msgid "Are you sure you want to delete invitation %name?"
+msgstr "Soll die Einladung %name wirklich gelöscht werden?"
+
+#: rsvp.module:2731;3208
+msgid "This action cannot be undone."
+msgstr "Diese Aktion kann nicht rückgängig gemacht werden."
+
+#: rsvp.module:2746
+msgid "invitation deleted."
+msgstr "Einladung gelöscht."
+
+#: rsvp.module:2749
+msgid "There was an error removing the invitation user records"
+msgstr "Fehler beim Entfernen der Benutzereinträge der Einladung"
+
+#: rsvp.module:2752
+msgid "There was an error removing the invitation"
+msgstr "Fehler beim Entfernen der Einladung"
+
+#: rsvp.module:2905
+msgid "You may invite site users subscribed to newsletters"
+msgstr "Es können Leute eingeladen werden, die Newsletter abonniert haben"
+
+#: rsvp.module:2909
+msgid "Newsletter name"
+msgstr "Newsletter-Name"
+
+#: rsvp.module:2924;2964
+msgid "There are currently no newsletter series."
+msgstr "Es gibt momentan keine Newsletter-Serien."
+
+#: rsvp.module:2947
+msgid "You may invite site users by role"
+msgstr "Es können Website-Benutzer nach Rollen eingeladen werden"
+
+#: rsvp.module:2951
+msgid "Role"
+msgstr "Rolle"
+
+#: rsvp.module:3021
+msgid "Sender information"
+msgstr "Absender-Information"
+
+#: rsvp.module:3023
+msgid "Default sender address that will be used for sending every email by rsvp."
+msgstr "Standard-Absenderadresse, die für alle von RSVP gesendeten E-Mails verwendet wird."
+
+#: rsvp.module:3028
+msgid "Pick which email address to use for emails"
+msgstr "Auswahl, welche E-Mail-Adresse für E-Mails verwendet wird."
+
+#: rsvp.module:3030
+msgid "The sites default address (ignore email address below)"
+msgstr "Die Website-Standard-Adresse (E-Mail-Adresse unten ignorieren)"
+
+#: rsvp.module:3030
+msgid "Use the email address below"
+msgstr "E-Mail-Adresse unten verwenden"
+
+#: rsvp.module:3030
+msgid "Use the email address of user initiating the email (ignore email address below)"
+msgstr "E-Mail-Adresse des E-Mail-Erstellers verwenden (E-Mail-Adresse unten ignorieren)"
+
+#: rsvp.module:3035
+msgid "From email address"
+msgstr "Absender-E-Mail-Adresse"
+
+#: rsvp.module:3044;3292
+msgid "Save"
+msgstr "Speichern"
+
+#: rsvp.module:3055
+msgid "The sender's email address you supplied is not valid."
+msgstr "Die angegebene Absender-E-Mail-Adresse ist nicht gültig."
+
+#: rsvp.module:3089;3139
+msgid "Content type"
+msgstr "Inhaltstyp"
+
+#: rsvp.module:3089
+msgid "Field"
+msgstr "Feld"
+
+#: rsvp.module:3089;3139
+msgid "Description"
+msgstr "Beschreibung"
+
+#: rsvp.module:3089;3139
+msgid "Operation"
+msgstr "Operation"
+
+#: rsvp.module:3100
+msgid "delete"
+msgstr "löschen"
+
+#: rsvp.module:3109;3164
+msgid "No associations available."
+msgstr "Keine Verknüpfungen verfügbar."
+
+#: rsvp.module:3202
+msgid "Note: All invitations using this content type will be lost."
+msgstr "Hinweis: Alle Einladungen, die diesen Inhaltstyp verwenden, gehen verloren."
+
+#: rsvp.module:3206
+msgid "Are you sure you want to delete the association of the RSVP module with %type?"
+msgstr "Soll die Verknüpfung von %type mit dem RSVP-Modul wirklich gelöscht werden?"
+
+#: rsvp.module:3227
+msgid "Association with content type %type and field %field has been removed."
+msgstr "Verknüpfung mit Inhaltstyp %type und Feld %field wurde entfernt."
+
+#: rsvp.module:3261
+msgid "Association for content type %type has been added."
+msgstr "Verknüpfung für Inhaltstyp %type wurde hinzugefügt."
+
+#: rsvp.module:3276
+msgid "For content type"
+msgstr "Für Inhaltstyp"
+
+#: rsvp.module:3283
+msgid "Event start field"
+msgstr "Ereignisbeginn-Feld"
+
+#: rsvp.module:3287
+msgid "%contenttype field to be used as rsvp start date."
+msgstr "%contenttype-Feld, das als RSVP-Startdatum verwendet werden soll."
+
+#: rsvp.module:3312
+msgid "Association with content type %type and field %field has been added."
+msgstr "Verknüpfung mit Inhaltstyp %type und Feld %field wurde hinzugefügt."
+
+#: rsvp.module:4102
+msgid "The invitation you requested is invalid."
+msgstr "Die aufgerufene Einladung ist ungültig."
+
+#: rsvp.module:4122
+msgid "The RSVP you requested is invalid."
+msgstr "Die angeforderte RSVP ist ungültig."
+
+#: rsvp.module:273
+msgid "RSVP settings"
+msgstr "RSVP-Einstellungen"
+
+#: rsvp.module:275
+msgid "Set up RSVP related options."
+msgstr "RSVP-bezogene Optionen einstellen"
+
+#: rsvp.module:279;289
+msgid "Configure general RSVP settings."
+msgstr "Allgemeine RSVP-Einstellungen konfigurieren."
+
+#: rsvp.module:283
+msgid "General"
+msgstr "Allgemein"
+
+#: rsvp.module:293
+msgid "Associations"
+msgstr "Verknüpfungen"
+
+#: rsvp.module:300;311
+msgid "Manage associations with content types that you want to use within invitations."
+msgstr "Verküpfungen mit Inhaltstypen verwalten, die mit Einladungen verwendet werden sollen."
+
+#: rsvp.module:304
+msgid "List associations"
+msgstr "Verküpfungen auflisten"
+
+#: rsvp.module:315
+msgid "Add association"
+msgstr "Verknüpfung hinzufügen"
+
+#: rsvp.module:322
+msgid "Add a association with a content type that you want to use within invitations."
+msgstr "Eine Verknüpfung mit einem Inhaltstyp hinzufügen, der mit Einladungen verwendet werden soll."
+
+#: rsvp.module:326
+msgid "Select field for association"
+msgstr "Feld für Verknüpfung auswählen"
+
+#: rsvp.module:335
+msgid "Delete association"
+msgstr "Verknüpfung löschen"
+
+#: rsvp.module:345
+msgid "RSVP management"
+msgstr "RSVP-Verwaltung"
+
+#: rsvp.module:347;352
+msgid "Manage all invitations."
+msgstr "Alle Einladungen verwalten."
+
+#: rsvp.module:358;426
+#: rsvp.theme:122;147
+msgid "Invitations"
+msgstr "Einladungen"
+
+#: rsvp.module:369
+msgid "Remove attendee from invitation"
+msgstr "Teilnehmer von Einladung entfernen"
+
+#: rsvp.module:376
+msgid "Status of attendee"
+msgstr "Teilnahme-Status"
+
+#: rsvp.module:481
+msgid "Send invitation email"
+msgstr "Einladungs-E-Mail senden"
+
+#: rsvp.module:522
+msgid "Delete invitation"
+msgstr "Einladung löschen"
+
+#: rsvp.module:0
+#: rsvp.theme:0
+msgid "rsvp"
+msgstr ""
+
+#: rsvp_dateconnector.module:0
+msgid "rsvp_dateconnector"
+msgstr ""
+
+#: rsvp_eventconnector.module:0
+msgid "rsvp_eventconnector"
+msgstr ""
+
+#: rsvp.theme:11
+msgid "No invitees found."
+msgstr "Keine Eingeladenen gefunden."
+
+#: rsvp.theme:14
+msgid "The following invitees are invalid:"
+msgstr "Die folgenden Eingeladenen sind ungültig:"
+
+#: rsvp.theme:18
+msgid "The following invitees could not be added, because they already have been added earlier:"
+msgstr " uDie folgenden Empfänger konnten nicht hinzugefügt werden, weil sie bereits hinzugefügt wurden:"
+
+#: rsvp.theme:22
+msgid "Failed adding these invitees:"
+msgstr "Fehler beim Hinzufügen dieser Eingeladenen:"
+
+#: rsvp.theme:26
+msgid "Failed sending email to these invitees:"
+msgstr "Fehler beim Versand der E-Mail an diese Eingeladenen:"
+
+#: rsvp.theme:30
+msgid "Successfully added these invitees:"
+msgstr "Eingeladene erfolgreich hinzugefügt:"
+
+#: rsvp.theme:34
+msgid "Successfully sent email to these invitees:"
+msgstr "E-Mail erfolgreich an diese Eingeladenen gesendet:"
+
+#: rsvp.theme:47
+msgid "Please sign-in to display eventually more details about other invitees."
+msgstr "Melden Sie sich bitte an, um eventuell weitere Details über andere Eingeladenen anzuzeigen."
+
+#: rsvp.theme:71
+msgid "Dear !name!"
+msgstr "Hallo !name!"
+
+#: rsvp.theme:82
+msgid "!name has invited you to \"%title\""
+msgstr "!name hat Sie eingeladen zu „%title“"
+
+#: rsvp.theme:101;132
+msgid "Invitation - "
+msgstr "Einladung - "
+
+#: rsvp.theme:114;141
+msgid "Hello !uname!"
+msgstr "Hallo !uname!"
+
+#: rsvp.theme:115
+msgid "You have been invited by !sender at !site."
+msgstr "Sie wurden von !sender auf !site eingeladen."
+
+#: rsvp.theme:116;144
+msgid "You can view the full invitation, reply if you want to join or not, and add a comment by following this link: "
+msgstr "Sie können die vollständige Einladung anzeigen, antworten ob Sie teilnehmen oder nicht oder einen Kommentar hinzufügen, indem Sie diesem Link folgen: "
+
+#: rsvp.theme:119
+msgid "You can view the event by following this link: "
+msgstr "Sie können das Ereignis anzeigen, indem Sie diesem Link folgen: "
+
+#: rsvp.theme:122;147
+msgid "You also can visit the inviation by going to "
+msgstr "Sie können auch die Einladung hier aufrufen: "
+
+#: rsvp.theme:122;147
+msgid "My account"
+msgstr "Mein Konto"
+
+#: rsvp.theme:123;148
+msgid "Please do not reply to this email."
+msgstr "Bitte dieser E-Mail nicht antworten"
+
+#: rsvp.theme:124;149
+msgid "***************************************************"
+msgstr "***************************************************"
+
+#: rsvp.theme:142
+msgid "!sender at !site has sent you a message."
+msgstr "!sender auf !site hat Ihnen eine Nachricht gesendet."
+
+#: rsvp.theme:182
+msgid "GUEST LIST"
+msgstr "GÄSTELISTE"
+
+#: rsvp.theme:228
+msgid "As of "
+msgstr "Ab "
+
+#: rsvp.theme:326
+msgid "The profile of the user that has been invited."
+msgstr "Das Profil der Benutzers, der eingeladen wurde."
+
+#: rsvp.theme:330
+msgid "Edit invitation"
+msgstr "Einladung bearbeiten"
+
+#: rsvp.theme:333
+msgid "View status of invitation"
+msgstr "Status der Einladung anzeigen"
+
+#: rsvp.theme:336
+msgid "Remove attendee from invitation list"
+msgstr "Eingeladenen von der Einladungsliste entfernen"
+
+#: rsvp.theme:357
+msgid "=Invited by an attendee."
+msgstr "=von einem Teilnehmer eingeladen."
+
+#: rsvp.install:11
+msgid "RSVP contents"
+msgstr "RSVP-Inhalte"
+
+#: rsvp.install:153
+msgid "RSVP invitation status"
+msgstr "RSVP-Einladungsstatus"
+
+#: (duplicate) rsvp.install:442
+msgid "The RSVP module requires that at least one rsvp connector module is enabled."
+msgstr "Das RSVP-Modul erfordert, das mindestens ein RSVP-Connector-Modul aktiviert ist."
+
+#: (duplicate) rsvp.install:446
+msgid "RSVP requirements"
+msgstr "RSVP-Anforderungen"
+
+#: rsvp_dateconnector.install:45
+msgid "RSVP date connector: It is not permitted to enable multiple RSVP connectors. RSVP connector %conn already enabled. Disable and uninstall other connector first. Then enable this connector again."
+msgstr "RSVP date connector: Es ist nicht erlaubt, mehrere RSVP-Konnektoren zu aktivieren: RSVP-Konnektor %conn ist bereits aktiviert. Der andere Konnektor muss zuerst deaktiviert und deinstalliert werden. Dann kann dieser Konnektor wieder aktiviert werden."
+
+#: rsvp_eventconnector.install:41
+msgid "RSVP event connector: It is not permitted to enable multiple RSVP connectors. RSVP connector %conn already enabled. Disable and uninstall other connector first. Then enable this connector again."
+msgstr "RSVP event connector: Es ist nicht erlaubt, mehrere RSVP-Konnektoren zu aktivieren: RSVP-Konnektor %conn ist bereits aktiviert. Der andere Konnektor muss zuerst deaktiviert und deinstalliert werden. Dann kann dieser Konnektor wieder aktiviert werden."
+
+#: rsvp.info:0
+msgid "Provides rsvp functionality."
+msgstr "Stellt RSVP-Funktionalität zur Verfügung."
+
+#: rsvp_dateconnector.info:0
+msgid "RSVP date connector"
+msgstr "RSVP-Date-Connectpr"
+
+#: rsvp_dateconnector.info:0
+msgid "Provides rsvp functionality for node types with a defined CCK date field."
+msgstr "Stellt RSVP-Funktionalität für Beitragstypen zur Verfügung, die ein CCK-Date-Feld definiert haben."
+
+#: rsvp_eventconnector.info:0
+msgid "RSVP event connector"
+msgstr "RSVP-Eventg-Connector"
+
+#: rsvp_eventconnector.info:0
+msgid "Provides rsvp functionality for node type 'event' as declared by the Event module."
+msgstr "Stellt RSVP-Funktionalität für den Beitragstyp ‚Event‘ zur Verfügung, wie vom Event-Modul deklariert."
+

@@ -1,0 +1,14 @@
+; $Id: picasa.info,v 1.4.2.3 2008/10/20 13:07:42 cyberswat Exp $
+name = Picasa
+description = "Together, Picasa & Picasa Web Albums make it easy for you to organize and edit your digital photos, then create online albums to share with friends, family & the world."
+core = 6.x
+package = Picasa
+php = 5.1
+
+
+; Information added by drupal.org packaging script on 2008-11-13
+version = "6.x-1.x-dev"
+core = "6.x"
+project = "picasa"
+datestamp = "1226535007"
+

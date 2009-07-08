@@ -1,0 +1,245 @@
+/* $Id: default.css,v 1.2.2.4 2009/03/04 20:09:36 ulf1 Exp $ */
+
+
+.rsvp_color_border {
+}
+
+.rsvp_color_outer {
+}
+
+.rsvp_color_inner {
+}
+
+.rsvp_guestlist_form {
+}
+
+
+.rsvp_guestlist_header {
+}
+
+.rsvp_guestlist_header_print {
+}
+
+.rsvp_guestlist_header_left {
+}	
+
+.rsvp_guestlist_whoiscoming {
+}
+
+.rsvp_guestlist_footer {
+}
+
+.rsvp_guestlist_footer_sort {
+  font-weight: normal;	
+  float: left;
+}
+
+.rsvp_guestlist_footer_show {
+  font-weight: normal;	
+  float: right;
+}
+
+.rsvp_guestlist_footer_viral {
+  font-weight: normal;	
+  clear: both;
+  height: 20px;
+  padding: 5px;
+}
+
+.rsvp_guestlist_footer_opensignup {
+  font-weight: normal;	
+  clear: both;
+  height: 20px;
+  padding: 5px;
+}
+
+.rsvp_guestlist_answer_block_header {
+  border-width: 1px;
+  border-style: solid;
+  height: 25px;
+  padding: 5px;
+  margin-top: 30px;
+}
+
+.rsvp_guestlist_answer_block_header_no {
+  background-color: #FF3300;
+}
+
+.rsvp_guestlist_answer_block_header_yes {
+  background-color: #339933;
+}
+
+.rsvp_guestlist_answer_block_header_maybe {
+/*  background-color: #9999FF;*/
+  background-color: #058EF6;
+}
+
+.rsvp_guestlist_answer_block_header_none {
+  background-color: #F2ECFA;
+}
+
+.rsvp_guestlist_answer_block_header_notsend {
+  background-color: #F2ECFA;
+  
+}
+
+
+.rsvp_guestlist_answer_block_header_flag {
+  float: left;
+  height: 100%;
+  width: 30px;
+}
+
+.rsvp_guestlist_answer_block_header_text {
+  float: left;
+  height: 100%;
+}
+
+.rsvp_invitation_view {
+}
+
+/*contains rsvp_invitation (the invitation message) */
+.rsvp_invitation_view_top {
+  padding: 10px;
+}
+
+/*contains rsvp_invitation_view_bottom_left and rsvp_invitation_view_bottom_right */
+.rsvp_invitation_view_bottom {
+  overflow: hidden;
+  width: 100%;
+
+}
+
+/*contains rsvp_guestlist */
+.rsvp_invitation_view_bottom_left {
+  float: left;
+  width: 50%;
+}
+
+/*contains rsvp_reply_form (the reply box)*/
+.rsvp_invitation_view_bottom_right {
+  float: right;
+  width: 50%;
+}
+
+.rsvp_invitation {
+}
+
+.rsvp_invitation_salutation {
+  font-size: large;
+}
+
+.rsvp_invitation_introduction {
+  font-size: large;
+}
+
+.rsvp_invitation_header {
+  padding: 20px;
+}
+
+.rsvp_invitation_message {
+
+}
+
+.rsvp_invitation_image {
+  padding: 5px;
+  float: right;
+}
+
+/* rsvp_reply_form* elements that are specific to the reply box*/
+.rsvp_reply_form {
+  float: right;
+  width: 320px;
+}
+
+#rsvp-reply-form {
+  float: right;
+}
+
+.rsvp_reply_form_header {
+}
+
+.rsvp_reply_form_content {
+}
+
+
+/* rsvp_add_guests* elements that are specific to the add_guests form*/
+.rsvp_add_guests_form {
+  float: right;
+  width: 300px;
+}
+
+#rsvp-add-guests-form {
+  float: right;
+}
+
+.rsvp_add_guests_form_content {
+}
+
+.rsvp_add_guests_form_header {
+  line-height: 15px;
+}
+
+.rsvp_clear {
+  clear: both;
+}
+
+
+
+/* The following styles are generic types for blocks of content inclusive border for
+   boxes like the guestlist, reply, addguest...*/
+.rsvp_form {
+  border-width: 10px;
+  border-style: solid;
+}
+
+.rsvp_form_header {
+  overflow: hidden;
+  font-weight: bold;
+  padding: 5px;
+}
+
+.rsvp_form_header_right {
+  float: right;
+  font-weight: normal;  
+}
+
+.rsvp_form_header_left {
+  float: left;
+  width: 70%;  
+  font-weight: bold;  
+} 
+
+.rsvp_form_content {
+  margin: 10px;
+}
+
+.rsvp_form_footer {
+  overflow: hidden;
+  font-weight: normal;  
+  height: 20px;
+  padding: 5px;
+
+}
+
+.rsvp_form fieldset {
+  margin-left: 10px;
+  margin-right:10px;
+
+}
+
+.rsvp_form legend {
+}
+
+
+.rsvp_guestlist_block {
+  margin-bottom: 20px;
+}
+
+.rsvp_guestlist_block_header_left {
+  float: left;
+  font-weight: bold;	
+}
+
+.rsvp_guestlist_block_whoiscoming {
+}

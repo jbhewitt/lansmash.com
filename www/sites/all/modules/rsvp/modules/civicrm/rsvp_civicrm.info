@@ -1,0 +1,14 @@
+; $Id: rsvp_civicrm.info,v 1.1 2009/02/05 02:37:38 ulf1 Exp $
+name = RSVP civiCRM plugin
+description = Provides functionality to invite people from CiviCRM.
+package = RSVP
+dependencies[] = rsvp
+dependencies[] = civicrm
+core = 6.x
+
+; Information added by drupal.org packaging script on 2009-06-02
+version = "6.x-2.0-rc2"
+core = "6.x"
+project = "rsvp"
+datestamp = "1243960343"
+

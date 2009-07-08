@@ -1,0 +1,127 @@
+<?php
+// $Id: picasa_album.install,v 1.1.2.5 2008/11/12 17:32:34 cyberswat Exp $
+
+/**
+ * @file
+ *
+ * The picasa.install file
+ *
+ * Installs the {picasa_album} table
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+  function picasa_album_install() {
+    drupal_install_schema('picasa_album');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function picasa_album_schema() {
+/*
+ CREATE TABLE IF NOT EXISTS `picasa_album` (
+  `id` varchar(255) NOT NULL,
+  `nid` int(11) NOT NULL,
+  `published` int(11) NOT NULL,
+  `updated` int(11) NOT NULL,
+  `summary` longtext NOT NULL,
+  `author_name` varchar(255) NOT NULL,
+  `author_uri` varchar(255) NOT NULL,
+  `category_scheme` varchar(255) NOT NULL,
+  `category_term` varchar(255) NOT NULL,
+  PRIMARY KEY  (`nid`,`id`),
+  KEY `nid` (`nid`),
+  KEY `id` (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+*/
+  $schema['picasa_album'] = array(
+    'description' => t('Stores picasa album information.'),
+    'fields' => array(
+      'id' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'description' => t('The ID of the current element.')
+      ),
+      'nid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => t('The primary identifier for a node.')
+      ),
+      'published' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'description' => t('Published timestamp.'),
+      ),
+      'updated' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'description' => t('Updated timestamp.'),
+      ),
+      'summary' => array(
+          'type' => 'text',
+          'not null' => TRUE,
+          'description' => t('Album summary.'),
+          'size' => 'big'
+      ),
+      'subtitle' => array(
+          'description' => t('Album subtitle.'),
+          'type' => 'varchar',
+          'length' => 32,
+          'not null' => FALSE,
+      ),
+      'icon' => array(
+          'description' => t('Album subtitle.'),
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+      ),
+      'author_name' => array(
+          'description' => t('Album author name.'),
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => TRUE,
+      ),
+      'author_uri' => array(
+          'description' => t('Album author uri.'),
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => TRUE,
+      ),
+      'generator' => array(
+          'description' => t('Album author uri.'),
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+      ),
+      'generator' => array(
+          'description' => t('Album author uri.'),
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+      ),
+      'category_scheme' => array(
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+      ),
+      'category_term' => array(
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('nid', 'id'),
+    'indexes' => array('nid' => array('nid'), 'id' => array('id')),
+  );
+  return $schema;
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function picasa_album_uninstall() {
+    drupal_uninstall_schema('picasa_album');
+}

@@ -1,0 +1,65 @@
+<?php
+/**
+ * $Id: rsvp.theme,v 1.9 2009/02/05 02:25:44 ulf1 Exp $
+ 
+ * @addtogroup themeable
+ *
+ */
+
+function theme_rsvp_status($status = NULL) {
+  if(count($status) == 0) {
+    $content .= '<div class="title">'. t('No guests found.') .'</div>';
+  }
+  if(count($status['invalid'])) {
+    $content .= '<div class="title">'. t('The following guests are invalid:') .'</div>';
+    $content .= theme('item_list', $status['invalid']);
+  }
+  if(count($status['existing'])) {
+    $content .= '<div class="title">'. t('The following guests could not be added, because they have been added earlier:') .'</div>';
+    $content .= theme('item_list', $status['existing']);
+  }
+  if(count($status['failed_remove'])) {
+    $content .= '<div class="title">'. t('Failed removing these guests:') .'</div>';
+    $content .= theme('item_list', $status['failed_remove']);
+  }
+  if(count($status['failed_add'])) {
+    $content .= '<div class="title">'. t('Failed adding these guests:') .'</div>';
+    $content .= theme('item_list', $status['failed_add']);
+  }
+  if(count($status['failed_send_message'])) {
+    $content .= '<div class="title">'. t('Failed sending message to these guests:') .'</div>';
+    $content .= theme('item_list', $status['failed_send_message']);
+  }
+  if(count($status['failed_send_invitation'])) {
+    $content .= '<div class="title">'. t('Failed sending invitation to these guests:') .'</div>';
+    $content .= theme('item_list', $status['failed_send_invitation']);
+  }
+  if(count($status['success_remove'])) {
+    $content .= '<div class="title">'. t('Successfully removed these guests:') .'</div>';
+    $content .= theme('item_list', $status['success_remove']);
+  }
+  if(count($status['success_add'])) {
+    $content .= '<div class="title">'. t('Successfully added these guests:') .'</div>';
+    $content .= theme('item_list', $status['success_add']);
+  }
+  if(count($status['success_send_message'])) {
+    $content .= '<div class="title">'. t('Successfully sent message to these guests:') .'</div>';
+    $content .= theme('item_list', $status['success_send_message']);
+  }
+  if(count($status['success_send_invitation'])) {
+    $content .= '<div class="title">'. t('Successfully sent invitation to these guests:') .'</div>';
+    $content .= theme('item_list', $status['success_send_invitation']);
+  }
+  return '<div class="rsvpmailstatus">'. $content .'</div>';
+}
+
+function theme_rsvp_help($content = NULL) {
+  return '<div id="help">'. $content .'</div>';
+}
+
+
+
+
+
+ /** @} End of addtogroup themeable */
+

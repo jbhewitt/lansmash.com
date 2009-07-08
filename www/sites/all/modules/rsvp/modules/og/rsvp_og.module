@@ -1,0 +1,277 @@
+<?php
+// $Id: rsvp_og.module,v 1.1.2.2 2009/03/04 20:09:37 ulf1 Exp $
+
+/**
+ * @module rsvp_og
+ * 
+ * @package rsvp - A drupal module developed for civicspace - a distribution of drupal.
+ * @description Provides functionality to invite people that are part of og buddylists
+ * @author Ulf Schenk (ulf@schenkunlimited.net)
+ *
+ */
+
+/**
+ * RSVP OG PERMISSIONS
+ */
+define('RSVP_PERM_INVITE_OG',  'rsvp invite og');
+
+/**
+ * Provides the rsvp og permission information for the drupal system.
+ *
+ * @ingroup rsvp_og
+ */
+function rsvp_og_perm() {
+  return array(RSVP_PERM_INVITE_OG);
+}
+
+/**
+ * Implementation of hook_menu().
+ *
+ * @ingroup rsvp_og
+ */
+function rsvp_og_menu() {
+
+  $connector = new RsvpConnector();
+  
+  $items = array();
+
+  $items['rsvp/%rsvp/attendees/og/%'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('rsvp_og_add_form', 1, 4),
+    'access callback' => 'rsvp_function_invitation_by_invite_access',
+    'access arguments' => array($connector, 1, NULL, NULL, RSVP_ACCESS_REPLY, RSVP_PERM_INVITE_OG),
+    'weight' => '2',
+  );
+
+  return $items;
+}
+
+/**
+ * Adding a list of og buddylist members as invitees to the $rsvp.
+ *
+ * @param $rsvp The rsvp object you want to add the buddylist members to.
+ * @param $bid int The buddylist ID.
+ *
+ * @ingroup rsvp_og
+ */
+function rsvp_og_add_form(&$form_state, $rsvp, $bid) {
+
+  if (is_numeric($bid)) {
+    $guestsarray = rsvp_og_function_list($bid);
+    
+    $connector = new RsvpConnector();
+    
+    $statusarray = rsvp_function_add_guests($rsvp, NULL, $guestsarray, false);
+    
+    if (count($statusarray['success_add']) > 0)
+      drupal_set_message('New Guests have been added. Do not forget to send the invitation.');
+ 
+    $content .= theme('rsvp_status', $statusarray);
+    drupal_set_message($content);
+    
+  }
+  
+  drupal_goto(rsvp_function_session_parent(NULL, false));
+    
+}
+
+/**
+ * Returns a list with available buddylists that can be added to the invitation.
+ *
+ * @param $rsvp The RSVP object.
+ * @return a list with links to buddylists that can be added to the invitation.
+ *
+ * @ingroup rsvp_og
+ */
+function rsvp_og_linklist($rsvp) {
+
+  $links = array();
+  
+  if (module_exists('og')) {
+    if (user_is_anonymous())
+      return $links;
+      
+    global $user;	
+  	
+    if ( in_array('site_administrator', array($user->roles))) {
+      $my_groups = og_all_groups_options();
+
+    }
+    else {
+      $groups = og_get_subscriptions($user->uid);
+      foreach ($groups as $key => $val)
+        $my_groups[$key] = $val['title'];
+    }
+    
+    foreach ($my_groups as $gid => $name) {
+      $links[] = l($name, 'rsvp/'. $rsvp->rid .'/attendees/og/'. $gid, array('attributes' => array('title' => t('Add %term members to this invitation', array('%term' => $name)))));
+    }
+    
+  }
+  
+  return $links;  
+}
+
+/**
+ * Implementation of hook_form_alter().
+ * 
+ * weigth of plugins is always 40
+ * 
+ * to append the og choice to the attendee form if the permissions are right.
+ * 
+ * @ingroup rsvp_og
+ * 
+ */
+function rsvp_og_form_alter(&$form, $form_state, $form_id) {
+
+  
+  
+  if ($form_id == 'rsvp_add_guests_form') {
+    $rsvp = $form['rsvp_add_guests_form']['rsvp']['#value'];
+	  if ( is_null($rsvp) )
+      return;
+    
+    $connector = new RsvpConnector();
+    if (rsvp_function_invitation_by_invite_access($connector, $rsvp, NULL, NULL, RSVP_ACCESS_REPLY, RSVP_PERM_INVITE_OG) == true) {
+    
+      $links = rsvp_og_linklist($rsvp);
+      //$title = t('Groups');
+      
+      $itemlist = theme('item_list', $links, $title);
+     
+      $form['rsvp']['rsvp_og'] = array(
+        '#weight' => 40,
+        '#value' => '<div class="rsvp_form rsvp_add_guests_form rsvp_color_border rsvp_color_inner">',
+        '#suffix' => '</div>',
+      );
+
+      $form['rsvp']['rsvp_og']['header'] = array(
+        '#value' => t('You may invite members of the following groups'),
+        '#prefix' => '<div class="rsvp_form_header rsvp_add_guests_form_header rsvp_color_outer">',
+        '#suffix' => '</div>',
+      );
+      
+      
+      $form['rsvp']['rsvp_og']['list'] = array(
+        '#value' => $itemlist,
+        '#prefix' => '<div class="rsvp_form_content rsvp_add_guests_form_content rsvp_color_inner">',
+        '#suffix' => '</div>',
+      );
+      
+      
+    }
+  }
+  
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+* @ingroup rsvp_og_action
+* 
+* Implementation of hook_action_info()
+*/
+/*
+function rsvp_og_action_info() {
+  
+  return array(
+      'rsvp_og_add_guests_action' => array(
+        'description' => t('RSVP: Add OrganicGroup group members to invitation'),
+        'type' => 'node',
+        'configurable' => FALSE,
+        'hooks' => array(
+          'any' => TRUE,
+        ),
+      ),
+  );
+}
+*/
+
+/**
+ * A nonconfigurable Drupal action. Adds guests based on og buddylist to an invitation (host permissions) and send the invitation message
+ *   hook = any
+ *
+ *   Required contexts:
+ *    $context['rid'] The invitation id you want to add guests to.
+ *    $context['bid'] The Buddylist id.
+ *    $context['send_rsvp'] Boolean also send the invitations or just add the guests to the invitation.
+ *
+ * @ingroup rsvp_og_actions
+ * 
+ */
+function rsvp_og_add_guests_action(&$object, $context = array()) {
+
+  if ((!isset($context['rid'])) || (!isset($context['bid'])) || (!isset($context['send_rsvp']))  ) {
+    return false;
+  }
+
+  rsvp_og_api_add_guests($context['rid'], NULL, $context['bid'], $context['send_rsvp']);
+} 
+
+/**
+ * Adds a number of guests based on og buddylist to an invitation(rsvp) and sends out the invitations
+ * 
+ * The function requires the correct user permissions.
+ * 
+ * @ingroup rsvp_og_api
+ * 
+ * @param $rid The Id of the rsvp instance.
+ * @param $hash The hash of the invitation object of the user who adds the invitees, 
+ *        or NULL if the rsvp owner adds the invitees.
+ * @param $bid The id of the buddylist.
+ * @param $send_rsvp Boolean Also send the invitations or just add the guests to the invitation.
+ */
+function rsvp_og_api_add_guests($rid, $hash, $bid, $send_rsvp) {
+  
+  $invite = NULL;
+  
+  if(!isnull($rid)) {
+    $rsvp = rsvp_function_load_rsvp($rid);
+    if ($rsvp == false)
+      return false;
+  }
+  
+  if(!isnull($hash)) {
+    $invite = rsvp_function_load_invitation_hash($hash);
+    if ($invite == false)
+      return false;
+  }
+  
+  $connector = new RsvpConnector();
+
+  $perm_add = rsvp_function_invitation_by_invite_access($connector, $rsvp, NULL, NULL, RSVP_ACCESS_EDIT, RSVP_PERM_INVITE_OG);
+  if ($perm_add == true) {
+    $guestarray = rsvp_og_function_list($nid);
+    rsvp_function_add_invitees($rsvp, $invite, $guestsarray, $send_rsvp);
+    watchdog('action', 'Added invitees from OG buddylist %bid to invitation %rsvp_name(%rid) successfully.', array('%rsvp_name' => $rsvp->name, '%rid' => $rsvp->rid, '%bid' => $bid)); 
+  }
+}
+
+
+/**
+ * Extracting a list of og subscribers.
+ *
+ * The function requires the correct user permissions.
+ *
+ *
+ * @param $gid int The Buddylist ID.
+ * @return array of useremails.
+ *
+ * @ingroup rsvp_og_functions
+ */
+function rsvp_og_function_list($gid) {
+
+  $guestsarray = array();
+  
+  if (is_numeric($gid)) {
+    $guestsarray = array();
+    $query = db_query('SELECT u.name FROM {users} u, {og_uid} ogu WHERE u.uid = ogu.uid AND ogu.nid = %d',$gid);
+    while ($u = db_fetch_object($query)) {
+      $guestsarray[] = $u->name;
+    }
+  }
+  
+  return $guestsarray;  
+}
+

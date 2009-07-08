@@ -1,0 +1,62 @@
+<?php
+// $Id: rsvp_dateconnector.install,v 1.2.2.2 2009/03/09 21:51:54 ulf1 Exp $
+
+/**
+ * Implementation of hook_install().
+ */
+function rsvp_dateconnector_install() {
+
+  // check the rsvp module weight:
+  $rsvp_weight = db_result(db_query("SELECT weight FROM {system} WHERE name = 'rsvp'"));
+  // make rsvp_dateconnector execute after rsvp:
+  db_query("UPDATE {system} SET weight = %d+1 WHERE name = 'rsvp_dateconnector'", $rsvp_weight);
+
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function rsvp_dateconnector_uninstall() {
+
+  if (drupal_get_schema('rsvp') != false)	
+    db_query('DELETE FROM {rsvp}');
+    
+  if (drupal_get_schema('rsvp_invite') != false) 
+    db_query('DELETE FROM {rsvp_invite}');
+
+  variable_del(RSVP_VAR_CONTENT_TYPES); 
+  
+  $connector = variable_get(RSVP_VAR_CONNECTOR, NULL);
+  //This disable func is being called preventive even if other modules are being modified.
+  //Delete variable only if we set it.
+  if (isset($connector) && $connector == 'date' ) { 
+  variable_del(RSVP_VAR_CONNECTOR);
+  }
+  
+}
+
+/**
+ * Implementation of hook_enable().
+ */
+function rsvp_dateconnector_enable() {
+  
+  $connector = variable_get(RSVP_VAR_CONNECTOR, NULL);
+  if (isset($connector) && $connector != 'date' ) { 
+    drupal_set_message(t('RSVP date connector: It is not permitted to enable multiple RSVP connectors. \'RSVP %conn connector\' already enabled. Disable and uninstall \'RSVP %conn connector\' first. Then enable RSVP date connector again.', array('%conn' => $connector)), 'error');
+  }
+  else {
+    variable_set(RSVP_VAR_CONNECTOR, 'date');
+  }
+}
+
+/**
+ * Implementation of hook_disable().
+ */
+function rsvp_dateconnector_disable() {
+  $connector = variable_get(RSVP_VAR_CONNECTOR, NULL);
+  //This disable func is being called preventive even if other modules are being modified.
+  //Delete variable only if we set it.
+  if (isset($connector) && $connector == 'date' ) {	
+	variable_del(RSVP_VAR_CONNECTOR);
+  }
+}

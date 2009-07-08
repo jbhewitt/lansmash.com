@@ -1,0 +1,41 @@
+<?php
+// $Id: gravatar.test,v 1.1.2.1 2008/12/15 19:22:22 davereid Exp $
+
+/**
+ * @file
+ * Unit tests for the gravatar module.
+ */
+
+/**
+ * Test basic functionality.
+ */
+class GravatarTestCase extends DrupalWebTestCase {
+  function getInfo() {
+    return array(
+      'name' => t('Gravatar functionality'),
+      'description' => t('Test basic Gravatar functionality.'),
+      'group' => t('Gravatar'),
+    );
+  }
+
+  function setUp() {
+    parent::setUp('gravatar');
+  }
+}
+
+/**
+ * Test administration functionality.
+ */
+class GravatarAdminTestCase extends DrupalWebTestCase {
+  function getInfo() {
+    return array(
+      'name' => t('Gravatar administration'),
+      'description' => t('Test Gravatar administration.'),
+      'group' => t('Gravatar'),
+    );
+  }
+
+  function setUp() {
+    parent::setUp('gravatar');
+  }
+}

@@ -1,0 +1,15 @@
+; $Id: rsvp_dateconnector.info,v 1.2 2009/01/11 07:59:39 ulf1 Exp $
+name = RSVP date connector
+description = Provides rsvp functionality for node types with a defined CCK date field.
+package = RSVP
+dependencies[] = rsvp
+dependencies[] = date
+core = 6.x
+
+
+; Information added by drupal.org packaging script on 2009-06-02
+version = "6.x-2.0-rc2"
+core = "6.x"
+project = "rsvp"
+datestamp = "1243960343"
+

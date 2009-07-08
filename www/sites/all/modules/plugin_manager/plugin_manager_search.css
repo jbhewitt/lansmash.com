@@ -1,0 +1,19 @@
+#queue {width:100%;}
+
+.pmsearch {width:100%;}
+
+#showall, #showmodules, #showthemes {
+    border: 2px solid lightgrey;
+    padding: 2px 6px;
+}
+
+#showall.selected, #showmodules.selected, #showthemes.selected {
+    border: 2px solid black;
+}
+
+a.showletter {
+    font-size: 1.1em;
+    padding:2px;
+}
+
+#edit-submit {float:right;}

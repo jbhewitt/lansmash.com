@@ -1,0 +1,14 @@
+; $Id: signup_status_notifications.info,v 1.1 2009/01/30 18:40:47 miglius Exp $
+name = Signup status notifications
+description = Subscribe users to notifications when they signup to a node.
+dependencies[] = signup_status
+dependencies[] = notifications
+core = 6.x
+
+
+; Information added by drupal.org packaging script on 2009-05-12
+version = "6.x-1.x-dev"
+core = "6.x"
+project = "signup_status"
+datestamp = "1242087451"
+

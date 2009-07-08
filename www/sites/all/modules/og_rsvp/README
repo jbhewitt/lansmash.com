@@ -1,0 +1,22 @@
+Organic groups RSVP
+
+Implements RSVP module at the group level. When creating an event you can choose a group the event belongs to. For each group that you select OG RSVP will add those group members to the attendee list, send an e-mail notification (not on by default), and allow group members to confirm their attendance status at any time.
+
+If you remove a member from a group, that member will be removed from all future events for that group.  If you add a member to a group, that member will be added to all future events for that group and receive e-mail notifications for each event. New group members will not have to go searching for upcoming events that they did not originally receive the e-mail on.
+
+E-mail notification can be customized on the OG RSVP settings page.
+
+OG RSVP also has Views 2.x functionality. Create lists for pending events for the logged in user, etc...
+
+
+Questions
+
+1. Why is the attendance status form right smack in the middle of the node?
+
+This was a design decision that I had not originally anticpated. I had first created the module to use a local task called 'RSVP', but this was not user-friendly enough for the audience.
+
+2. Is this a fork of RSVP?
+
+I took a look at RSVP in July 2008, and thought about porting it to Drupal 6, but did not have enough time allotted to undertake a project of that size. So I designed and implemented a rsvp module for events integrated with Organic groups per specification.
+
+OG RSVP will not develop into a duplicate RSVP module. It will only be maintained as a module bridging the audience of an event node with a rsvp system. Adding specific users, e-mail addresses, or roles is outside the scope of this module.

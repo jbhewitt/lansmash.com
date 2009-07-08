@@ -1,0 +1,15 @@
+<?php
+
+function subdomain_install() {
+  variable_set('subdomain_base_domain', $_SERVER['HTTP_HOST']);
+}
+
+function subdomain_uninstall() {
+  variable_del('subdomain_base_domain');
+}
+
+function subdomain_update_6001() {
+  variable_del('subdomain_base_domain');
+  drupal_set_message('Updated Subdomain: cleaned up Subdomain.module variables');
+  return array();
+}

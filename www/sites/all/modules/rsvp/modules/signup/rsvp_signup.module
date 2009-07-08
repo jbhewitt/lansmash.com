@@ -1,0 +1,77 @@
+<?php
+// $Id: rsvp_signup.module,v 1.1.2.1 2009/03/11 06:18:47 ulf1 Exp $
+
+/**
+ * @module rsvp_signup
+ * 
+ * @package rsvp - A drupal module developed for civicspace - a distribution of drupal.
+ * @description Provides functionality to automatically register attendees with signup module.
+ * @author Ulf Schenk (ulf@schenkunlimited.net)
+ *
+ */
+
+
+
+
+/**
+ * Implementation of hook_form_alter().
+ * 
+ * weigth of plugins is always 40
+ * 
+ * to append the additional signup submit method to the reply form.
+ *
+ * @ingroup rsvp_signup
+ * 
+ */
+function rsvp_signup_form_alter(&$form, $form_state, $form_id) {
+  
+  if ($form_id == 'rsvp_reply_form') {
+
+  	
+  	$form['submit']['#submit'][] = 'rsvp_signup_form_submit';
+  }
+  
+}
+
+
+function rsvp_signup_form_submit($form, &$form_state) {
+
+  $reply = $form_state['values']['reply_invite_reply'];
+  $rsvp = $form_state['values']['rsvp'];
+  $invite_target = $form_state['values']['invite_target'];
+
+  // Signup module integration; if a valid user (real or anonymous),
+  // is confirming his/her attendance, and has not already signed up
+  // for this event, sign him/her up for it.
+  if ($reply == RSVP_ATT_YES && module_exists('signup')) {
+    include_once('./'. drupal_get_path('module', 'signup') . '/includes/no_views.inc');
+  	if ( $invite_target->uid > 0 ) {
+
+      // Sign up the registered user.
+      $signups = signup_list_user_signups($invite_target->uid);
+      if (!in_array($rsvp->nid, array_keys($signups))) {
+        $edit['uid'] = $invite_target->uid;
+        $edit['nid'] = $rsvp->nid;
+        $edit['signup_form_data'] = array();
+        signup_sign_up_user($edit);
+      }
+    }
+    else {
+      include_once('./'. drupal_get_path('module', 'signup') . '/includes/signup_form.inc');
+      // Sign up the unregistered user.
+      if (signup_validate_anon_email($rsvp->nid, $invite_target->email)) {
+        $signup_form = array(
+          'nid' => $rsvp->nid,
+          'uid' => NULL,
+          'signup_anon_mail' => $invite_target->email,
+          'signup_form_data' => array(),
+        );
+        signup_sign_up_user($signup_form);
+      }
+    }
+  }
+
+}
+
+
+

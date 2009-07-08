@@ -1,0 +1,71 @@
+/* $Id: picasa_album_gmap.css,v 1.1.2.6 2008/11/09 15:42:57 cyberswat Exp $ */
+
+/**
+* @file
+* The styles associated with the google map widget for selecting geo rss information
+*/
+
+#placelist {
+		width: 500px;
+}
+
+#search {
+		margin-bottom: 5px;
+}
+
+#searchform {
+		width : 100%;
+}
+
+#map {
+		border: 1px solid #979797;
+		height: 350px;
+}
+
+#results {
+		position: absolute;
+		left: 540px;
+}
+
+#searchwell {
+		margin-left: 3px;
+		width : 225px;
+}
+
+#searchwell .unselected {
+		padding-left: 18px;
+		padding-top: 1px;
+		background-image: url("mm_20_red.png");
+		background-repeat: no-repeat;
+		background-position: top left;
+}
+
+.unselected .gs-watermark {
+		display: none;
+}
+
+#searchwell .select {
+		margin-bottom: 1em;
+}
+
+.unselected .select {
+		cursor: pointer;
+		text-decoration: underline;
+		color: #7777cc;
+}
+
+#selected {
+		margin-top: 1em;
+}
+
+#selected .gs-result {
+		margin-bottom: 1em;
+}
+
+#selected .gs-result {
+		padding-left: 30px;
+		padding-top: 3px;
+		background-image: url("icon.png");
+		background-repeat: no-repeat;
+		background-position: top left;
+}

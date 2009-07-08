@@ -1,0 +1,14 @@
+; $Id: picasa_album.info,v 1.2.2.5 2008/11/08 20:44:29 cyberswat Exp $
+name = Album
+description = "Albums are the way Picasa Web Albums groups photos into useful sets. These albums can be public or unlisted, and have their own properties such as a geographic location, a description, or a date."
+core = 6.x
+package = Picasa
+php = 5.1
+dependencies[] = picasa
+dependencies[] = google_auth
+; Information added by drupal.org packaging script on 2008-11-13
+version = "6.x-1.x-dev"
+core = "6.x"
+project = "picasa"
+datestamp = "1226535007"
+

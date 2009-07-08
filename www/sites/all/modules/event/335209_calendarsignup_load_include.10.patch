@@ -1,0 +1,15 @@
+Index: contrib/calendarsignup/calendarsignup.module
+===================================================================
+RCS file: /cvs/drupal-contrib/contributions/modules/event/contrib/calendarsignup/calendarsignup.module,v
+retrieving revision 1.2
+diff -u -p -u -p -r1.2 calendarsignup.module
+--- contrib/calendarsignup/calendarsignup.module	9 Nov 2008 01:58:23 -0000	1.2
++++ contrib/calendarsignup/calendarsignup.module	18 Nov 2008 07:14:09 -0000
+@@ -28,6 +28,7 @@ function calendarsignup_nodeapi(&$node, 
+         watchdog('calendarsignup_nodeapi', $node->nid);
+         if (_signup_needs_output($node)) {
+           // Store the data into the content array, for default display.
++          module_load_include('inc', 'signup', 'includes/signup_form');
+           $node->content['calendarsignup'] = array(
+             '#value' => drupal_get_form('calendarsignup_form_'. $node->nid, $node, 'auth', TRUE),
+             '#weight' => 10,

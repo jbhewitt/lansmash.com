@@ -1,0 +1,10 @@
+; $Id: xbox_gamertag.info,v 1.1.4.1 2008/02/23 18:26:31 pobster Exp $
+name = Xbox Gamertag
+description = Adds your XboxLive Gamertag to your user profile.
+core = 6.x
+; Information added by drupal.org packaging script on 2008-02-23
+version = "6.x-1.1"
+core = "6.x"
+project = "xbox_gamertag"
+datestamp = "1203791710"
+

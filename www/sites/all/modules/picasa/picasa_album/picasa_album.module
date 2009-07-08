@@ -1,0 +1,882 @@
+<?php
+// $Id: picasa_album.module,v 1.1.2.14 2008/11/12 17:32:34 cyberswat Exp $
+
+/**
+ * @file
+ * The picasa album module for picasa web albums and Drupal integration.  This
+ * module Handles creating, editing, updating, deleting and importing album
+ * content from picasa.
+ */
+
+/**
+* Builds the XML string that gets submitted to the Picasa API when inserting and
+* updating an album.
+*
+* @param object $node
+* @param object $existing
+*/
+function _picasa_album_build_entry($node, $existing = NULL) {
+  $xml = "<?xml version='1.0' encoding='UTF-8'?>";
+  $xml .= "<entry xmlns='http://www.w3.org/2005/Atom' ".
+    "xmlns:exif='http://schemas.google.com/photos/exif/2007' ".
+    "xmlns:geo='http://www.w3.org/2003/01/geo/wgs84_pos#' ".
+    "xmlns:gml='http://www.opengis.net/gml' ".
+    "xmlns:georss='http://www.georss.org/georss' ".
+    "xmlns:batch='http://schemas.google.com/gdata/batch' ".
+    "xmlns:media='http://search.yahoo.com/mrss/' ".
+    "xmlns:gphoto='http://schemas.google.com/photos/2007'>";
+  $xml .= "<title type='text'>$node->title</title>";
+  $xml .= "<summary type='text'>$node->summary</summary>";
+  $xml .= "<category scheme='http://schemas.google.com/g/2005#kind' ".
+    "term='http://schemas.google.com/photos/2007#album'></category>";
+
+  // If we are dealing with an update then an existing gphoto:id needs to be
+  // passed in
+  if(!empty($existing)) {
+    $xml .= '<gphoto:id>'. $existing->gphoto['id'] .'</gphoto:id>';
+  }
+
+  if(isset($node->place)) {
+    $xml .= "<gphoto:location>$node->place</gphoto:location>";
+  }
+
+  $xml .= "<gphoto:access>$node->gphoto_access</gphoto:access>";
+  $xml .= "<gphoto:timestamp>".
+    _picasa_time($node->gphoto_timestamp, 'milliseconds') ."</gphoto:timestamp>";
+
+  if ($node->comment == 2) {
+    $commenting_enabled = 'true';
+  }
+  else {
+    $commenting_enabled = 'false';
+  }
+  $xml .= "<gphoto:commentingEnabled>$commenting_enabled</gphoto:commentingEnabled>";
+
+  if (!empty($node->lat) && !empty($node->lng)) {
+      $xml .= "<georss:where><gml:Point><gml:pos>$node->lat $node->lng".
+        "</gml:pos></gml:Point></georss:where>";
+  }
+  $xml .= "</entry>";
+  return $xml;
+}
+
+/**
+* Helper function to insert picasa_album data
+*
+* @param object $node The node the album is attached to.
+* @param object $data The parsed XML response from the Picasa API
+*/
+function _picasa_album_insert_album($node, $data) {
+  $data->updated = strtotime($data->updated);
+  $sql = 'INSERT INTO {picasa_album} (nid, id, updated, published, category_scheme, '.
+    'category_term, summary, author_name, author_uri) VALUES(%d, "%s", %d, %d, '.
+    '"%s", "%s", "%s", "%s", "%s")';
+  db_query($sql, $node->nid, $data->id, $data->updated, $data->published,
+    $data->category['scheme'], $data->category['term'], $data->summary,
+    $data->author['name'], $data->author['uri']);
+}
+
+/**
+* Helper function to insert picasa_georss data
+*
+* @param object $node The node the album is attached to.
+* @param object $data The parsed XML response from the Picasa API
+*/
+function _picasa_album_insert_georss($node, $data) {
+  if (isset($data->georss)) {
+    $sql = 'INSERT INTO {picasa_geo_rss} (nid, id, type, data) VALUES(%d, '.
+        '"%s", "%s", "%s")';
+    foreach ($data->georss as $type => $geo_data) {
+      db_query($sql,  $node->nid, $data->id, $type, serialize($geo_data));
+    }
+  }
+}
+
+/**
+* Helper function to insert picasa_gphoto data
+*
+* @param object $node The node the album is attached to.
+* @param object $data The parsed XML response from the Picasa API
+*/
+function _picasa_album_insert_gphoto($node, $data){
+  $sql = 'INSERT INTO {picasa_gphoto} (nid, id, name, location, access, timestamp, '.
+    'numphotos, numphotosremaining, bytesused, user, nickname, commentingenabled, '.
+    'commentcount ) VALUES (%d, "%s", "%s", "%s", "%s", %d, %d, %d, %d, "%s", "%s", '.
+    '"%s", %d)';
+  db_query($sql, $node->nid, $data->gphoto['id'], $data->gphoto['name'],
+    $data->gphoto['location'], $data->gphoto['access'],
+    _picasa_time($data->gphoto['timestamp'], 'timestamp'), $data->gphoto['numphotos'],
+    $data->gphoto['numphotosremaining'], $data->gphoto['bytesused'], $data->gphoto['user'],
+    $data->gphoto['nickname'], $data->gphoto['commentingenabled'], $data->gphoto['commentcount']
+  );
+}
+
+/**
+* Helper function to insert picasa_link data
+*
+* @param object $node The node the album is attached to.
+* @param object $data The parsed XML response from the Picasa API
+*/
+function _picasa_album_insert_link($node, $data) {
+  $sql = 'INSERT INTO {picasa_link} (nid, id, rel, type, href) VALUES(%d, '.
+    '"%s", "%s", "%s", "%s")';
+  foreach ($data->link as $link) {
+    db_query($sql, $node->nid, $data->id, $link['rel'],
+      $link['type'], $link['href']);
+  }
+}
+
+/**
+* Helper function to insert picasa_media data
+*
+* @param object $node The node the album is attached to.
+* @param object $data The parsed XML response from the Picasa API
+*/
+function _picasa_album_insert_media($node, $data) {
+  $sql_media = 'INSERT INTO {picasa_media} (nid, title, description, keywords, '.
+    'content_url, content_type, content_medium, credit) VALUES(%d, "%s", '.
+    '"%s", "%s", "%s", "%s", "%s", "%s")';
+  $sql_thumbnail = 'INSERT INTO {picasa_thumbnail} (nid, content_url, url, height, '.
+    'width) VALUES (%d, "%s", "%s", %d, %d)';
+  foreach ($data->media as $media) {
+    db_query($sql_media, $node->nid, $media['title'], $media['description'],
+      $media['keywords'], $media['content']['url'], $media['content']['type'],
+      $media['content']['medium'], $media['credit']
+    );
+    foreach ($media['thumbnail'] as $thumbnail) {
+      db_query($sql_thumbnail, $node->nid, $media['content']['url'],
+        $thumbnail['url'], $thumbnail['height'], $thumbnail['width']
+      );
+    }
+  }
+}
+
+/**
+ * Implementation of hook_delete().
+ */
+function picasa_album_delete($node) {
+
+  db_query("DELETE from {picasa_album} WHERE nid = %d", $node->nid);
+  db_query("DELETE from {picasa_link} WHERE nid = %d", $node->nid);
+  db_query("DELETE from {picasa_media} WHERE nid = %d", $node->nid);
+  db_query("DELETE from {picasa_geo_rss} WHERE nid = %d", $node->nid);
+  db_query("DELETE from {picasa_gphoto} WHERE nid = %d", $node->nid);
+  db_query("DELETE from {picasa_thumbnail} WHERE nid = %d", $node->nid);
+
+}
+
+/**
+ * Implementation of hook_form().
+ */
+function picasa_album_form($node) {
+  global $albums;
+  // Require the user to be authenticated with google
+  google_auth_required();
+  if(arg(3) == 'import') {
+    drupal_set_title(t('Import an Existing Picasa Album'));
+    $form['create'] = array(
+      '#value' => l('Create a new Picasa Album', 'node/add/picasa-album'),
+    );
+    $albums = _picasa_album_request();
+    $album_radios = array();
+    foreach ($albums['entry'] as $id => $entry) {
+      $existing = db_fetch_object(db_query("SELECT id FROM {picasa_album} WHERE id LIKE '%%%s'", $id));
+      if (!isset($existing->id)) {
+        $album_radios[$id] = '';
+      }
+      else {
+        unset($albums['entry'][$id]);
+      }
+    }
+    if(count($album_radios) == 0) {
+      drupal_set_message(t('You have no Picasa Albums available for import.'));
+      drupal_goto('node/add/picasa-album');
+    }
+    $form['albums'] = array(
+  '#type' => 'radios',
+  '#options' => $album_radios,
+);
+  }
+  else {
+    drupal_set_title(t('Create a new Picasa Album'));
+    $form['picasa_album'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Picasa Album'),
+      '#weight' => -5,
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
+    );
+    $form['picasa_album']['import'] = array(
+      '#value' => l('Import an existing Picasa Album', 'node/add/picasa-album/import'),
+      '#weight' => -10
+    );
+    $form['picasa_album']['title'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Title'),
+      '#size' => 60,
+      '#required' => TRUE,
+      '#default_value' => $node->title,
+      '#maxlength' => 255,
+    );
+    $form['picasa_album']['summary'] = array(
+      '#type' => 'textarea',
+      '#title' => t('Description'),
+      '#default_value' => $node->summary,
+    );
+    $msg = t("Please enter a location in the 'Place Taken' field and press the 'Search' button.  Click on the search results to set your position on the map.  Once positioned, you can drag the pointer for greater accuracy.");
+    $output = '<div id="edit-where-wrapper" class="form-item"><label for="edit-where">';
+    $output .= t('Place Taken') .': <span id="picasa_place_title"></div></label><div id="searchform"></div><div id="picasa_album_gmap">';
+    $output .= '</div><div id="placelist"><div id="results"><div id="searchwell">'. $msg;
+    $output .= '</div></div><div id="map"></div></div>';
+    $form['picasa_album']['search'] = array(
+      '#value' => $output
+      );
+    $form['picasa_album']['gphoto_timestamp'] = array(
+      '#type' => 'date',
+      '#title' => t('Date'),
+      '#default_value' => _picasa_time($node->gphoto['timestamp'], 'form'),
+      '#required' => TRUE
+    );
+    $form['picasa_album']['gphoto_access'] = array(
+      '#type' => 'radios',
+      '#title' => t('Public'),
+      '#default_value' => variable_get('comment_preview', 1),
+      '#default_value' => $node->gphoto['access'],
+      '#options' => array('public' => t('Public'), 'private' => t('Unlisted')),
+      '#required' => TRUE,
+    );
+
+    $form['picasa_album']['place'] = array('#type' => 'hidden', '#default_value' => $node->gphoto['location'] );
+    // Set default latitude and longitude if they exist on the node use their values.
+    // The following fields are primarily used to interact with the google map on
+    // the entry and edit forms
+    $lat = NULL;
+    $lng = NULL;
+    if (isset($node->geo_rss) && !empty($node->geo_rss)) {
+      $coords = explode(' ', $node->geo_rss['point']);
+      $lat = $coords[0];
+      $lng = $coords[1];
+    }
+    $form['picasa_album']['lat'] = array('#type' => 'hidden', '#default_value' => $lat);
+    $form['picasa_album']['lng'] = array('#type' => 'hidden', '#default_value' => $lng);
+    $form['picasa_album']['request'] = array('#type' => 'hidden');
+    if(!empty($node->title)) {
+      $form['picasa_delete'] = array(
+        '#type' => 'submit',
+        '#value' => t('Delete from Picasa'),
+        '#submit' => array('picasa_album_custom_delete_submit'),
+        '#weight' => 10,
+      );
+      $form['delete'] = array(
+        '#type' => 'submit',
+        '#value' => t('Delete from Drupal'),
+        '#submit' => array('picasa_album_custom_delete_submit'),
+        '#weight' => 9,
+      );
+    }
+  }
+  return $form;
+}
+
+function picasa_album_custom_delete_submit($form, &$form_state) {
+  if($form_state['clicked_button']['#value'] == t('Delete from Picasa')) {
+    $target = 'picasa';
+  }
+  else {
+    $target = 'drupal';
+  }
+  drupal_goto('picasa_album/'. $form_state['values']['nid'] .'/delete/'. $target);
+}
+/**
+ * Implementation of hook_validate().
+ */
+function picasa_album_validate($node, &$form) {
+  if(arg(3) == 'import') {
+    if(empty($node->albums)) {
+      form_set_error('albums', t('Select a Picasa Album to import.'));
+    }
+  }
+}
+
+/**
+ * Implementation of hook_insert()
+ */
+function picasa_album_insert($node) {
+
+  if(empty($node->albums)) {
+    // creating a new album
+
+    $xml = _picasa_album_build_entry($node);
+
+    $feed = "http://picasaweb.google.com/data/feed/api/user/default";
+    $headers['Authorization'] = 'AuthSub token="'. $_SESSION['google_auth_token'] .'"';
+    $headers['Content-Type'] = 'application/atom+xml; charset=UTF-8';
+    $node->request = drupal_http_request($feed, $headers, 'POST', $xml);
+    $request = $node->request;
+    if ($request->code != '201') {
+      form_set_error('', t('Google reported an error.  This album was not created properly') .' '. check_plain($request->error));
+      watchdog('picasa_album', t('Google reported an error. %debug'), array('%debug' => print_r($request, TRUE), WATCHDOG_ERROR));
+    }
+  }
+  else {
+    // Importing an existing album
+
+    $feed = "http://picasaweb.google.com/data/entry/api/user/cyberswat/albumid/$node->albums";
+    $headers['Authorization'] = 'AuthSub token="'. $_SESSION['google_auth_token'] .'"';
+    $headers['Content-Type'] = 'application/atom+xml; charset=UTF-8';
+    $node->request = drupal_http_request($feed, $headers, 'GET');
+  }
+
+  $data = (object)picasa_album_parse($node->request->data);
+
+  // If the album was imported it won't have a $node->title so pull the title
+  // from Google's data and update the node.
+  if(empty($node->title)) {
+    $node->title = $data->title;
+    db_query("UPDATE {node} SET title = '%s' WHERE nid = %d", $node->title, $node->nid);
+    db_query("UPDATE {node_revisions} SET title = '%s' WHERE nid = %d AND vid = %d", $node->title, $node->nid, $node->vid);
+  }
+
+  _picasa_album_insert_album($node, $data);
+  _picasa_album_insert_link($node, $data);
+  _picasa_album_insert_media($node, $data);
+  _picasa_album_insert_georss($node, $data);
+  _picasa_album_insert_gphoto($node, $data);
+
+}
+
+/**
+ * Implementation of hook_load().
+ */
+function picasa_album_load($node) {
+  $picasa_album = db_fetch_object(db_query("SELECT
+  id,
+  published,
+  updated,
+  summary,
+  author_name,
+  author_uri,
+  category_scheme,
+  category_term FROM {picasa_album} WHERE nid = %d", $node->nid));
+
+  $picasa_album->link = array();
+  $result = db_query("SELECT rel, type, href FROM {picasa_link} WHERE nid = %d", $node->nid, $picasa_album->id);
+  while ($link = db_fetch_array($result)) {
+     $picasa_album->link[] = $link;
+  }
+
+  $picasa_album->media = array();
+  $result = db_query("SELECT
+  title,
+  description,
+  keywords,
+  content_url,
+  content_type,
+  content_medium,
+  credit FROM {picasa_media} WHERE nid = %d", $node->nid);
+  while ($media = db_fetch_array($result)) {
+    $thumbnails = db_query("SELECT url, height, width from {picasa_thumbnail} WHERE nid = %d AND content_url = '%s'", $node->nid, $media['content_url']);
+    while ($thumbnail = db_fetch_array($thumbnails)) {
+      $t = array();
+      if(!isset($media['thumbnail'])) {
+        $media['thumbnail'] = array();
+      }
+      $t['url'] = $thumbnail['url'];
+      $t['width'] = $thumbnail['width'];
+      $t['height'] = $thumbnail['height'];
+      $media['thumbnail'][] = $t;
+    }
+    $picasa_album->media[] = $media;
+  }
+
+
+  $picasa_album->geo_rss = array();
+  $result = db_query("SELECT type, data FROM {picasa_geo_rss} WHERE nid = %d AND id = '%s'", $node->nid, $picasa_album->id);
+  while ($geo_rss = db_fetch_array($result)) {
+    $picasa_album->geo_rss[$geo_rss['type']] = unserialize($geo_rss['data']);
+  }
+
+  $picasa_album->gphoto = db_fetch_array(db_query("SELECT commentcount, id, nickname, user, access, bytesused, location, name, numphotos, numphotosremaining, timestamp FROM {picasa_gphoto} WHERE nid = %d", $node->nid));
+  $picasa_album->gphoto['timestamp'] =  $picasa_album->gphoto['timestamp'];
+
+  return $picasa_album;
+}
+
+/**
+ * Implementation of hook_info().
+ */
+function picasa_album_node_info() {
+  return array(
+    'picasa_album' => array(
+      'name' => t('Picasa Album'),
+      'module' => 'picasa_album',
+      'description' => t("Albums are the way Picasa Web Albums groups photos into useful sets. These albums can be public or unlisted, and have their own properties such as a geographic location, a description, or a date."),
+      'has_title' => TRUE,
+      'title_label' => t('Title'),
+      'has_body' => FALSE,
+    )
+  );
+}
+
+/**
+ * Implementation of hook_nodeapi().
+ */
+function picasa_album_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+if ($node->type == 'picasa_album') {
+  switch ($op) {
+    case 'prepare':
+      // add defaults to the node object that need to exist to work with the
+      // node add form
+      if (!isset($node->summary)) {
+        $node->summary = NULL;
+      }
+      if (!isset($node->gphoto_access)) {
+        $node->gphoto_access = NULL;
+      }
+      if (!isset($node->gphoto_location)) {
+        $node->gphoto_location = NULL;
+      }
+      if (!isset($node->link)) {
+        $node->link = array();
+      }
+      break;
+    }
+  }
+}
+
+/**
+* Parse the XML into something Drupal developers are more accustomed to working
+* with
+*
+* @param string $data The xml to parse
+* @return array The parsed XML in array form
+*/
+function picasa_album_parse($data) {
+  require_once drupal_get_path('module', 'picasa') .'/picasa.parse.inc';
+  $albums = array();
+  $xml = new SimpleXMLElement($data);
+  $namespaces = $xml->getNamespaces(true);
+
+  if (isset($xml->id)) {
+    $albums['id'] = (string)$xml->id;
+  }
+  if (isset($xml->updated)) {
+    $albums['updated'] = (string)$xml->updated;
+  }
+  if (isset($xml->published)) {
+    $albums['published'] = (string)$xml->published;
+  }
+  if (isset($xml->category)) {
+    $albums['category'] = _picasa_parse_attributes($xml->category);
+  }
+  if (isset($xml->title)) {
+    $albums['title'] = (string)$xml->title;
+  }
+  if (isset($xml->summary)) {
+    $albums['summary'] = (string)$xml->summary;
+  }
+  if (isset($xml->content)) {
+    $albums['content'] = _picasa_parse_attributes($xml->content);
+  }
+  if (isset($xml->subtitle)) {
+    $albums['subtitle'] = (string)$xml->subtitle;
+  }
+  if (isset($xml->icon)) {
+    $albums['icon'] = (string)$xml->icon;
+  }
+  if (isset($xml->link)) {
+    $albums['link'] = _picasa_parse_link($xml->link);
+  }
+  if (isset($xml->author)) {
+    $albums['author'] = _picasa_parse_author($xml->author);
+  }
+  if (isset($xml->generator)) {
+    $albums['generator'] = _picasa_parse_author($xml->generator);
+  }
+  if (isset($namespaces['openSearch'])) {
+    $albums['open_search'] = _picasa_parse_open_search($xml->children($namespaces['openSearch']));
+  }
+  if (isset($namespaces['media'])) {
+    $albums['media'] = _picasa_parse_media($xml->children($namespaces['media']));
+  }
+  if (isset($namespaces['georss'])) {
+    $albums['georss'] = _picasa_parse_georss($xml->children($namespaces['georss']));
+  }
+  if (isset($namespaces['gphoto'])) {
+    $albums['gphoto'] = _picasa_parse_gphoto($xml->children($namespaces['gphoto']));
+  }
+  if (isset($namespaces['exif'])) {
+    $albums['exif'] = _picasa_parse_exif($xml->children($namespaces['exif']));
+  }
+
+  $e = array();
+  foreach ($xml->entry as $entry) {
+    preg_match('/albumid\/(.*?)$/', $entry->id, $matches );
+    $e[$matches[1]]['id'] = (string)$entry->id;
+    $e[$matches[1]]['published'] = (string)$entry->published;
+    $e[$matches[1]]['updated'] = (string)$entry->updated;
+    $e[$matches[1]]['title'] = (string)$entry->title;
+    $e[$matches[1]]['summary'] = (string)$entry->summary;
+    $e[$matches[1]]['rights'] = (string)$entry->rights[0];
+    $e[$matches[1]]['media'] = _picasa_parse_media($entry->children($namespaces['media']));
+    $e[$matches[1]]['author'] = _picasa_parse_author($entry->author);
+    $e[$matches[1]]['georss'] = _picasa_parse_georss($entry->children('http://www.georss.org/georss'));
+    $e[$matches[1]]['gphoto'] = _picasa_parse_gphoto($entry->children($namespaces['gphoto']));
+  }
+  if(count($e) != 0) {
+    $albums['entry'] = $e;
+  }
+  return $albums;
+}
+
+/**
+* Requests a users albums from the Picasa API
+*/
+function _picasa_album_request() {
+  $feed = "http://picasaweb.google.com/data/feed/api/user/default";
+  $headers['Authorization'] = 'AuthSub token="'. $_SESSION['google_auth_token'] .'"';
+  $request = drupal_http_request($feed, $headers);
+  $albums = picasa_album_parse($request->data);
+  return $albums;
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function picasa_album_theme($existing, $type, $theme, $path) {
+  return array(
+    'picasa_album_node_form' => array(
+      'function' => 'theme_picasa_album_node_form',
+      'arguments' => array('form' => NULL),
+    ),
+    'picasa_album' => array(
+      'template' => 'picasa-album',
+      'arguments' => array('node' => NULL, 'teaser' => FALSE, 'page' => FALSE),
+    ),
+  );
+}
+
+/**
+* Implementation of hook_update()
+*/
+function picasa_album_update($node) {
+  $existing = node_load(array('nid' => $node->nid));
+  foreach ($existing->link as $link) {
+    if ($link['rel'] == 'edit') {
+      $target = $link['href'];
+    }
+  }
+  $xml = _picasa_album_build_entry($node, $existing);
+  $headers['Authorization'] = 'AuthSub token="'. $_SESSION['google_auth_token'] .'"';
+  $headers['Content-Type'] = 'application/atom+xml; charset=UTF-8';
+  $request = drupal_http_request($target, $headers, 'PUT', $xml);
+  $data = (object)picasa_album_parse($request->data);
+  db_query("DELETE from {picasa_album} WHERE nid = %d", $node->nid);
+  _picasa_album_insert_album($node, $data);
+
+  db_query("DELETE from {picasa_link} WHERE nid = %d", $node->nid);
+  _picasa_album_insert_link($node, $data);
+
+  db_query("DELETE from {picasa_media} WHERE nid = %d", $node->nid);
+  db_query("DELETE from {picasa_thumbnail} WHERE nid = %d", $node->nid);
+  _picasa_album_insert_media($node, $data);
+
+  db_query("DELETE from {picasa_geo_rss} WHERE nid = %d", $node->nid);
+  _picasa_album_insert_georss($node, $data);
+
+  db_query("DELETE from {picasa_gphoto} WHERE nid = %d", $node->nid);
+  _picasa_album_insert_gphoto($node, $data);
+
+
+}
+
+/**
+ * Implementation of hook_view().
+ */
+function picasa_album_view($node, $teaser = FALSE, $page = FALSE) {
+  $node = node_prepare($node, $teaser);
+  $node->content['picasa_album'] = array(
+    '#value' => theme('picasa_album', $node, $teaser, $page),
+    '#weight' => 1,
+  );
+
+  return $node;
+}
+/**
+* Process variables for picasa-user.tpl.php.
+*
+* @see picasa-user.tpl.php
+* @see theme_comment_folded()
+*/
+function template_preprocess_picasa_album(&$variables) {
+  $node = $variables['node'];
+  $variables['id'] = check_plain($node->id);
+  $variables['title'] = check_plain($node->title);
+  $variables['updated'] = format_date($node->updated);
+  $variables['subtitle'] = check_plain($node->subtitle);
+  $variables['summary'] = check_plain($node->summary);
+  $variables['icon'] = check_plain($node->icon);
+  $variables['author_name'] = check_plain($node->author_name);
+  $variables['author_uri'] = check_plain($node->author_uri);
+  $variables['generator'] = check_plain($node->generator);
+  $variables['gphoto'] = array();
+  $variables['gphoto']['id'] = check_plain($node->gphoto['id']);
+  $variables['gphoto']['name'] = check_plain($node->gphoto['name']);
+  $variables['gphoto']['location'] = check_plain($node->gphoto['location']);
+  $variables['gphoto']['access'] = check_plain($node->gphoto['access']);
+  $variables['gphoto']['timestamp'] = _picasa_time($node->gphoto['timestamp'], 'display');
+  $variables['gphoto']['numphotos'] = check_plain($node->gphoto['numphotos']);
+  $variables['gphoto']['numphotosremaining'] = check_plain($node->gphoto['numphotosremaining']);
+  $variables['gphoto']['bytesused'] = check_plain($node->gphoto['bytesused']);
+  $variables['gphoto']['user'] = check_plain($node->gphoto['user']);
+  $variables['gphoto']['nickname'] = check_plain($node->gphoto['nickname']);
+  $variables['gphoto']['commentingenabled'] = check_plain($node->gphoto['commentingenabled']);
+  $variables['gphoto']['commentcount'] = check_plain($node->gphoto['commentcount']);
+  $variables['self'] = NULL;
+  $variables['alternate'] = NULL;
+  $variables['feed'] = NULL;
+  if(is_array($node->link)) {
+    foreach ($node->link as $link) {
+      switch($link['rel']) {
+        case 'self':
+          $variables['self'] = check_plain($link['href']);
+          break;
+        case 'alternate':
+          $variables['alternate'] = check_plain($link['href']);
+          break;
+        case 'http://schemas.google.com/g/2005#feed':
+          $variables['feed'] = check_plain($link['href']);
+          break;
+      }
+    }
+  }
+  $variables['thumbnail'] = l(theme('picasa_image', $node->media[0]['thumbnail'][0]), "node/$node->nid", array('html' => TRUE));
+}
+function theme_picasa_album_admin_data($entry) {
+    $published = format_date(strtotime($entry['published']));
+    $updated = format_date(strtotime($entry['updated']));
+    if (strlen(($entry['summary'])) == 0) {
+        $entry['summary'] = t('No summary available');
+    }
+    $header = array(
+        array('data' => $entry['title'], 'style' => 'text-align: center; width: 100%', 'colspan' => 4)
+    );
+
+    $row = array();
+    $row[] = array('data' => t('author:'), 'style' => 'font-weight: bold; text-align: right;');
+    $row[] = array('data' => check_plain($entry['author']['name']));
+    $row[] = array('data' => t('rights:'), 'style' => 'font-weight: bold; text-align: right;');
+    $row[] = array('data' => check_plain($entry['rights']));
+    $rows[] = $row;
+
+    $row = array();
+    $row[] = array('data' => t('published:'), 'style' => 'font-weight: bold; text-align: right;');
+    $row[] = array('data' => $published);
+    $row[] = array('data' => t('updated:'), 'style' => 'font-weight: bold;; text-align: right;');
+    $row[] = array('data' => $updated);
+    $rows[] = $row;
+    $row = array();
+    $row[] = array('data' => t('location:'), 'style' => 'font-weight: bold; text-align: right;');
+    $row[] = array('data' => check_plain($entry['gphoto']['location']));
+    $row[] = array('data' => t('photos:'), 'style' => 'font-weight: bold;; text-align: right;');
+    $row[] = array('data' => check_plain($entry['gphoto']['numphotos']));
+    $rows[] = $row;
+
+    $rows[] = array(array('data' => check_plain($entry['summary']), 'style' => 'width: 100%', 'colspan' => 4));
+
+    $output = theme('table', $header, $rows);
+    return $output;
+}
+
+/**
+ * Themes the node add and edit form.  Primarily adds the necessary JavaScript
+ * and data to display a gui to allow for geotagging and searching of georss
+ * data.
+ * @param array $form (required) Contains the form that is being themed.
+ * @return string The themed form.
+*/
+function theme_picasa_album_node_form(&$form) {
+  global $albums;
+  if(count($albums) == 0) {
+    $albums = _picasa_album_request();
+    foreach ($albums['entry'] as $id => $entry) {
+      $existing = db_fetch_object(db_query("SELECT id FROM {picasa_album} WHERE id LIKE '%%%s'", $id));
+      if (isset($existing->id)) {
+        unset($albums['entry'][$id]);
+      }
+    }
+
+  }
+  $output = '';
+  if(arg(3) != 'import') {
+    drupal_set_html_head("<script src=\"http://www.google.com/jsapi?key=". variable_get('google_ajaxfeeds_key', '') ."\" type=\"text/javascript\"></script>");
+    drupal_add_js(drupal_get_path('module', 'picasa_album') .'/picasa_album_gmap.js');
+    drupal_add_css(drupal_get_path('module', 'picasa_album') .'/picasa_album_gmap.css');
+  }
+  else {
+    $output .= drupal_render($form['create']);
+    $entries = $albums['entry'];
+
+    $header = array(
+        array(),
+        array('data' => t('Thumbnail'), 'style' => 'text-align: center;'),
+        array('data' => t('Album Information'), 'style' => 'text-align: center; width: 100%')
+    );
+
+    $rows = array();
+    foreach ($entries as $k => $entry) {
+        $row = array(
+            drupal_render($form['albums'][$k]),
+            array('data' => theme('picasa_image', $entry['media'][0]['thumbnail'][0])),
+            array('data' => theme('picasa_album_admin_data', $entry), 'style' => 'width: 100%;')
+        );
+
+        $rows[] = $row;
+    }
+
+    $output .= theme('table', $header, $rows);
+
+  }
+  unset($form['buttons']['delete']);
+  unset($form['buttons']['preview']);
+  $output .= drupal_render($form);
+  return $output;
+}
+
+/**
+ * Menu callback -- ask for confirmation of node deletion
+ */
+function picasa_album_delete_confirm(&$form_state, $node) {
+  $form['nid'] = array(
+    '#type' => 'value',
+    '#value' => $node->nid,
+  );
+  if (arg(3) == 'picasa') {
+    $form['delete_type'] = array(
+      '#type' => 'value',
+      '#value' => 'picasa',
+    );
+    $return =  confirm_form($form,
+      t('Are you sure you want to delete %title from %target?', array('%title' => $node->title, '%target' => ucwords(arg(3)))),
+      isset($_GET['destination']) ? $_GET['destination'] : 'node/'. $node->nid,
+      t('This will delete the album and it\'s photos from both Drupal and Picasa.  This action cannot be undone.'),
+      t('Delete from Picasa'),
+      t('Cancel')
+    );
+  }
+  else {
+    $form['delete_type'] = array(
+      '#type' => 'value',
+      '#value' => 'drupal',
+    );
+    $return =  confirm_form($form,
+      t('Are you sure you want to delete %title from %target?', array('%title' => $node->title, '%target' => ucwords(arg(3)))),
+      isset($_GET['destination']) ? $_GET['destination'] : 'node/'. $node->nid,
+      t('This will delete the album and it\'s photos from Drupal.  They will still be available from Picasa.  This action cannot be undone.'),
+      t('Delete from Drupal'),
+      t('Cancel')
+    );
+
+  }
+  return $return;
+}
+
+/**
+ * Execute node deletion
+ */
+function picasa_album_delete_confirm_submit($form, &$form_state) {
+  if ($form_state['values']['confirm']) {
+    if($form_state['values']['delete_type'] == 'picasa') {
+      $node = node_load(array('nid' => $form_state['values']['nid']));
+      foreach ($node->link as $link) {
+        if ($link['rel'] == 'edit') {
+          $href = $link['href'];
+          break;
+        }
+      }
+      $headers['Authorization'] = 'AuthSub token="'. $_SESSION['google_auth_token'] .'"';
+      if (isset($href)) {
+        $request = drupal_http_request($href, $headers, 'DELETE');
+      }
+    }
+    node_delete($form_state['values']['nid']);
+  }
+  $form_state['redirect'] = '<front>';
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function picasa_album_menu() {
+  $items = array();
+  $items['picasa_album/%node/delete/%'] = array(
+    'title' => 'Delete',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('picasa_album_delete_confirm', 1),
+    'access callback' => 'node_access',
+    'access arguments' => array('delete', 1),
+    'weight' => 1,
+    'type' => MENU_CALLBACK);
+  $items['user/%user/picasa'] = array(
+    'title' => 'Picasa Albums',
+    'page callback' => 'picasa_album_overview',
+    'page arguments' => array(1),
+    'access callback' => 'picasa_album_access',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  return $items;
+}
+function picasa_album_access($account) {
+  global $user;
+  $return = FALSE;
+  if(user_access('view picasa data')) {
+    $picasa_album = db_fetch_object(db_query("SELECT count(nid) as count from {node} where uid = %d AND type = '%s'", $account->uid, 'picasa_album'));
+    if(isset($picasa_album->count) && $picasa_album->count > 0) {
+      $return = TRUE;
+    }
+  }
+  return $return;
+}
+function picasa_album_overview($account) {
+  drupal_set_title(t('Albums by @username', array('@username' => $account->name)));
+  $result = pager_query('SELECT n.nid, n.sticky, n.created FROM {node} n WHERE n.type = "%s" AND n.status = 1 AND n.uid = %d ORDER BY n.sticky DESC, n.created DESC', variable_get('default_nodes_main', 10), 0, NULL, 'picasa_album', $account->uid);
+
+  $output = '';
+  $num_rows = FALSE;
+  while ($node = db_fetch_object($result)) {
+    $output .= node_view(node_load($node->nid), 1);
+    $num_rows = TRUE;
+  }
+
+  if ($num_rows) {
+//    $feed_url = url('rss.xml', array('absolute' => TRUE));
+//    drupal_add_feed($feed_url, variable_get('site_name', 'Drupal') .' '. t('RSS'));
+    $output .= theme('pager', NULL, variable_get('default_nodes_main', 10));
+  }
+
+  return $output;
+}
+
+/**
+* Builds an album selection widget for use in forms
+*
+* @param array $form the form being worked on
+*/
+function picasa_album_get_select(&$form) {
+  // Require the user to be authenticated with google
+  google_auth_required();
+  $albums = _picasa_album_request();
+  $options = array();
+  foreach ($albums['entry'] as $id => $entry) {
+    $options[$id] = $entry['title'];
+  }
+  array_multisort($options);
+  $form['picasa_album'] = array(
+  '#type' => 'select',
+  '#title' => t('Picasa Album'),
+  '#options' => $options,
+  '#description' => t('Select a Picasa Album.'),
+);
+}

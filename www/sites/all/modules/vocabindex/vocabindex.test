@@ -1,0 +1,46 @@
+<?php
+// $Id: vocabindex.test,v 1.1.4.2.2.2 2009/02/12 19:36:09 xano Exp $
+
+/**
+ * @file
+ * Tests for Vocabulary Index.
+ */
+
+/**
+ * Hook tests.
+ */
+class VocabindexHookTest extends VocabindexTestCase {
+  function getInfo() {
+    return array(
+      'name' => t('Unit testing'),
+      'description' => t("Test individual functions."),
+      'group' => t('Vocabulary Index'),
+    );
+  }
+
+  /**
+   * Test permissions.
+   */
+  function testPermissions() {
+    $permissions = vocabindex_perm();
+    foreach ($permissions as $permission) {
+      $this->assertTrue(is_string($permission), t('Make sure all permissions are valid strings.'));
+    }
+  }
+
+  /**
+   * Test menu items.
+   */
+  function testMenu() {
+    $items = vocabindex_menu();
+    foreach ($items as $path => $item) {
+      $this->assertTrue(is_string($path), t('Make sure all menu paths are valid strings.'));
+      $this->assertTrue(is_array($item), t('Make sure all menu items are arrays.'));
+      $this->assertTrue(is_string($item['title']), t('Make sure all menu titles are valid strings.'));
+      $this->assertTrue(is_array($item['access arguments']), t('Make sure access arguments is an array.'));
+      if (isset($item['page arguments'])) {
+        $this->assertTrue(is_array($item['page arguments']), t('Make sure page arguments is an array.'));
+      }
+    }
+  }
+}

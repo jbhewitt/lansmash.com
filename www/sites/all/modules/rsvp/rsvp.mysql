@@ -1,0 +1,24 @@
+CREATE TABLE rsvp (
+  rid int(10) unsigned NOT NULL auto_increment,
+  nid int(10) unsigned NOT NULL default '0',
+  uid int(10) unsigned NOT NULL default '0',
+  name varchar(128) default '',
+  invite_text text,
+  blind int(3) unsigned NOT NULL default '0',
+  list_email int(3) unsigned NOT NULL default '0',
+  allow_invite int(3) unsigned NOT NULL default '0',
+  timestamp int(10) unsigned NOT NULL default '0',
+  PRIMARY KEY (rid,uid,nid)
+); 
+
+CREATE TABLE rsvp_invite (
+  response enum('yes','no','maybe','none') NOT NULL default 'none',
+  rid int(10) unsigned NOT NULL default '0',
+  uid int(10) NOT NULL default '0',
+  email varchar(128) NOT NULL default '',
+  hash varchar(255) NOT NULL default '',
+  invited int(10) unsigned NOT NULL default '0',
+  received int(10) unsigned NOT NULL default '0',
+  timestamp int(10) unsigned NOT NULL default '0',
+  PRIMARY KEY (rid,email,uid)
+);

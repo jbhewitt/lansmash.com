@@ -1,0 +1,14 @@
+; $Id: rsvp_signup.info,v 1.1 2009/02/05 02:37:39 ulf1 Exp $
+name = RSVP signup plugin
+description = Provides functionality to automatically register attendees with signup module.
+package = RSVP
+dependencies[] = rsvp
+dependencies[] = signup
+core = 6.x
+
+; Information added by drupal.org packaging script on 2009-06-02
+version = "6.x-2.0-rc2"
+core = "6.x"
+project = "rsvp"
+datestamp = "1243960343"
+

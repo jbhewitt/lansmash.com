@@ -1,0 +1,81 @@
+/* @override http://ls.local/sites/all/modules/author_pane/author_pane.css?0 */
+
+/* $Id: author_pane.css,v 1.1.2.6 2009/03/05 03:27:27 michellec Exp $ */
+
+/* Wrappers */
+.author-pane {
+}
+
+.author-pane-inner {
+}
+
+/* Sections */
+.author-pane-section {
+  margin-bottom: 3px;
+}
+
+.author-pane-name-status {
+}
+
+.author-pane-stats {
+}
+
+.author-pane-admin {
+}
+
+.author-pane-contact {
+}
+
+/* Lines & icons*/
+.author-pane-line {
+  padding-bottom: 1px;
+  font-size: 0.8em;
+}
+
+div.author-pane-line.author-joined {
+}
+
+.author-pane-icon {
+  display: inline;
+  padding: 10px 2px 2px 0;
+}
+
+div.author-pane-line.author-posts {
+	display: none;
+}
+
+/* Fields */
+.author-pane .author-pane-label {
+}
+
+.author-pane-name-status .picture {
+  float: none;
+  padding-left: 0px;
+}
+
+.author-pane-name-status .picture img {
+}
+
+.author-facebook-status {
+}
+
+.author-title {
+}
+
+.author-badges {
+}
+
+.author-joined {
+}
+
+.author-posts {
+}
+
+.author-points {
+}
+
+.author-ip {
+}
+
+.author-fasttoggle-block {
+}

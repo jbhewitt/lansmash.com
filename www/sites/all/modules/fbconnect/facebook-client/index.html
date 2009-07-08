@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="/skin/view/repos.xsl"?>
+<!DOCTYPE svn [
+  <!ELEMENT svn   (index)>
+  <!ATTLIST svn   version CDATA #REQUIRED
+                  href    CDATA #REQUIRED>
+  <!ELEMENT index (updir?, (file | dir)*)>
+  <!ATTLIST index name    CDATA #IMPLIED
+                  path    CDATA #IMPLIED
+                  rev     CDATA #IMPLIED>
+  <!ELEMENT updir EMPTY>
+  <!ELEMENT file  (prop)*>
+  <!ATTLIST file  name    CDATA #REQUIRED
+                  href    CDATA #REQUIRED>
+  <!ELEMENT dir   (prop)*>
+  <!ATTLIST dir   name    CDATA #REQUIRED
+                  href    CDATA #REQUIRED>
+  <!ELEMENT prop  (#PCDATA)>
+  <!ATTLIST prop  name    CDATA #REQUIRED>
+]>
+<svn version="1.1.4 (r13838)"
+     href="http://subversion.tigris.org/">
+  <index rev="1550" path="/platform/clients/packages">
+    <updir />
+    <file name="facebook-platform.tar.gz" href="facebook-platform.tar.gz"></file>
+    <file name="fbconnect-iphone.zip" href="fbconnect-iphone.zip"></file>
+  </index>
+</svn>

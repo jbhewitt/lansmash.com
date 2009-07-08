@@ -1,0 +1,193 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Vocabulary Index is a taxonomy browser with different kinds of views.
+ *
+ * Vocabulary Index allows site administrators to create pages or blocks in
+ * which to display the terms in a certain vocabulary. The administrator may
+ * choose between a variety of views.
+ */
+
+/**
+ * Implementation of hook_perm().
+ */
+function vocabindex_perm() {
+  return array('view vocabulary index', 'administer vocabulary index');
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function vocabindex_menu() {
+  $items['admin/build/vocabindex'] = array(
+    'title' => 'Vocabulary Index',
+    'description' => 'Create vocabulary indexes.',
+    'access arguments' => array('administer vocabulary index'),
+    'page callback' => 'vocabindex_page_vi',
+    'file' => 'vocabindex.admin.inc',
+  );
+  $items['admin/build/vocabindex/vi'] = array(
+    'title' => 'Indexes',
+    'access arguments' => array('administer vocabulary index'),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'file' => 'vocabindex.admin.inc',
+  );
+  $items['admin/build/vocabindex/vi/add-block'] = array(
+    'title' => 'Add block',
+    'access arguments' => array('administer vocabulary index'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('vocabindex_form_vi', NULL, 'block'),
+    'type' => MENU_CALLBACK,
+    'file' => 'vocabindex.admin.inc',
+  );
+  $items['admin/build/vocabindex/vi/add-page'] = array(
+    'title' => 'Add page',
+    'access arguments' => array('administer vocabulary index'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('vocabindex_form_vi', NULL, 'page'),
+    'type' => MENU_CALLBACK,
+    'file' => 'vocabindex.admin.inc',
+  );
+  $items['admin/build/vocabindex/settings'] = array(
+    'title' => 'Settings',
+    'description' => 'General settings.',
+    'access arguments' => array('administer vocabulary index'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('vocabindex_form_settings'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'vocabindex.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implementation of hook_taxonomy().
+ */
+function vocabindex_taxonomy($op, $type, $array) {
+  $vid = $array['vid'];
+
+  if ($type == 'vocabulary') {
+    if ($op == 'delete') {
+      vocabindex_vi_disable($vid);
+    }
+    menu_rebuild();
+  }
+}
+
+function vocabindex_help($path, $arg) {
+  $output = '';
+  switch ($path) {
+    // General help.
+    case 'admin/help#vocabindex':
+      // Module description.
+      $output = '<p>' . t('Vocabulary Index provides several ways to list all terms inside a specified vocabulary. For each vocabulary you may <a href="!url">create a page and/or a block</a> that will view its terms in the way you think suits best.', array('!url' => url('admin/build/vocabindex'))) . '</p>';
+
+      // Character transliteration.
+      $output .= '<h2 id="transliteration">' . t('Character transliteration') . '</h2>';
+      $path = drupal_get_path('module', 'vocabindex');
+      $output .= '<p>' . t('Character transliteration groups terms by the <a href="!wiki_latin_alphabet">modern Latin</a> equivalent of their first letter for the alphabetical view. This way terms like <em>Ångström</em> and <em>Ampère</em> will both be grouped under the letter <em>A</em>, for instance. If you would like to modify the default transliteration file, copy the file to <em>i18n-ascii-custom.txt</em> and use this file instead to override the values from i18n-ascii.txt or to add new values.') . '</p>';
+  }
+
+  return $output;
+}
+
+
+/**
+ * Implementation of hook_vocabindex().
+ */
+function vocabindex_vocabindex() {
+  return array(
+    'general' => array(
+      'title' => t('General settings'),
+      'description' => t('These settings are applied to all views (if applicable).'),
+      'settings' => array(
+        'vocabindex_terms_per_page' => array(
+          '#type' => 'textfield',
+          '#title' => t('Terms per page'),
+          '#description' => t('The amount of terms to display per page for pageable views. Use 0 to disable paging.'),
+          '#default_value' => variable_get('vocabindex_terms_per_page', 25),
+          '#maxlength' => 3,
+          '#size' => 3,
+          '#element_validate' => array('vocabindex_validate_integer'),
+        ),
+      ),
+    ),
+    'alphabetical' => array(
+      'title' => t('Alphabetical'),
+      'description' => t('Browse through terms using an alphabetical pager.'),
+      'page' => TRUE,
+      'block' => FALSE,
+      'file' => 'views/vocabindex.alphabetical.inc',
+      'settings' => array(
+        'vocabindex_transliteration' => array(
+          '#type' => 'checkbox',
+          '#title' => t('Character transliteration'),
+          '#description' => t('Group terms by the <a href="!wiki_latin_alphabet">modern Latin</a> equivalent of their first letter for alphabetical views. <a href="!transliteration_info">More information</a>.', array('!wiki_latin_alphabet' => 'http://en.wikipedia.org/wiki/Latin_alphabet', '!transliteration_info' => url('admin/help/vocabindex', array('fragment' => 'transliteration')))),
+          '#default_value' => variable_get('vocabindex_transliteration', FALSE),
+        ),
+      ),
+    ),
+    'tree' => array(
+      'title' => t('Tree'),
+      'description' => t('Browse through terms using an alphabetical pager.'),
+      'page' => TRUE,
+      'block' => TRUE,
+      'file' => 'views/vocabindex.tree.inc',
+    ),
+  );
+}
+
+/**
+ * Load multiple VIs.
+ *
+ * @param $viids array
+ *   The VIIDs of the VIs to load.
+ * @param $type string
+ *   Either 'block' or 'page'.
+ */
+function vocabindex_vi_load_multiple($viids = array(), $type = NULL) {
+  static $vi_cache = array();
+
+  // Check for already loaded VIs.
+  $passed_viids = array_flip($viids);
+  $vis = array_intersect_key($vi_cache, $passed_viids);
+  // If any VIs were loaded, remove them from the $viids still to load.
+  $viids = array_keys(array_diff_key($passed_viids, $vis));
+
+  // Load the remaining VIs from the database.
+  $where = $params = array();
+  if (!empty($viids)) {
+    $where = array_fill(0, count($viids), 'viid = %d');
+    $params = $viids;
+  }
+  if ($type) {
+    $where[] = "type = '%s'";
+    $params[] = $type;
+  }
+  $where = !empty($where) ? ' WHERE ' . implode(' AND ', $where) : '';
+  $result = db_query("SELECT * FROM {vocabindex}" . $where, $params);
+  $queried_vis = array();
+  while ($vi = db_fetch_object($result)) {
+    $queried_vis[$vi->viid] = $vi;
+  }
+  $vi_cache += $queried_vis;
+
+  return $vis + $queried_vis;
+}
+
+/**
+ * Load a VI.
+ *
+ * @param $viid integer
+ *   The VIID of the VI to load.
+ * @param $type string
+ *   Either 'block' or 'page'.
+ */
+function vocabindex_vi_load($viid = 0, $type = NULL) {
+  $vi = vocabindex_vi_load_multiple(array($viid), $type);
+
+  return $vi ? $vi[$viid] : FALSE;
+}

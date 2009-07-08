@@ -1,0 +1,15 @@
+;$Id: og_forum.info,v 1.1.2.1.2.5.2.1 2008/09/11 07:47:18 paulbooker Exp $
+
+name = OG forum
+description = Creates forums within organic groups.
+
+package = Organic groups
+dependencies[] = forum
+dependencies[] = og
+core = 6.x
+; Information added by drupal.org packaging script on 2009-03-03
+version = "6.x-1.4"
+core = "6.x"
+project = "og_forum"
+datestamp = "1236117053"
+

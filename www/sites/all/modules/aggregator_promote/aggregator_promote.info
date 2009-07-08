@@ -1,0 +1,12 @@
+; $Id: aggregator_promote.info,v 1.2 2009/02/12 12:36:02 goba Exp $
+name = Aggregator item promotion
+description = Makes it possible for priviledged users to handpick aggregator items to promote to posts on the site
+dependencies[] = aggregator
+core = 6.x
+
+; Information added by drupal.org packaging script on 2009-02-13
+version = "6.x-1.x-dev"
+core = "6.x"
+project = "aggregator_promote"
+datestamp = "1234483267"
+

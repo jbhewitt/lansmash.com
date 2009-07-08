@@ -1,0 +1,15 @@
+name = Organic groups RSVP
+description = Extends event functionality by requesting rsvp from an entire group.
+package = "Organic groups"
+dependencies[] = event
+dependencies[] = og
+dependencies[] = event_views
+core = 6.x
+php = 5.x
+
+; Information added by drupal.org packaging script on 2008-12-21
+version = "6.x-1.x-dev"
+core = "6.x"
+project = "og_rsvp"
+datestamp = "1229818780"
+

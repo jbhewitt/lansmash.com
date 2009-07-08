@@ -1,0 +1,167 @@
+/* @override http://ls.local/sites/all/modules/advanced_forum/styles/boxy/advanced_forum.css?1 */
+
+/* $Id: advanced_forum.css,v 1.1.2.1 2008/11/27 03:58:49 michellec Exp $ */
+
+/*
+This file contains colors, graphics, and text effects. For structural markup,
+see advanced_forum-structure.css.
+
+Colors used:
+  #DEDEDE Sticky posts, statistics subheader
+  #CCCCCC Borders, post seperator, avatar frame
+*/
+
+/*** FORUM LINK LISTS ********************************************************/
+td.replies {
+  width:34px;
+  font-size:12px;
+  font-weight:bold;
+  line-height:18px;
+  height:18px;
+}
+
+div.num.num-new-replies {
+	font-weight: normal;
+	font-style: normal;
+}
+
+td.title span.updated-marker {
+	font-weight: bold;
+}
+
+td.replies a {
+	font-size: 10px;
+}
+
+.forum-links li {
+  list-style-image: none;
+  list-style-type: none;
+  background: none;
+}
+
+.forum-links li a {
+  font-weight: bold;
+}
+
+/*** FORUM TABLES ************************************************************/
+.forum-post-wrapper {
+	background: white;
+	color: #484847;
+	border-bottom:1px solid #e6e7e1;
+}
+
+
+
+.forum-post-links {
+}
+
+.comments {
+}
+
+#forum table {
+}
+
+/* Headers */
+#forum th a,
+#forum th a:link,
+#forum th a:hover,
+#forum th a:visited {
+	font-style: normal;
+	font-weight: normal;
+	text-transform: lowercase;
+}
+
+#forum div.forum-top-links ul.links.forum-links li.login.first.last {
+}
+
+/* Containers & Forums */
+#forum td.container a {
+  font-weight: normal;
+	font-style: normal;
+}
+
+#forum .description {
+  font-size: 75%;
+}
+
+/* Topic listings */
+#forum tr{
+	background:#fff;
+}
+
+#forum tr.sticky-topic {
+  background: #e1ebee;
+}
+
+#forum tr:hover{
+	background:#effbef;
+}
+
+#forum td.created,
+#forum td.last-reply {
+}
+
+/*** FORUM STATISTICS *********************************************************/
+
+#forum-statistics-header {
+  font-weight: bold;
+}
+
+.forum-statistics-sub-header {
+  background-color: #DEDEDE;
+  font-weight: bold;
+}
+
+/*** FORUM THREADS ***********************************************************/
+
+.forum-post {
+  border: 2px solid #dbdbdb;
+}
+
+/* Header at the top of each post */
+.post-info {
+	background: #E6E7E1;
+	color: #484847;
+	font: 11px verdana, tahoma, verdana, geneva, lucida, 'lucida grande', arial, helvetica, sans-serif;
+}
+
+.posted-on {
+  font-size: .8em;
+  font-weight: bold;
+}
+
+.post-title {
+  font-weight: bold;
+}
+
+/* Author information pane */
+.author-pane {
+	font: 12px verdana, geneva, lucida, 'lucida grande', arial, helvetica, sans-serif;
+}
+
+.author-pane .author-name {
+font: 14pt "Lucida Grande", Lucida, Verdana, sans-serif;
+}
+
+
+.author-pane .picture img {
+}
+
+.author-pane .author-pane-label {
+  font-weight: bold;
+}
+
+/* Post text area */
+.forum-post-panel-main {
+}
+
+/* Signature */
+.author-signature {
+  font-size: .8em;
+}
+
+/* Post footer */
+.forum-post-footer {
+}
+
+

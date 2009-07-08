@@ -1,0 +1,15 @@
+; $Id: userloginbar.info,v 1.1.2.1 2009/01/17 17:58:12 ebizondrupalservices Exp $
+name = User Login Bar
+description = Module that provides a new straight user login bar block
+package = User Login bar
+version = "6.x-1.x"
+core = "6.x"
+project = "userloginbar"
+
+
+; Information added by drupal.org packaging script on 2009-01-17
+version = "6.x-1.0"
+core = "6.x"
+project = "userloginbar"
+datestamp = "1232216138"
+

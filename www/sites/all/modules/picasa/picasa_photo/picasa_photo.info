@@ -1,0 +1,15 @@
+; $Id: picasa_photo.info,v 1.1.2.4 2008/11/10 18:44:35 cyberswat Exp $
+name = Photo
+description = "An image or picture is an artifact, usually two-dimensional, that has a similar appearance to some subject ... usually a physical object or a person."
+core = 6.x
+package = Picasa
+php = 5.1
+dependencies[] = picasa
+dependencies[] = picasa_album
+dependencies[] = google_auth
+; Information added by drupal.org packaging script on 2008-11-13
+version = "6.x-1.x-dev"
+core = "6.x"
+project = "picasa"
+datestamp = "1226535007"
+

@@ -1,0 +1,349 @@
+<?php
+// $Id: rsvp_friendlist.module,v 1.1.2.2 2009/03/04 20:09:37 ulf1 Exp $
+
+/**
+ * @module rsvp_friendlist
+ * 
+ * @package rsvp - A drupal module developed for civicspace - a distribution of drupal.
+ * @description Provides functionality to invite people that subscribed to friendlist newsletters
+ * @author crunchywelch (welch@advomatic.com)
+ * @author Omar Abdel-Wahab (owahab@gmail.com)
+ * @author Ulf Schenk (ulf@schenkunlimited.net)
+ *
+ */
+
+/**
+ * RSVP FRIENDLIST PERMISSIONS
+ */
+define('RSVP_PERM_INVITE_FRIENDLIST',  'rsvp invite friendlist');
+
+/**
+ * Provides the rsvp friendlist permission information for the drupal system.
+ *
+ * @ingroup rsvp_friendlist
+ */
+function rsvp_friendlist_perm() {
+  return array(RSVP_PERM_INVITE_FRIENDLIST);
+}
+
+/**
+ * Implementation of hook_menu().
+ *
+ * @ingroup rsvp_friendlist
+ */
+function rsvp_friendlist_menu() {
+
+  $connector = new RsvpConnector();
+  
+  $items = array();
+
+  $items['rsvp/%rsvp/attendees/friendlist/%/%'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('rsvp_friendlist_add_form', 1, 4, 5),
+    'access callback' => 'rsvp_function_invitation_by_invite_access',
+    'access arguments' => array($connector, 1, NULL, NULL, RSVP_ACCESS_REPLY, RSVP_PERM_INVITE_FRIENDLIST),
+    'weight' => '2',
+  );
+  
+  return $items;
+}
+
+/**
+ * Adding a list of friendlist relationship members as invitees to the $rsvp.
+ *
+ * @param $rsvp The rsvp object you want to add the newsletter invitees to.
+ * @param $fid int The friendlist ID.
+ * @param $type string, can be either 'requester' or 'requestee' or 'all'.
+ *
+ * @ingroup rsvp_friendlist
+ */
+function rsvp_friendlist_add_form(&$form_state, $rsvp, $fid, $type) {
+
+  if (is_numeric($fid)) {
+    $guestsarray = rsvp_friendlist_function_list($fid, $type);
+    
+    $connector = new RsvpConnector();
+    
+    $statusarray = rsvp_function_add_guests($rsvp, NULL, $guestsarray, false);
+    
+    if (count($statusarray['success_add']) > 0)
+      drupal_set_message('New Guests have been added. Do not forget to send the invitation.');
+ 
+    $content .= theme('rsvp_status', $statusarray);
+    drupal_set_message($content);
+    
+  }
+  
+  drupal_goto(rsvp_function_session_parent(NULL, false));
+  
+}
+
+/**
+ * Returns a list with available relationships that are available for selection.
+ *
+ * @param $rsvp The RSVP object.
+ * @return a list with relationship links.
+ *
+ * @ingroup rsvp_friendlist
+ */
+function rsvp_friendlist_linklist($rsvp) {
+
+  $links = array();
+  
+  if (module_exists('friendlist_api')) {
+    
+  	if (user_is_anonymous())
+      return $links;
+      
+    global $user; 
+
+    //filter the relationtypes from the relationships.
+    if (false) { 
+/* Find a better way to represent all available groups to a moderator, like select relationship  and user       
+    if ( in_array('site_administrator', array($user->roles))) {
+      $groups = array();
+      $result = friendlist_api_db_statuses('select', NULL, NULL, NULL, array('OW_2_TO_1','OW_1_TO_2','TW_BOTH','OW_BOTH'));
+
+      while ($relationship = db_fetch_object($result)) {
+        $groups[$relationship->rtid] = $relationship->sid;
+      }
+    
+      foreach ($groups as $rtid => $sid) {
+        $rttype = friendlist_api_relation_type_load($rtid);
+        $links[] = l($rttype->name_p, 'rsvp/'. $rsvp->rid .'/attendees/friendlist/'. $rtid . '/all', array('attributes' => array('title' => t('Add %term members to this invitation', array('%term' => $rttype->name_p)))));
+      }
+*/
+    }
+    else {
+    
+      //e.g. find all friends of user $user
+      $groups = array();
+      $result_requester = friendlist_api_db_statuses('select', $user->uid, NULL, NULL, array('OW_2_TO_1','TW_BOTH','OW_BOTH'));
+
+      while ($relationship = db_fetch_object($result_requester)) {
+        $groups[$relationship->rtid] = $relationship->sid;
+      }
+    
+      foreach ($groups as $rtid => $sid) {
+        $rttype = friendlist_api_relation_type_load($rtid);
+        $links[] = l(t('My ') . $rttype->name_p, 'rsvp/'. $rsvp->rid .'/attendees/friendlist/'. $rtid . '/requester', array('attributes' => array('title' => t('Add %term members to this invitation', array('%term' => $rttype->name_p)))));
+      }
+  	
+
+      //e.g. tell to whome $user is a friend of
+      $groups = array();
+      $result_requestee = friendlist_api_db_statuses('select', NULL, $user->uid, NULL, array('OW_1_TO_2','TW_BOTH','OW_BOTH'));
+    
+      while ($relationship = db_fetch_object($result_requestee)) {
+        $groups[$relationship->rtid] = $relationship->sid;
+      }
+    
+      foreach ($groups as $rtid => $sid) {
+        $rttype = friendlist_api_relation_type_load($rtid);
+        $links[] = l(t('I am ') . $rttype->name . t(' of'), 'rsvp/'. $rsvp->rid .'/attendees/friendlist/'. $rtid . '/requestee', array('attributes' => array('title' => t('Add %term members to this invitation', array('%term' => $rttype->name_p)))));
+      }
+    }
+    
+  }
+  
+  return $links;  
+}
+
+/**
+ * Implementation of hook_form_alter().
+ * 
+ * weigth of plugins is always 40
+ * 
+ * to append the friendlist choice to the attendee form if the permissions are right.
+ * 
+ * @ingroup rsvp_friendlist
+ * 
+ */
+function rsvp_friendlist_form_alter(&$form, $form_state, $form_id) {
+
+  
+  
+  if ($form_id == 'rsvp_add_guests_form') {
+    $rsvp = $form['rsvp_add_guests_form']['rsvp']['#value'];
+	  if ( is_null($rsvp) )
+      return;
+    
+    $connector = new RsvpConnector();
+    if (rsvp_function_invitation_by_invite_access($connector, $rsvp, NULL, NULL, RSVP_ACCESS_REPLY, RSVP_PERM_INVITE_FRIENDLIST) == true) {
+    
+      $links = rsvp_friendlist_linklist($rsvp);
+      //$title = t('Connections');
+      
+      $itemlist = theme('item_list', $links, $title);
+     
+      $form['rsvp']['rsvp_friendlist'] = array(
+        '#weight' => 40,
+        '#value' => '<div class="rsvp_form rsvp_add_guests_form rsvp_color_border rsvp_color_inner">',
+        '#suffix' => '</div>',
+      );
+
+      $form['rsvp']['rsvp_friendlist']['header'] = array(
+        '#value' => t('You may invite members by connection'),
+        '#prefix' => '<div class="rsvp_form_header rsvp_add_guests_form_header rsvp_color_outer">',
+        '#suffix' => '</div>',
+      );
+      
+      $form['rsvp']['rsvp_friendlist']['list'] = array(
+        '#value' => $itemlist,
+        '#prefix' => '<div class="rsvp_form_content rsvp_add_guests_form_content rsvp_color_inner">',
+        '#suffix' => '</div>',
+      );
+      
+    }
+  }
+  
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+* @ingroup rsvp_friendlist_action
+* 
+* Implementation of hook_action_info()
+*/
+/*
+function rsvp_friendlist_action_info() {
+  
+  return array(
+      'rsvp_friendlist_add_guests_action' => array(
+        'description' => t('RSVP: Add friendlist connection members to invitation'),
+        'type' => 'node',
+        'configurable' => FALSE,
+        'hooks' => array(
+          'any' => TRUE,
+        ),
+      ),
+  );
+}
+*/
+
+/**
+ * A nonconfigurable Drupal action. Adds guests based on a friendlist relation to an invitation (host permissions) and send the invitation message
+ *   hook = any
+ *
+ *   Required contexts:
+ *    $context['rid'] The invitation id you want to add guests to.
+ *    $context['fid'] The friendlist relationship id.
+ *    $context['send_rsvp'] Boolean also send the invitations or just add the guests to the invitation.
+ *
+ * @ingroup rsvp_friendlist_actions
+ * 
+ */
+function rsvp_friendlist_add_guests_action(&$object, $context = array()) {
+
+  if ((!isset($context['rid'])) || (!isset($context['fid'])) || (!isset($context['send_rsvp']))  ) {
+    return false;
+  }
+
+  rsvp_friendlist_api_add_guests($context['rid'], NULL, $context['fid'], $context['send_rsvp']);
+} 
+
+/**
+ * Adds a number of guests based on friendlist groups to an invitation(rsvp) and sends out the invitations
+ * 
+ * The function requires the correct user permissions.
+ * 
+ * @ingroup rsvp_friendlist_api
+ * 
+ * @param $rid The Id of the rsvp instance.
+ * @param $hash The hash of the invitation object of the user who adds the invitees, 
+ *        or NULL if the rsvp owner adds the invitees.
+ * @param $fid The id of the friendlist relation group.
+ * @param $send_rsvp Boolean Also send the invitations or just add the guests to the invitation.
+ */
+function rsvp_friendlist_api_add_guests($rid, $hash, $fid, $send_rsvp) {
+  
+  $invite = NULL;
+  
+  if(!isnull($rid)) {
+    $rsvp = rsvp_function_load_rsvp($rid);
+    if ($rsvp == false)
+      return false;
+  }
+  
+  if(!isnull($hash)) {
+    $invite = rsvp_function_load_invitation_hash($hash);
+    if ($invite == false)
+      return false;
+  }
+  
+  $connector = new RsvpConnector();
+
+  $perm_add = rsvp_function_invitation_by_invite_access($connector, $rsvp, NULL, NULL, RSVP_ACCESS_EDIT, RSVP_PERM_INVITE_FRIENDLIST);
+  if ($perm_add == true) {
+    $guestarray = rsvp_friendlist_function_list($fid);
+    rsvp_function_add_invitees($rsvp, $invite, $guestsarray, $send_rsvp);
+    watchdog('action', 'Added invitees from friendlist %fid to invitation %rsvp_name(%rid) successfully.', array('%rsvp_name' => $rsvp->name, '%rid' => $rsvp->rid, '%fid' => $fid)); 
+  }
+}
+
+
+/**
+ * Extracting a list of friendlist connection members.
+ *
+ * The function requires the correct user permissions.
+ *
+ *
+ * @param $fid int The friendlist relationship ID.
+ * @param $type string, can be either 'requester', 'requestee' or 'all'.
+ * @return array of useremails.
+ *
+ * @ingroup rsvp_friendlist_functions
+ */
+function rsvp_friendlist_function_list($fid, $type) {
+
+  $guestsarray = array();
+  
+  if (is_numeric($fid)) {
+    global $user;
+  	
+  	if ($type == 'requester') {
+      $relationships = friendlist_api_db_statuses('select', $user->uid, NULL, $fid, array('OW_2_TO_1','TW_BOTH','OW_BOTH'));
+
+      while ($relationship = db_fetch_object($relationships)) {
+        $requestee = user_load($relationship->requestee_id);
+    
+        if (($requestee != false)  && ($requestee->uid != $user->uid))
+          $guestsarray[] = $requestee->name;
+      }
+      
+  	}
+  	elseif ($type == 'requestee') {
+      $relationships = friendlist_api_db_statuses('select', NULL, $user->uid, $fid, array('OW_1_TO_2','TW_BOTH','OW_BOTH'));
+
+      while ($relationship = db_fetch_object($relationships)) {
+        $requester = user_load($relationship->requester_id);
+    
+        if (($requester != false) && ($requester->uid != $user->uid))
+          $guestsarray[] = $requester->name;
+      }
+  	}
+    elseif ($type == 'all') {
+      /* Find a better way to represent all available groups to a moderator, like select relationship  and user       
+    	if ( in_array('site_administrator', array($user->roles))) {
+        $relationships = friendlist_api_db_statuses('select', NULL, NULL, $fid, array('OW_2_TO_1','OW_1_TO_2','TW_BOTH','OW_BOTH'));
+
+        while ($relationship = db_fetch_object($relationships)) {
+          $requestee = user_load($relationship->requestee_id);
+          $requester = user_load($relationship->requester_id);
+          
+          if (($requestee != false)  && ($requestee->uid != $user->uid))
+            $guestsarray[] = $requestee->name;
+            
+          if (($requester != false) && ($requester->uid != $user->uid))
+            $guestsarray[] = $requester->name;
+        }
+      }
+*/      
+    }
+  	
+  }    
+  return $guestsarray;  
+}
+

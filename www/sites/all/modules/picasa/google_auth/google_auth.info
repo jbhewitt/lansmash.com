@@ -1,0 +1,18 @@
+; $Id: google_auth.info,v 1.2.2.4 2008/10/17 20:02:25 cyberswat Exp $
+core = 6.x
+name = Google Auth
+description = "Authentication for web-based applications allows the application
+		to access a Google service protected by a user's Google account. To maintain
+		a high level of security, the Authentication Proxy interface, AuthSub,
+		enables the application to get an authentication token without ever handling
+		the user's account login information. Using the proxy service, the user of
+		your web application logs into their account through a Google-supplied login
+		page and consents to grant limited access to the web application."
+package = Picasa
+
+; Information added by drupal.org packaging script on 2008-11-13
+version = "6.x-1.x-dev"
+core = "6.x"
+project = "picasa"
+datestamp = "1226535007"
+

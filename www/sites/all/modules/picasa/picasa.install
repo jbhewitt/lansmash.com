@@ -1,0 +1,519 @@
+<?php
+// $Id: picasa.install,v 1.2.2.8 2008/11/12 17:32:34 cyberswat Exp $
+
+/**
+	* @file
+	*
+	* The picasa.install file
+	*
+	* Installs the {picasa_album} table
+	*/
+
+/**
+	* Implementation of hook_install().
+	*/
+function picasa_install() {
+		drupal_install_schema('picasa');
+}
+
+/**
+	* Implementation of hook_uninstall().
+	*/
+function picasa_uninstall() {
+		drupal_uninstall_schema('picasa');
+}
+
+/**
+	* Implementation of hook_schema().
+	*/
+function picasa_schema() {
+
+/*
+CREATE TABLE IF NOT EXISTS picasa_media (
+  nid int(11) NOT NULL,
+  title varchar(255) default NULL,
+  description mediumtext,
+  keywords mediumtext,
+  content_url varchar(255) NOT NULL,
+  content_type varchar(255) NOT NULL,
+  content_medium varchar(60) NOT NULL,
+  credit varchar(255) NOT NULL,
+  PRIMARY KEY  (nid)
+)
+*/
+
+    $schema['picasa_media'] = array(
+      'description' => t('Stores picasa links.'),
+      'fields' => array(
+        'nid' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'description' => t('The primary identifier for a node.')
+        ),
+        'title' => array(
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+          'description' => t('Contains the title of the entry\'s media content, in plain text.')
+        ),
+        'description' => array(
+          'type' => 'text',
+          'size' => 'medium',
+          'not null' => FALSE,
+          'description' => t('Contains a description of the entry\'s media content. For api projections, the description is in plain text; for base projections, the description is in HTML. This field is limited to 1024 characters. The description can contain UTF-8 characters.')
+        ),
+        'keywords' => array(
+          'type' => 'text',
+          'size' => 'medium',
+          'not null' => FALSE,
+          'description' => t('Lists the tags associated with the entry. Contains a comma-separated list of tags that have been added to the photo, or all tags that have been added to photos in the album. Tags are limited to 128 characters and 100 tags per item. Tags use the UTF-8 character set, so they are not limited to ASCII.')
+        ),
+        'content_url' => array(
+          'type' => 'varchar',
+          'length' => '255',
+          'not null' => TRUE,
+          'description' => t('Contains the URL and other information about the full version of the entry\'s media content.')
+        ),
+        'content_type' => array(
+          'type' => 'varchar',
+          'length' => '255',
+          'not null' => TRUE,
+          'description' => t('Contains the type and other information about the full version of the entry\'s media content.')
+        ),
+        'content_medium' => array(
+          'type' => 'varchar',
+          'length' => '255',
+          'not null' => TRUE,
+          'description' => t('Contains the type and other information about the full version of the entry\'s media content.')
+        ),
+        'credit' => array(
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => TRUE,
+          'description' => t('Contains the nickname of the user who created the content. This is a user-specified value that should be used when referring to the user by name.')
+        ),
+      ),
+      'primary key' => array('nid'),
+      'indexes' => array('nid' => array('nid')),
+    );
+/*
+CREATE TABLE IF NOT EXISTS picasa_link (
+  nid int(11) NOT NULL,
+  id varchar(255) NOT NULL,
+  rel varchar(60) NOT NULL,
+  `type` varchar(60) NOT NULL,
+  href varchar(255) NOT NULL,
+  PRIMARY KEY  (nid,id,rel),
+  KEY nid (nid),
+  KEY id (id),
+  KEY rel (rel)
+)
+*/
+    $schema['picasa_link'] = array(
+      'description' => t('Stores picasa links.'),
+        'fields' => array(
+          'nid' => array(
+            'type' => 'int',
+            'not null' => TRUE,
+            'description' => t('The primary identifier for a node.')
+          ),
+          'id' => array(
+            'type' => 'varchar',
+            'length' => 255,
+            'not null' => TRUE,
+            'description' => t('The ID of the current element.')
+          ),
+          'rel' => array(
+            'type' => 'varchar',
+            'length' => 60,
+            'not null' => TRUE,
+            'description' => t('The relationship of the link.')
+          ),
+          'type' => array(
+            'type' => 'varchar',
+            'length' => 60,
+            'not null' => TRUE,
+            'description' => t('The type of link.')
+          ),
+          'href' => array(
+            'type' => 'varchar',
+            'length' => 255,
+            'not null' => TRUE,
+            'description' => t('The href of the link.')
+          ),
+        ),
+      'primary key' => array('nid', 'id', 'rel'),
+      'indexes' => array('nid' => array('nid'), 'id' => array('id'), 'rel' => array('rel')),
+    );
+/*
+CREATE TABLE IF NOT EXISTS picasa_geo_rss (
+  nid int(11) NOT NULL,
+  id varchar(255) NOT NULL,
+  `type` varchar(60) NOT NULL,
+  `data` mediumtext NOT NULL,
+  KEY nid (nid),
+  KEY id (id)
+)
+*/
+    $schema['picasa_geo_rss'] = array(
+      'description' => t('Stores picasa links.'),
+        'fields' => array(
+          'nid' => array(
+            'type' => 'int',
+            'not null' => TRUE,
+            'description' => t('The primary identifier for a node.')
+          ),
+          'id' => array(
+            'type' => 'varchar',
+            'length' => 255,
+            'not null' => TRUE,
+            'description' => t('The ID of the current element.')
+          ),
+          'type' => array(
+            'type' => 'varchar',
+            'length' => 60,
+            'not null' => TRUE,
+            'description' => t('The type of geo rss data.')
+          ),
+          'data' => array(
+            'type' => 'text',
+            'size' => 'medium',
+            'not null' => TRUE,
+            'description' => t('The georss data stored as a serialized array.')
+          ),
+        ),
+      'indexes' => array('nid' => array('nid'), 'id' => array('id')),
+    );
+/*
+CREATE TABLE IF NOT EXISTS picasa_gphoto (
+  nid int(11) NOT NULL,
+  albumid int(11) default NULL,
+  commentCount int(11) default NULL,
+  commentingEnabled varchar(5) default NULL,
+  id varchar(20) character set utf8 default NULL,
+  maxPhotosPerAlbum int(11) default NULL,
+  nickname varchar(255) default NULL,
+  quotacurrent int(11) default NULL,
+  quotalimit int(11) default NULL,
+  thumbnail varchar(255) default NULL,
+  `user` varchar(255) default NULL,
+  access varchar(7) default NULL,
+  bytesUsed int(11) default NULL,
+  location varchar(255) default NULL,
+  `name` varchar(255) default NULL,
+  numphotos int(11) default NULL,
+  numphotosremaining int(11) default NULL,
+  `checksum` varchar(255) default NULL,
+  `client` varchar(255) default NULL,
+  height int(11) default NULL,
+  position int(11) default NULL,
+  rotation int(11) default NULL,
+  size int(11) default NULL,
+  `timestamp` int(20) default NULL,
+  version int(11) default NULL,
+  videostatus varchar(7) default NULL,
+  width int(11) default NULL,
+  photoid int(11) default NULL,
+  weight int(11) default NULL,
+  PRIMARY KEY  (nid)
+)
+*/
+    $schema['picasa_gphoto'] = array(
+      'description' => t('Stores picasa links.'),
+        'fields' => array(
+          'nid' => array(
+            'type' => 'int',
+            'not null' => TRUE,
+            'description' => t('The primary identifier for a node.')
+          ),
+        'albumid' => array(
+          'description' => t('The album\'s ID.'),
+          'type' => 'varchar',
+          'length' => 24,
+          'not null' => FALSE,
+        ),
+        'commentcount' => array(
+          'type' => 'int',
+          'not null' => FALSE,
+          'description' => t('The number of comments on an element.'),
+        ),
+        'commentingenabled' => array(
+          'type' => 'int',
+          'not null' => FALSE,
+          'description' => t('Boolean value indicating whether commenting is enabled for the element.'),
+          'size' => 'tiny'
+        ),
+        'id' => array(
+          'description' => t('The ID of the current element.'),
+          'type' => 'varchar',
+          'length' => 24,
+          'not null' => FALSE,
+        ),
+        'maxphotosperalbum' => array(
+          'type' => 'int',
+          'not null' => FALSE,
+          'description' => t('The maximum number of photos allowed in an album.'),
+        ),
+        'nickname' => array(
+          'description' => t('The user\'s nickname. This is a user-specified value that should be used when referring to the user by name.'),
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+        ),
+        'quotacurrent' => array(
+          'type' => 'int',
+          'not null' => FALSE,
+          'description' => t('The number of bytes of storage currently in use by the user.'),
+        ),
+        'quotalimit' => array(
+          'type' => 'int',
+          'not null' => FALSE,
+          'description' => t('The total amount of space allotted to the user.'),
+        ),
+        'thumbnail' => array(
+          'description' => t('The URL of a thumbnail-sized portrait of the user. Not to be confused with the <media:thumbnail> element.'),
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+        ),
+        'user' => array(
+          'description' => t('The user\'s username. This is the name that is used in all feed URLs.'),
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+        ),
+        'access' => array(
+          'description' => t('The album\'s access level.'),
+          'type' => 'varchar',
+          'length' => 7,
+          'not null' => FALSE,
+        ),
+        'bytesused' => array(
+          'type' => 'int',
+          'not null' => FALSE,
+          'description' => t('The number of bytes of storage that this album uses.'),
+        ),
+        'location' => array(
+          'description' => t('The user-specified location associated with the album.'),
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+        ),
+        'name' => array(
+          'description' => t('The name of the album, which is the URL-usable name derived from the title.'),
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+        ),
+        'numphotos' => array(
+          'description' => t('The number of photos in the album.'),
+          'type' => 'int',
+          'not null' => FALSE,
+        ),
+        'numphotosremaining' => array(
+          'description' => t('The number of remaining photo uploads allowed in this album.'),
+          'type' => 'int',
+          'not null' => TRUE,
+        ),
+        'checksum' => array(
+          'description' => t('The checksum on the photo. This optional field can be used by uploaders to associate a checksum with a photo to ease duplicate detection.'),
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+        ),
+        'client' => array(
+          'description' => t('The client application that created the photo.'),
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+        ),
+        'height' => array(
+          'description' => t('The height of the photo in pixels.'),
+          'type' => 'int',
+          'not null' => FALSE,
+        ),
+        'position' => array(
+          'description' => t('The ordinal position of the photo within the parent album.'),
+          'type' => 'int',
+          'not null' => FALSE,
+        ),
+        'rotation' => array(
+          'description' => t('The rotation of the photo in degrees, used to change the rotation of the photo.'),
+          'type' => 'int',
+          'not null' => FALSE,
+        ),
+        'size' => array(
+          'description' => t('The size of the photo in bytes.'),
+          'type' => 'int',
+          'not null' => FALSE,
+        ),
+        'timestamp' => array(
+          'description' => t('The photo\'s timestamp, represented as the number of milliseconds since January 1st, 1970.'),
+          'type' => 'int',
+          'not null' => FALSE,
+          'size' => 'big',
+        ),
+        'version' => array(
+          'description' => t('The version number of the photo.'),
+          'type' => 'int',
+          'not null' => FALSE,
+          'size' => 'big',
+        ),
+        'videostatus' => array(
+          'description' => t('The current processing status of a video.'),
+          'type' => 'varchar',
+          'length' => 7,
+          'not null' => FALSE,
+        ),
+        'width' => array(
+          'description' => t('The width of the photo in pixels.'),
+          'type' => 'int',
+          'not null' => FALSE,
+        ),
+        'photoid' => array(
+          'description' => t('The ID of the photo associated with the current comment.'),
+          'type' => 'int',
+          'not null' => FALSE,
+        ),
+        'weight' => array(
+          'description' => t('The weight of the tag. The weight is the number of times the tag appears in photos under the current element.'),
+          'type' => 'int',
+          'not null' => FALSE,
+        ),
+        ),
+      'primary key' => array('nid'),
+      'indexes' => array('nid' => array('nid')),
+    );
+/*
+CREATE TABLE IF NOT EXISTS picasa_thumbnail (
+  nid int(11) NOT NULL,
+  content_url varchar(255) NOT NULL,
+  url varchar(255) NOT NULL,
+  height int(11) NOT NULL,
+  width int(11) NOT NULL,
+  PRIMARY KEY  (nid,content_url,url)
+)
+*/
+    $schema['picasa_thumbnail'] = array(
+      'description' => t('Stores picasa thumbnails.'),
+        'fields' => array(
+          'nid' => array(
+            'type' => 'int',
+            'not null' => TRUE,
+            'description' => t('The primary identifier for a node.')
+          ),
+          'content_url' => array(
+            'type' => 'varchar',
+            'length' => 255,
+            'not null' => TRUE,
+            'description' => t('The content url of the current element.')
+          ),
+          'url' => array(
+            'type' => 'varchar',
+            'length' => 255,
+            'not null' => TRUE,
+            'description' => t('The url of the current element.')
+          ),
+          'width' => array(
+            'description' => t('The width of the photo in pixels.'),
+            'type' => 'int',
+            'not null' => TRUE,
+          ),
+          'height' => array(
+            'description' => t('The height of the photo in pixels.'),
+            'type' => 'int',
+            'not null' => TRUE,
+          ),
+        ),
+      'indexes' => array('nid' => array('nid')),
+    );
+/*
+CREATE TABLE IF NOT EXISTS picasa_exif (
+  nid int(11) NOT NULL,
+  distance float default NULL,
+  exposure varchar(20) default NULL,
+  flash varchar(5) default NULL,
+  focallength float default NULL,
+  fstop float default NULL,
+  imageUniqueID varchar(255) default NULL,
+  iso int(11) default NULL,
+  make varchar(255) default NULL,
+  model varchar(255) default NULL,
+  `time` int(11) default NULL
+)
+*/
+    $schema['picasa_exif'] = array(
+      'description' => t('Stores picasa thumbnails.'),
+        'fields' => array(
+          'nid' => array(
+            'type' => 'int',
+            'not null' => TRUE,
+            'description' => t('The primary identifier for a node.')
+          ),
+          'distance' => array(
+            'type' => 'float',
+            'not null' => FALSE,
+            'description' => t('The distance to the subject.')
+          ),
+          'exposure' => array(
+            'type' => 'varchar',
+            'length' => 255,
+            'not null' => FALSE,
+            'description' => t('The exposure time used.')
+          ),
+          'flash' => array(
+            'type' => 'varchar',
+            'length' => 5,
+            'not null' => FALSE,
+            'description' => t('Boolean value indicating whether the flash was used.')
+          ),
+          'focallength' => array(
+            'type' => 'float',
+            'not null' => FALSE,
+            'description' => t('The focal length used.')
+          ),
+          'fstop' => array(
+            'type' => 'float',
+            'not null' => FALSE,
+            'description' => t('The fstop value used.')
+          ),
+          'imageuniqueid' => array(
+            'type' => 'varchar',
+            'length' => 255,
+            'not null' => FALSE,
+            'description' => t('The unique image ID for the photo.')
+          ),
+          'iso' => array(
+            'description' => t('The iso equivalent value used.'),
+            'type' => 'int',
+            'not null' => FALSE,
+          ),
+          'height' => array(
+            'description' => t('The height of the photo in pixels.'),
+            'type' => 'int',
+            'not null' => TRUE,
+          ),
+          'make' => array(
+            'type' => 'varchar',
+            'length' => 255,
+            'not null' => FALSE,
+            'description' => t('The make of the camera used.')
+          ),
+          'model' => array(
+            'type' => 'varchar',
+            'length' => 255,
+            'not null' => FALSE,
+            'description' => t('The model of the camera used.')
+          ),
+          'time' => array(
+            'type' => 'varchar',
+            'length' => 255,
+            'not null' => FALSE,
+            'description' => t('The date/time the photo was taken, represented as the number of milliseconds since January 1st, 1970.')
+          ),
+        ),
+      'indexes' => array('nid' => array('nid')),
+    );
+
+		return $schema;
+}

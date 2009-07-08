@@ -1,0 +1,29 @@
+<?php
+// $Id: og_rsvp.install,v 1.1 2008/10/16 02:20:51 mradcliffe Exp $
+
+ function og_rsvp_install()
+ {
+	 drupal_install_schema('og_rsvp');
+	 drupal_set_message('Installed og_rsvp table into the database');
+ } // function og_rsvp_install
+
+ function og_rsvp_uninstall()
+ {
+	 drupal_uninstall_schema('og_rsvp');
+ } // function og_rsvp_uninstall
+
+ function og_rsvp_schema()
+ {
+	 $schema['og_rsvp'] = array(
+	 	'description' => t('Stores rsvp and attendee information for an event'),
+		'fields' => array(
+			'nid' => array( 'type' => 'int', 'size' => 'normal', 'unsigned' => TRUE, 'not null' => TRUE, 'description' => t('Node id reference')),
+			'uid' => array( 'type' => 'int', 'size' => 'normal', 'unsigned' => TRUE, 'not null' => TRUE, 'description' => t('User id reference')),
+			'status' => array( 'type' => 'int', 'size' => 'small', 'unsigned' => FALSE, 'not null' => TRUE, 'description' => t('attendee status: -1 pending, 0 not attending, 1 attending'))
+		),
+		'primary key' => array('nid','uid')
+	);
+
+	 return $schema;
+ } // function og_rsvp_schema
+

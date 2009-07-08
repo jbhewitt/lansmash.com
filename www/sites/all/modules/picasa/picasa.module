@@ -1,0 +1,173 @@
+<?php
+// $Id: picasa.module,v 1.3.2.12 2008/11/12 17:32:34 cyberswat Exp $
+/**
+	* Implementation of hook_menu().
+	*/
+function picasa_menu() {
+/*
+  $items['picasa'] = array(
+    'title' => 'Picasa',
+    'page callback' => 'picasa_album_overview',
+    'access callback' => 'user_access',
+    'access arguments' => array('picasa user'),
+    'file' => 'picasa.album.inc',
+  );
+*/
+  $items['admin/settings/picasa'] = array(
+    'title' => 'Picasa',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('picasa_settings'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_LOCAL_TASK,
+  );
+/*
+  $items['picasa/album'] = array(
+    'title' => 'Albums',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+  $items['picasa/album/import'] = array(
+    'title' => 'Album Import',
+    'page callback' => 'picasa_album_import',
+    'access callback' => 'user_access',
+    'access arguments' => array('picasa user'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'picasa.album.inc',
+  );
+*/
+  return $items;
+
+}
+/**
+	* Implementation of hook_perm().
+	* @return array An array of permissions strings.
+	*/
+function picasa_perm() {
+  return array('picasa user', 'view picasa data');
+}
+
+function picasa_settings() {
+  $form = array();
+  $form['google_ajaxfeeds_information'] = array(
+    '#value' => t('The Google AJAX Feed API lets you download any public Atom or RSS feed using only JavaScript. A single Google API key is valid within a single directory on your web server, including any subdirectories.').
+      ' '. l(t('Sign up for the Google AJAX Feed API'), 'http://code.google.com/apis/ajaxfeeds/signup.html'),
+  );
+  $form['google_ajaxfeeds_key'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Google AJAX Feed API Key'),
+      '#size' => 60,
+        '#default_value' => variable_get('google_ajaxfeeds_key', ''),
+      '#maxlength' => 255,
+      '#markup' => l('Key','http://code.google.com/apis/ajaxfeeds/signup.html'),
+    );
+    $form = system_settings_form($form);
+    return $form;
+}
+
+/**
+* Implementation of hook_theme().
+*/
+function picasa_theme() {
+  return array(
+    'picasa_user' => array(
+      'template' => 'picasa-user',
+      'arguments' => array('albums' => NULL),
+    ),
+    'picasa_album_import_form' => array(
+      'function' => 'theme_picasa_album_import_form',
+      'arguments' => array('form'),
+    ),
+    'picasa_album_admin_data' => array(
+      'function' => 'theme_picasa_album_admin_data',
+      'arguments' => array('entry'),
+    ),
+    'picasa_image' => array(
+      'function' => 'theme_picasa_image',
+      'arguments' => array('image'),
+    ),
+  );
+}
+
+/**
+* Process variables for picasa-user.tpl.php.
+*
+* @see picasa-user.tpl.php
+* @see theme_comment_folded()
+*/
+function template_preprocess_picasa_user(&$variables) {
+  $albums = $variables['albums'];
+  $variables['id'] = check_plain($albums['id']);
+  $variables['icon'] = check_plain($albums['icon']);
+  $variables['updated'] = format_date(strtotime($albums['updated']));
+  $variables['title'] = check_plain($albums['title']);
+  $variables['subtitle'] = check_plain($albums['subtitle']);
+  $variables['author_name'] = check_plain($albums['author']['name']);
+  $variables['author_uri'] = check_plain($albums['author']['uri']);
+  $variables['generator'] = check_plain($albums['generator']);
+  $variables['opensearch_totalresults'] = check_plain($albums['open_search']['totalResults']);
+  $variables['opensearch_startindex'] = check_plain($albums['open_search']['startIndex']);
+  $variables['opensearch_itemsperpage'] = check_plain($albums['open_search']['itemsPerPage']);
+  $variables['gphoto_user'] = check_plain($albums['gphoto_user']);
+  $variables['gphoto_nickname'] = check_plain($albums['gphoto_nickname']);
+  $variables['gphoto_thumbnail'] = check_plain($albums['gphoto_thumbnail']);
+  $variables['gphoto_quotalimit'] = check_plain($albums['gphoto_quotalimit']);
+  $variables['gphoto_quotacurrent'] = check_plain($albums['gphoto_quotacurrent']);
+  $variables['gphoto_maxphotosperalbum'] = check_plain($albums['gphoto_maxphotosperalbum']);
+  $variables['link_feed'] = '';
+  $variables['link_post'] = '';
+  $variables['link_alternate'] = '';
+  $variables['link_slideshow'] = '';
+  $variables['link_self'] = '';
+  foreach($albums['link'] as $link) {
+    if(strpos($link['rel'], '#feed')) {
+        $variables['link_feed'] = l(t('feed'), $link['href']);
+    }
+    if(strpos($link['rel'], '#post')) {
+      $variables['link_post'] = l(t('post'), $link['href']);
+    }
+    if(strpos($link['rel'], 'alternate')) {
+        $variables['link_alternate'] = l(t('alternate'), $link['href']);
+    }
+    if(strpos($link['rel'], 'slideshow')) {
+      $variables['link_slideshow'] = l(t('slideshow'), $link['href']);
+    }
+    if(strpos($link['rel'], 'self')) {
+      $variables['link_self'] = l(t('self'), $link['href']);
+    }
+  }
+}
+
+function theme_picasa_image($image) {
+  $output = '<img src="'. $image['url'] .'" width="'. $image['width'] .'" height="'. $image['height'] .'" />';
+  return $output;
+}
+
+function _picasa_time($time, $op) {
+  switch($op) {
+    case 'display':
+      return format_date($time);
+      break;
+    case 'timestamp':
+      $time = $time/1000;
+      return $time;
+      break;
+    case 'form':
+      if(empty($time)) {
+        $time = time();
+      }
+      return array(
+        'month' => date('n', $time),
+        'day' => date('j', $time),
+        'year' => date('Y', $time),
+      );
+      break;
+    case 'milliseconds':
+      $timestamp = mktime(0, 0, 0, $time['month'], $time['day'], $time['year'])+ (date('Z', time()) * -1);
+      $timestamp = $timestamp * 1000;
+      $timestamp = sprintf('%f', $timestamp);
+      $timestamp = preg_replace('/\.([0-9]*)/','',$timestamp);
+      return $timestamp;
+      break;
+  }
+}
+

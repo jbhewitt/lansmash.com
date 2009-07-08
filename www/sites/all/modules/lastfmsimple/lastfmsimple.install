@@ -1,0 +1,130 @@
+<?php
+// $Id: lastfmsimple.install,v 1.1 2008/04/16 16:08:05 dietrich Exp $
+
+/**
+ * @file
+ * Last.fm Simple Stats module installation file.
+ *
+ * @ingroup lastfmsimple
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function lastfmsimple_install() {
+  drupal_install_schema('lastfmsimple');
+  drupal_set_message(t('Last.fm Simple Stats has been installed.'));
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function lastfmsimple_uninstall() {
+  drupal_uninstall_schema('lastfmsimple');
+  variable_del('lastfmsimple_interval');
+  variable_del('lastfmsimple_update_method');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function lastfmsimple_schema() {
+  return array(
+    'lastfmsimple_feed' => array(
+      'fields' => array(
+        'fid' => array(
+          'type' => 'serial',
+          'not null' => TRUE,
+        ),
+        'user' => array(
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => TRUE,
+          'default' => '',
+        ),
+        'feed_type' => array(
+          'type' => 'varchar',
+          'length' => 30,
+          'not null' => TRUE,
+          'default' => '',
+        ),
+        'updated' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ),
+        'modified' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ),
+        'expires' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ),
+        'current_count' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ),
+        'max_count' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ),
+        'fetches' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ),
+        'updates' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ),
+      ),
+      'primary key' => array('fid'),
+      'unique keys' => array(
+        'user_type' => array('user', 'feed_type'),
+      ),
+      'indexes' => array(
+        'feed_updated' => array('updated'),
+        'feed_expires' => array('expires'),
+      ),
+    ),
+    'lastfmsimple_item' => array(
+      'fields' => array(
+        'iid' => array(
+          'type' => 'serial',
+          'not null' => TRUE,
+        ),
+        'fid' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ),
+        'name' => array(
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => TRUE,
+          'default' => '',
+        ),
+        'url' => array(
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => TRUE,
+          'default' => '',
+        ),
+        'item_data' => array(
+          'type' => 'text',
+          'not null' => FALSE,
+        ),
+      ),
+      'primary key' => array('iid'),
+      'indexes' => array(
+        'item_fid' => array('fid'),
+      ),
+    ),
+  );
+}

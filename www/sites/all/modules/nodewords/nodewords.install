@@ -1,0 +1,225 @@
+<?php
+// $Id: nodewords.install,v 1.10.4.5 2008/03/14 10:25:03 robrechtj Exp $
+
+/**
+ * @file
+ * Installs, upgrades or uninstalls nodewords module.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function nodewords_install() {
+  drupal_install_schema('nodewords');
+  include_once(drupal_get_path('module', 'nodewords') .'/nodewords.inc'); //TODO: can't we use nodewords_include_once() here?
+  _nodewords_create_default_tags();
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function nodewords_uninstall() {
+  drupal_uninstall_schema('nodewords');
+  variable_del('nodewords:use-front-page');
+  variable_del('nodewords:repeat-on-pager');
+  variable_del('nodewords:content-length');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function nodewords_schema() {
+  $schema = array();
+
+  $schema['nodewords_tags'] = array(
+    'description' => t('List of the available tags.'),
+    'fields' => array(
+      'tagid' => array(
+        'description' => t('Unique identifier for a meta tag.'),
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'type' => array(
+        'description' => t('Type of the meta tag ("meta", "link", "http-equiv").'),
+        'type' => 'varchar',
+        'length' => 16,
+        'not null' => TRUE,
+        'default' => 'meta',
+      ),
+      'name' => array(
+        'description' => t('Name of the meta tag.'),
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'description' => array(
+        'description' => t('Description for the administrator.'),
+        'type' => 'varchar',
+        'length' => 128,
+        'default' => '',
+      ),
+      'widget' => array(
+        'description' => t('Type of the widget to use for editing this tag ("none", "alias", "textfield", "textarea", ...).'),
+        'type' => 'varchar',
+        'length' => 16,
+        'not null' => TRUE,
+        'default' => 'none',
+      ),
+      'widget_options' => array(
+        'description' => t('Other widget options (array).'),
+        'type' => 'text',
+        'size' => 'normal',
+        'serialize' => TRUE,
+      ),
+      'options' => array(
+        'description' => t('Other special options for the content of the metatag (array).'),
+        'type' => 'text',
+        'size' => 'normal',
+        'serialize' => TRUE,
+      ),
+      'weight' => array(
+        'description' => t('Weight of the meta tag. Used in output and for the edit form.'),
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('tagid'),
+  );
+
+  $schema['nodewords_attributes'] = array(
+    'description' => t('List of attributes for each meta tag.'),
+    'fields' => array(
+      'attid' => array(
+        'description' => t('Unique identifier of the meta tag attribute.'),
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'tagid' => array(
+        'description' => t('Unique identifier of the meta tag, see {nodewords_tags}.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'name' => array(
+        'description' => t('Name of the meta tag attribute.'),
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'value' => array(
+        'description' => t('Value of the meta tag attribute.'),
+        'type' => 'varchar',
+        'length' => '128',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'weight' => array(
+        'description' => t('Weight of the meta tag attribute. Used in output.'),
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('attid'),
+  );
+
+  $schema['nodewords_defaults'] = array(
+    'description' => t('List of default values for each tag, depending on context.'),
+    'fields' => array(
+      'tagid' => array(
+        'description' => t('Unique identifier of the meta tag, see {nodewords_tags}.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'context' => array(
+        'description' => t('Context for this default value ("default", "default:front", "default:error", "default:node", "default:node:story", ...).'),
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'value' => array(
+        'description' => t('Default value.'),
+        'type' => 'text',
+        'size' => 'normal',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'enabled' => array(
+        'description' => t('Whether the meta tag will be outputted for this context (NODEWORDS_ENABLED, NODEWORD_DISABLED, NODEWORDS_INHERIT).'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'editable' => array(
+        'description' => t('Whether the meta tag is editable on the edit form for this context (NODEWORDS_ENABLED, NODEWORD_DISABLED, NODEWORDS_INHERIT).'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('tagid', 'context'),
+  );
+
+  $schema['nodewords_content_node'] = array(
+    'description' => t('User-inputted value for this tag for node contexts.'),
+    'fields' => array(
+      'tagid' => array(
+        'description' => t('Unique identifier of the meta tag, see {nodewords_tags}.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'nid' => array(
+        'description' => t('Unique identifier of the node, see {node}.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'vid' => array(
+        'description' => t('Unique identifier of a version of the node, see {node_revisions}.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'delta' => array(
+        'description' => t('Delta for multiple values.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'value' => array(
+        'description' => t('The user-inputted value for this meta tag and node version.'),
+        'type' => 'text',
+        'size' => 'normal',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('tagid', 'vid'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Updates start below with hook_update_6100().
+ */
+
+//TODO: upgrade from 5.x.

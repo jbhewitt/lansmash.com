@@ -1,0 +1,329 @@
+<?php
+// $Id: nodewords.module,v 1.57.4.8 2008/03/14 13:12:42 robrechtj Exp $
+
+/**
+ * @file
+ * Allows users to add HTML meta tags to some pages.
+ */
+
+/**
+ * Constants.
+ */
+define('NODEWORDS_CACHE_TABLE', 'cache'); // Which cache table to use.
+define('NODEWORDS_INHERIT',     0);       // Inherit setting from broader context.
+define('NODEWORDS_ENABLED',     1);       // Enable setting for this context.
+define('NODEWORDS_DISABLED',    2);       // Disable setting for this context.
+
+/**
+ * Implementation of hook_perm().
+ */
+function nodewords_perm() {
+  return array(
+    'administer meta tags', // Access to administration pages
+    'edit meta tags',       // Access to edit form to set meta tags
+  );
+}
+
+/**
+ * Implementation of hook_help().
+ */
+function nodewords_help($path, $arg) {
+  switch ($path) {
+    case 'admin/content/nodewords':
+      return t('Below is a list of all the meta tags on your site.');
+
+    case 'admin/content/nodewords/%':
+    case 'admin/content/nodewords/%/edit':
+      return t('On this page you can configure how the meta tag will appear in the HTML HEAD section of your site.');
+
+    case 'admin/content/nodewords/%/widget':
+      return t('On this page you can configure how users can edit the meta tag.');
+
+    case 'admin/content/nodewords/%/defaults':
+      return t('On this page you can configure the default values for the meta tag depending on the context. A default for a more specific context (such as <em>Story content</em>) will override the setting for a more general one (such as <em>Content</em> or <em>Global default</em>). Next to the default, you can also configure whether a meta tag will be outputted in the HTML HEAD for a given context and/or editable by users with the <em>edit meta tags</em> permission. Select <em>Inherit</em> to inherit those settings from the broader context.');
+
+    case 'admin/content/nodewords/%/attributes':
+      return t('On this page you can configure the attributes for the meta tag. Examples include <code>scheme="DCTERMS.W3CDF"</code> for specifying dates or <code>xml:lang="en"</code> for specifying the language. If unsure, you can leave this empty.');
+
+    case 'admin/content/nodewords/add':
+      return t('On this page you can create a new meta tag. You will be able to change the widget to use, the default values and/or the attributes once you have saved the new meta tag.');
+
+    case 'admin/content/nodewords/settings':
+      return t('On this page you can configure the meta tag module. Most options are for advanced usage only, so if unsure, reset them to the defaults.');
+  }
+}
+
+/**
+ * Implementation of hook_init().
+ */
+function nodewords_init() {
+  $tags = nodewords_get();
+  drupal_set_html_head(nodewords_output($tags));
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function nodewords_menu() {
+  $items = array();
+
+  $items['admin/content/nodewords'] = array(
+    'title' => 'Meta tags',
+    'description' => t('Configure which meta tags are defined, can be used and what their default values are.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('nodewords_list'),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer meta tags'),
+    'file' => 'nodewords.admin.inc',
+  );
+
+  $items['admin/content/nodewords/list'] = array(
+    'title' => 'List',
+    'weight' => 0,
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+
+  $items['admin/content/nodewords/add'] = array(
+    'title' => 'Add',
+    'weight' => 5,
+    'page arguments' => array('nodewords_add'),
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['admin/content/nodewords/settings'] = array(
+    'title' => 'Settings',
+    'weight' => 10,
+    'page arguments' => array('nodewords_settings'),
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['admin/content/nodewords/%nodewords'] = array(
+    'title' => 'Edit meta tag',
+    'page arguments' => array('nodewords_edit', 3),
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/content/nodewords/%nodewords/edit'] = array(
+    'title' => 'Basic',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 0,
+  );
+  $items['admin/content/nodewords/%nodewords/widget'] = array(
+    'title' => 'Widget',
+    'page arguments' => array('nodewords_edit_widget', 3),
+    'weight' => 5,
+    'type' => MENU_LOCAL_TASK,
+  );
+  $items['admin/content/nodewords/%nodewords/defaults'] = array(
+    'title' => 'Defaults',
+    'page arguments' => array('nodewords_edit_defaults', 3),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 10,
+  );
+  $items['admin/content/nodewords/%nodewords/attributes'] = array(
+    'title' => 'Attributes',
+    'page arguments' => array('nodewords_edit_attributes', 3),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 15,
+  );
+  $items['admin/content/nodewords/%nodewords/delete'] = array(
+    'title' => 'Delete',
+    'page arguments' => array('nodewords_delete', 3),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implementation of hook_block().
+ */
+function nodewords_block($op = 'list', $delta = 0, $edit = array()) {
+  switch ($op) {
+    case 'list':
+      return array(
+        0 => array(
+          'info' => t('Meta tags'),
+          'cache' => BLOCK_NO_CACHE, //TODO: not sure if we can cache, maybe BLOCK_CACHE_PER_PAGE | BLOCK_CACHE_PER_ROLE
+        )
+      );
+
+    case 'view':
+      $tags = nodewords_get();
+      return array(
+        'subject' => t('Meta tags'),
+        'content' => nodewords_output($tags, 'block'),
+      );
+  }
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function nodewords_theme() {
+  return array(
+    'nodewords_list' => array(
+      'template' => 'nodewords-list',
+      'file' => 'nodewords.admin.inc',
+      'arguments' => array('form' => NULL),
+    ),
+    'nodewords_edit_attributes' => array(
+      'template' => 'nodewords-edit-attributes',
+      'file' => 'nodewords.admin.inc',
+      'arguments' => array('form' => NULL),
+    ),
+    'nodewords_edit_defaults' => array(
+      'template' => 'nodewords-edit-defaults',
+      'file' => 'nodewords.admin.inc',
+      'arguments' => array('form' => NULL),
+    ),
+    'nodewords_descriptions' => array(
+      'template' => 'nodewords-descriptions',
+      'file' => 'nodewords.admin.inc',
+      'arguments' => array('descriptions' => NULL),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_node_type().
+ */
+function nodewords_node_type($op, $info) {
+  switch ($op) {
+    case 'delete':
+      db_query("DELETE FROM {nodewords_defaults} WHERE context = '%s'", 'default:node:'. $info->type);
+      break;
+
+    case 'update':
+      if (!empty($info->old_type) && $info->old_type != $info->type) {
+        db_query("UPDATE {nodewords_default} SET context = '%s' WHERE context = '%s'", 'default:node:'. $info->type, 'default:node:'. $info->old_type);
+      }
+      break;
+  }
+}
+
+/**
+ * Loads a meta tag. Used in hook_menu() as wildcard loader.
+ *
+ * @param $tagid
+ *   Integer. Unique identifier for a tag.
+ *
+ * @return
+ *   Object. One tag object or FALSE if no such tagid found.
+ */
+function nodewords_load($tagid) {
+  static $tags = NULL;
+  if (!is_numeric($tagid)) {
+    return FALSE;
+  }
+  if (!isset($tags)) {
+    nodewords_include_once();
+    $tags = nodewords_get_tags();
+  }
+  if (!isset($tags[$tagid])) {
+    return FALSE;
+  }
+  return $tags[$tagid];
+}
+
+/**
+ * Include the API file.
+ *
+ * @return
+ *   Nothing.
+ */
+function nodewords_include_once() {
+  include_once(drupal_get_path('module', 'nodewords') .'/nodewords.inc');
+}
+
+/**
+ * Core function to get the meta tags for the current page.
+ *
+ * @return
+ *   Array of meta tags.
+ */
+function nodewords_get() {
+  static $tags = NULL;
+
+  if (!isset($tags)) {
+    $item = menu_get_item();
+
+    if ($item['access']) {
+      $context = 'default';
+      $object = NULL;
+
+      if (drupal_is_front_page() && variable_get('nodewords:use-front-page', 1)) {
+        $context = 'default:front';
+        $object = NULL;
+      }
+      else if ($node = menu_get_object('node', 1)) {
+        $context = 'default:node:'. $node->type;
+        $object = $node;
+        $cid = 'nodewords:'. $context .':'. $node->vid;
+      }
+
+      //TODO: add other contexts like taxonomy, views, panels, ...
+    }
+    else {
+      $context = 'default:error';
+      $object = NULL;
+    }
+
+    if (!isset($cid)) {
+      $cid = 'nodewords:'. $context;
+    }
+
+    if (($cache = cache_get($cid, NODEWORDS_CACHE_TABLE))) {
+      $tags = $cache->data;
+    }
+    else {
+      nodewords_include_once();
+      $tags = _nodewords_get($context, $object);
+      //TODO: save the tags in the cache.
+    }
+  }
+
+  return $tags;
+}
+
+/**
+ * Output the values of the meta tags.
+ *
+ * @param $tags
+ *   Array of tags (as returned by nodewords_get()).
+ *
+ * @param $where
+ *   String. Either 'head' or 'block'.
+ *
+ * @return
+ *   String.
+ */
+function nodewords_output($tags, $where = 'head') {
+  $output = '';
+
+  foreach ($tags as $tag) {
+    if ($where == 'block') {
+      $output .= '<dt>'. $tag->name .'</dt>';
+    }
+
+    foreach ($tag->values as $value) {
+      if ($where == 'block') {
+        $output .= '<dd>'. $value ."</dd>\n";
+      }
+      else {
+        $args = array(
+          '!name' => $tag->name,
+          '!value' => $value,
+          '!attributes' => drupal_attributes($tag->attributes),
+        );
+        $output .= strtr($tag->template, $args) ."\n";
+      }
+    }
+  }
+
+  if (!empty($output) && $where == 'block') {
+    $output = '<dl>'. $output .'</dl>';
+  }
+
+  return $output;
+}
+

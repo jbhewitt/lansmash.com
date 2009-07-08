@@ -1,0 +1,348 @@
+<?php
+// $Id: rsvp_user_relationships.module,v 1.1.2.2 2009/03/04 20:09:37 ulf1 Exp $
+
+/**
+ * @module rsvp_user_relationships
+ * 
+ * @package rsvp - A drupal module developed for civicspace - a distribution of drupal.
+ * @description Provides functionality to invite people that subscribed to user_relationships newsletters
+ * @author crunchywelch (welch@advomatic.com)
+ * @author Omar Abdel-Wahab (owahab@gmail.com)
+ * @author Ulf Schenk (ulf@schenkunlimited.net)
+ *
+ */
+
+/**
+ * RSVP USER RELATIONSHIP PERMISSIONS
+ */
+define('RSVP_PERM_INVITE_USER_RELATIONSHIPS',  'rsvp invite user_relationships');
+
+/**
+ * Provides the rsvp user_relationships permission information for the drupal system.
+ *
+ * @ingroup rsvp_user_relationships
+ */
+function rsvp_user_relationships_perm() {
+  return array(RSVP_PERM_INVITE_USER_RELATIONSHIPS);
+}
+
+/**
+ * Implementation of hook_menu().
+ *
+ * @ingroup rsvp_user_relationships
+ */
+function rsvp_user_relationships_menu() {
+
+  $connector = new RsvpConnector();
+  
+  $items = array();
+
+  $items['rsvp/%rsvp/attendees/user_relationships/%/%'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('rsvp_user_relationships_add_form', 1, 4, 5),
+    'access callback' => 'rsvp_function_invitation_by_invite_access',
+    'access arguments' => array($connector, 1, NULL, NULL, RSVP_ACCESS_REPLY, RSVP_PERM_INVITE_USER_RELATIONSHIPS),
+    'weight' => '2',
+  );
+
+  return $items;
+}
+
+/**
+ * Adding a list of user_relationships relationship members as invitees to the $rsvp.
+ *
+ * @param $rsvp The rsvp object you want to add the newsletter invitees to.
+ * @param $urid int The userrelationship ID.
+ * @param $type string, can be either 'requester' or 'requestee' or 'all'.
+ *
+ * @ingroup rsvp_user_relationships
+ */
+function rsvp_user_relationships_add_form(&$form_state, $rsvp, $urid, $type) {
+
+  if (is_numeric($urid)) {
+    $guestsarray = rsvp_user_relationships_function_list($urid, $type);
+    
+    $connector = new RsvpConnector();
+    
+    $statusarray = rsvp_function_add_guests($rsvp, NULL, $guestsarray, false);
+    
+    if (count($statusarray['success_add']) > 0)
+      drupal_set_message('New Guests have been added. Do not forget to send the invitation.');
+ 
+    $content .= theme('rsvp_status', $statusarray);
+    drupal_set_message($content);
+    
+  }
+  
+  drupal_goto(rsvp_function_session_parent(NULL, false));
+    
+}
+
+/**
+ * Returns a list with available relationships that are available for selection.
+ *  *
+ * @param $rsvp The RSVP object.
+ * @return a list with relationship links.
+ *
+ * @ingroup rsvp_user_relationships
+ */
+function rsvp_user_relationships_linklist($rsvp) {
+
+  $links = array();
+  
+  if (module_exists('user_relationships_api')) {
+    
+  	if (user_is_anonymous())
+      return $links;
+      
+    global $user; 
+  	
+    //filter the relationtypes from the relationships. 
+
+    if ( false ) {
+/* Find a better way to represent all available groups to a moderator, like select relationship  and user     	
+    if ( in_array('site_administrator', array($user->roles))) {
+    	$groups = array();
+
+      $relationships_types = user_relationships_types_load(false);
+      
+      foreach ($relationships_types as $rttype) {
+        $links[] = l($rttype->plural_name, 'rsvp/'. $rsvp->rid .'/attendees/user_relationships/'. $rttype->rtid . '/all', array('attributes' => array('title' => t('Add %term members to this invitation', array('%term' => $rttype->plural_name)))));
+      }
+*/
+    }
+    else {
+    
+      //e.g. find all friends of user $user
+      $groups = array();
+      $result_requester = user_relationships_load(array('requester_id' => $user->uid, 'approved' => true));
+      
+      foreach ($result_requester as $requester) {
+        $groups[$requester->rtid] = $requester->rid;
+      }
+    
+      foreach ($groups as $rtid => $rid) {
+        $rttype = user_relationships_type_load(array('rtid' => $rtid));
+        $links[] = l(t('My ') . $rttype->plural_name, 'rsvp/'. $rsvp->rid .'/attendees/user_relationships/'. $rtid . '/requester', array('attributes' => array('title' => t('Add %term members to this invitation', array('%term' => $rttype->plural_name)))));
+      }
+    
+
+      //e.g. tell to whome $user is a friend of
+      $groups = array();
+      $result_requestee = user_relationships_load(array('requestee_id' => $user->uid, 'approved' => true));
+
+      foreach ($result_requestee as $requestee) {
+        $groups[$requestee->rtid] = $requestee->rid;
+      }
+      
+    
+      foreach ($groups as $rtid => $sid) {
+        $rttype = user_relationships_type_load(array('rtid' => $rtid));
+        $links[] = l(t('I am ') . $rttype->plural_name . t(' of'), 'rsvp/'. $rsvp->rid .'/attendees/user_relationships/'. $rtid . '/requestee', array('attributes' => array('title' => t('Add %term members to this invitation', array('%term' => $rttype->plural_name)))));
+      }
+    }
+  	    
+  }
+  
+  return $links;  
+}
+
+/**
+ * Implementation of hook_form_alter().
+ * 
+ * weigth of plugins is always 40
+ * 
+ * to append the user_relationships choice to the attendee form if the permissions are right.
+ * 
+ * @ingroup rsvp_user_relationships
+ * 
+ */
+function rsvp_user_relationships_form_alter(&$form, $form_state, $form_id) {
+
+  
+  
+  if ($form_id == 'rsvp_add_guests_form') {
+    $rsvp = $form['rsvp_add_guests_form']['rsvp']['#value'];
+	  if ( is_null($rsvp) )
+      return;
+    
+    $connector = new RsvpConnector();
+    if (rsvp_function_invitation_by_invite_access($connector, $rsvp, NULL, NULL, RSVP_ACCESS_REPLY, RSVP_PERM_INVITE_USER_RELATIONSHIPS) == true) {
+    
+      $links = rsvp_user_relationships_linklist($rsvp);
+      //$title = t('Relationships');
+      
+      $itemlist = theme('item_list', $links, $title);
+
+      $form['rsvp']['rsvp_user_relationships'] = array(
+        '#weight' => 40,
+        '#value' => '<div class="rsvp_form rsvp_add_guests_form rsvp_color_border rsvp_color_inner">',
+        '#suffix' => '</div>',
+      );
+      
+      $form['rsvp']['rsvp_user_relationships']['header'] = array(
+        '#value' => t('You may invite members by relationship'),
+        '#prefix' => '<div class="rsvp_form_header rsvp_add_guests_form_header rsvp_color_outer">',
+        '#suffix' => '</div>',
+      );
+      
+      $form['rsvp']['rsvp_user_relationships']['list'] = array(
+        '#value' => $itemlist,
+        '#prefix' => '<div class="rsvp_form_content rsvp_add_guests_form_content rsvp_color_inner">',
+        '#suffix' => '</div>',
+      );
+      
+    }
+  }
+  
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+* @ingroup rsvp_user_relationships_action
+* 
+* Implementation of hook_action_info()
+*/
+/*
+function rsvp_user_relationships_action_info() {
+  
+  return array(
+      'rsvp_user_relationships_add_guests_action' => array(
+        'description' => t('RSVP: Add user_relationships relationship members to invitation'),
+        'type' => 'node',
+        'configurable' => FALSE,
+        'hooks' => array(
+          'any' => TRUE,
+        ),
+      ),
+  );
+}
+*/
+
+/**
+ * A nonconfigurable Drupal action. Adds guests based on a newsletter to an invitation (host permissions) and send the invitation message
+ *   hook = any
+ *
+ *   Required contexts:
+ *    $context['rid'] The invitation id you want to add guests to.
+ *    $context['urid'] The user_relationship id.
+ *    $context['send_rsvp'] Boolean also send the invitations or just add the guests to the invitation.
+ *
+ * @ingroup rsvp_user_relationships_actions
+ * 
+ */
+function rsvp_user_relationships_add_guests_action(&$object, $context = array()) {
+
+  if ((!isset($context['rid'])) || (!isset($context['urid'])) || (!isset($context['send_rsvp']))  ) {
+    return false;
+  }
+
+  rsvp_user_relationships_api_add_guests($context['rid'], NULL, $context['urid'], $context['send_rsvp']);
+} 
+
+/**
+ * Adds a number of guests based on user_relationships relationships to an invitation(rsvp) and sends out the invitations
+ * 
+ * The function requires the correct user permissions.
+ * 
+ * @ingroup rsvp_user_relationships_api
+ * 
+ * @param $rid The Id of the rsvp instance.
+ * @param $hash The hash of the invitation object of the user who adds the invitees, 
+ *        or NULL if the rsvp owner adds the invitees.
+ * @param $urid The id of the user_relationship.
+ * @param $send_rsvp Boolean Also send the invitations or just add the guests to the invitation.
+ */
+function rsvp_user_relationships_api_add_guests($rid, $hash, $urid, $send_rsvp) {
+  
+  $invite = NULL;
+  
+  if(!isnull($rid)) {
+    $rsvp = rsvp_function_load_rsvp($rid);
+    if ($rsvp == false)
+      return false;
+  }
+  
+  if(!isnull($hash)) {
+    $invite = rsvp_function_load_invitation_hash($hash);
+    if ($invite == false)
+      return false;
+  }
+  
+  $connector = new RsvpConnector();
+
+  $perm_add = rsvp_function_invitation_by_invite_access($connector, $rsvp, NULL, NULL, RSVP_ACCESS_EDIT, RSVP_PERM_INVITE_USER_RELATIONSHIPS);
+  if ($perm_add == true) {
+    $guestarray = rsvp_user_relationships_function_list($urid);
+    rsvp_function_add_invitees($rsvp, $invite, $guestsarray, $send_rsvp);
+    watchdog('action', 'Added invitees from user_relationship %urid to invitation %rsvp_name(%rid) successfully.', array('%rsvp_name' => $rsvp->name, '%rid' => $rsvp->rid, '%urid' => $urid)); 
+  }
+}
+
+
+/**
+ * Extracting a list of user_relationship relationship members.
+ *
+ * The function requires the correct user permissions.
+ *
+ *
+ * @param $urid int The user_relationship ID.
+ * @param $type string, can be either 'requester' or 'requestee'.
+ * 
+ * @return array of useremails.
+ *
+ * @ingroup rsvp_user_relationships_functions
+ */
+function rsvp_user_relationships_function_list($urid, $type) {
+
+  $guestsarray = array();
+  
+  if (is_numeric($urid)) {
+    global $user;
+    
+    if ($type == 'requester') {
+    	
+      $relationships = user_relationships_load(array('requester_id' => $user->uid,'rtid'=>$urid, 'approved' => true));
+      
+      foreach ($relationships as $relationship) {
+        $requestee = user_load($relationship->requestee_id);
+      	
+      	if (($requestee != false)  && ($requestee->uid != $user->uid))
+          $guestsarray[] = $requestee->name;
+      }
+    }
+    elseif ($type == 'requestee') {
+      $relationships = user_relationships_load(array('requestee_id' => $user->uid,'rtid'=>$urid, 'approved' => true));
+      
+      foreach ($relationships as $relationship) {
+        $requester = user_load($relationship->requester_id);
+    
+        if (($requester != false) && ($requester->uid != $user->uid))
+          $guestsarray[] = $requester->name;
+      }
+    }
+    elseif ($type == 'all') {
+/* Find a better way to represent all available groups to a moderator, like select relationship  and user       
+    	if ( in_array('site_administrator', array($user->roles))) {
+        $relationships = user_relationships_load(array('rtid'=>$urid, 'approved' => true));
+      
+        foreach ($relationships as $relationship) {
+          $requester = user_load($relationship->requester_id);
+          $requestee = user_load($relationship->requestee_id);
+        
+          if (($requester != false) && ($requester->uid != $user->uid))
+            $guestsarray[] = $requester->name;
+      	
+          if (($requestee != false)  && ($requestee->uid != $user->uid))
+            $guestsarray[] = $requestee->name;
+        }
+      }  
+*/      
+    }
+  
+  }    
+  return $guestsarray;  
+}
+

@@ -1,0 +1,105 @@
+<?php
+// $Id: xbox_gamertag.module,v 1.3.4.1 2008/02/23 18:26:31 pobster Exp $
+
+function xbox_gamertag_user($op, &$edit, &$user, $category = NULL) {
+  switch ($op) {
+    default:
+      break;
+    case 'form':
+      if ($category == 'account') {
+        return xbox_gamertag_user_form($edit, $user, $category);
+      }
+      break;
+    case 'register' :
+      return xbox_gamertag_user_form($edit, $user, $category);
+    case 'view' :
+      if ($user->gamertag) {
+        $user->content['summary']['xbox_gamertag_view'] = array(
+          '#type' => 'user_profile_item',
+          '#title' => t('Xbox Live Gamertag'),
+          '#value' => xbox_gamertag('fetch', $user->gamertag),
+        );
+      }
+  }
+} // xbox_gamertag_user
+
+function xbox_gamertag_user_form($edit, $user, $category) {
+  $form['xbox_gamertag'] = array(
+    '#type' => 'fieldset',
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+    '#weight' => 1,
+  );
+  $form['xbox_gamertag']['gamertag'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Gamertag'),
+    '#default_value' => $user->gamertag,
+    '#description' => t('If you have one, please enter your XboxLive GamerTag'),
+  );
+  return $form;
+} // xbox_gamertag_user_form
+
+function xbox_gamertag($op, $user) {
+  switch ($op) {
+    case 'fetch':
+      return theme('xbox_gamertag', xbox_gamertag('url', $user));
+      break;
+    case 'url':
+      return sprintf("http://gamercard.xbox.com/%s.card", $user);
+      break;
+  }
+} // xbox_gamertag
+
+function theme_xbox_gamertag($url) {
+  return sprintf("<iframe name=\"gamertag\" src=\"%s\" scrolling=\"no\" width=\"204\" height=\"140\" frameborder=\"0\" marginwidth=\"0\" marginheight=\"0\">If you can see this, your browser does not support iframes!</iframe>", $url);
+} // theme_xbox_gamertag
+
+function xbox_gamertag_filter($op, $delta = 0, $format = -1, $text = '') {
+  switch ($op) {
+    case 'list':
+      return (array(0 => t('Xbox Live Gamertag filter')));
+      break;
+    case 'name':
+      return t('xbox_gamertag filter');
+      break;
+    case 'description':
+      return t('Substitutes [gamertag:???] with your Xbox Live Gamertag');
+      break;
+    case 'no cache':
+      return TRUE;
+      break;
+    case 'prepare':
+      return $text;
+      break;
+    case 'process':
+      return _xbox_gamertag_process_text($text);
+      break;
+  } // end switch
+} // xbox_gamertag_filter
+
+function _xbox_gamertag_process_text($text) {
+  $pattern = "/\[gamertag:(.*)\]/i";
+  if (preg_match_all($pattern, $text, $matches)) {
+    foreach ($matches[1] as $no => $match) {
+      $text = str_replace($matches[0][$no], xbox_gamertag('fetch', $match), $text);
+    }
+  }
+  return $text;
+} // _xbox_gamertag_process_text
+
+function xbox_gamertag_filter_tips($delta, $format, $long = FALSE) {
+  if ($long) {
+    return t('You can display your Xbox Live Gamertag by typing [gamertag:id]');
+  }
+  else {
+    return t('You can display your Xbox Live Gamertag by typing [gamertag:id]');
+  }
+} // xbox_gamertag_filter_tips
+
+function xbox_gamertag_theme() {
+  return array(
+    'xbox_gamertag' => array(
+      'arguments' => array('url' => NULL),
+    ),
+  );
+} // xbox_gamertag_theme

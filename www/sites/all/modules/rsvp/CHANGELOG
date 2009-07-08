@@ -1,0 +1,116 @@
+05/26/09: fixed by ulf1- plaxo js is always been loaded. Load only when we want to use it while adding guests to invitation.
+                       - [464270] cleaned up wrong output mappings for title, invitation body, emails and some links
+
+
+04/21/09: fixed by ulf1- guestlist and replybox have always be shown below the node. 
+                         The settings 'Display guest list inside event/node' and
+                         'Display reply box inside event/node' have not been considered when displaying the data. 
+
+03/23/09: improoved by ulf1- views
+
+03/18/09: fixed by ulf1- removed unnecessary message "RSVP: Association for content type..." when saving a content type.
+
+
+03/16/09: improoved guest list: show "all/part" link only if we have more then a total of 10 guests.
+
+03/11/09: fixed by ulf1- replybox and guestlist does not show up for anonymous users.
+          fixed by ulf1- [#397828]
+
+03/10/09: fixed by ulf1- [#396464] Enabling of RSVP module sets event connector by default, and enabling the date connector will 
+                                   fail because of that.
+          fixed by ulf1- Unregularities when selecting date field for date connector inside content-types.                        
+          added by ulf1- [#397888] added new permission "rsvp multiple invitations per event"
+          fixed by ulf1- [#397842]
+          
+
+
+03/07/09: fixed by ulf1- [#360151] Users can see other guests complete emailaddress in guest list. Only first part should be visible.
+          fixed by ulf1- [#360151] anonymous guests can not see their invitation (Access denied).
+          Updated: Improved messages: Open invitation signup works only for authenticated users. Anonymous users are not permitted.
+          fixed by ulf1- Host and Guest Toolbox/"Export Guest list" visible to non moderators
+          fixed by ulf1- Guest list shows empty braces for guests that selected more then one "total guests".
+          
+
+03/04/09: fixed by ulf1- changed stylesheets a bit to make output more consistent.
+
+03/03/09: fixed by ulf1- blocks were not visible
+                         removed references to array_combine to make rsvp work with PHP4
+                         guest list does not show correct guests with PHP4.
+                                                  
+03/03/09,
+03/01/09: improved date calculation/extraction in date connector
+          date_connector requires now date version 6.x-2.0
+
+2/27/09: fixed by ulf1- [#385794]
+                        [#385834]
+
+2/25/09: fixed by ulf1- [#383186]
+Cleanup: Associations are now being handled through the content type form under admin/content/types
+
+2/18/09: fixed by ulf1- permission issue for moderators to view/access the admin/content/rsvp tab ("RSVP Management")  
+
+2/16/09: fixed by ulf1- fixed a style issue with right blocks not being displayed correctly when reply box is visible.
+ 
+2/11/09: fixed by ulf1- [#371238]
+
+2/09/09: fixed by ulf1- added missing t() at some places to allow translation of module.
+
+2/08/09: fixed by ulf1- [#371193]
+
+Compared with RSVP 1.0, the following changes have been integrated
+
+New Features:
+-------------
+
+Added: RSVP now include blocks: ("host toolbox", "guest toolbox", "guest list") [#293409]
+Added: RSVP now has a control panel (use user/%uid/rsvp) [#199968]
+
+Added: RSVP now supports "expert" and "basic" options to make life easier for non technical users. [#356236]
+Added: default values for invitations.
+
+
+Added: Guest list- Marking for the organizer (The organizer).
+Added: Guest list- Icon to send message to a specific guest (for moderators).
+Added: Guest list- Icon to send invitation to a specific guest (for moderators).
+Added: Guest list- link to user profile for regular guests based on drupal permission.
+Added: Guest list- Current date/time as field when guest replied, and last access date in guest list.
+Added: Guest list- Sort order by Date and Alphabeticaly.
+Added: Guest list- Show all feature.
+
+Added: Guests can store their real name in the invitation system if they want to. [#344326]
+
+
+Added: Automatic removale of guests uid from invitations if user is being removed.
+
+Added: Actions [#331423]
+  current actions : add invitation, remove invitation, add Invitees, send Message, send Invitation, remove Invitee
+***  functionality is not well tested though
+
+Added: First version of a RSVP API 
+
+
+Added: RSVP Option: Disable answer "maybe".  [#36118] 
+Added: RSVP Option: Allow "open invitation" for authorized users [#36118]
+Added: RSVP Option: Send optional confirmation email to guests and owner when guests change their response. [#344328]
+Added: RSVP Option: Integrate start and enddate during which guests can reply. [#34183]
+
+
+Added: General setting to permit invitations on already expired events 
+Added: General setting, Emails are now templates and can be changed.
+
+
+Added: RSVP Handling: Proper Captcha positioning for reply box. [#360253]
+Added: Integration with Buddylist2
+Added: Integration with Friendlist
+Added: Integration with User Relationship
+Added: Integration with Plaxo Address Select widget [#180704], [#258108]
+Added: Integration with Organic Groups [#84918], [#21400]
+Added: Integration with Signup [#67928]
+ 
+ 
+Fixed problems:
+---------------
+Fixed: When moderator and adding guests (through our hash), force adding the guests as moderator to avoid the "Added by guest" flag in the guest list.
+Fixed: Last access time for guests has not been updated properly.
+Fixed: Guest List. number of guest calculation was wrong when guests bring more then one person.
+ 

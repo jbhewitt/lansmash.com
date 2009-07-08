@@ -1,0 +1,643 @@
+# $Id: nodewords.pot,v 1.1.4.2 2008/06/22 14:46:22 hass Exp $
+#
+# LANGUAGE translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  nodewords-edit-attributes.tpl.php,v 1.1.2.2 2008/03/14 08:22:52 robrechtj
+#  nodewords.module,v 1.57.4.8 2008/03/14 13:12:42 robrechtj
+#  nodewords-list.tpl.php,v 1.1.2.1 2008/02/15 14:08:32 robrechtj
+#  nodewords.admin.inc,v 1.1.4.9 2008/03/14 13:12:42 robrechtj
+#  nodewords-edit-defaults.tpl.php,v 1.1.2.3 2008/03/14 10:34:05 robrechtj
+#  nodewords.inc,v 1.1.2.4 2008/03/14 13:12:42 robrechtj
+#  nodewords.info,v 1.3.4.2 2008/02/15 14:08:32 robrechtj
+#  nodewords.install,v 1.10.4.5 2008/03/14 10:25:03 robrechtj
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2008-06-22 16:22+0200\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: nodewords-edit-attributes.tpl.php:27 nodewords.module:129
+msgid "Delete"
+msgstr ""
+
+#: nodewords-edit-attributes.tpl.php:28 nodewords-list.tpl.php:32 nodewords.admin.inc:138
+msgid "Name"
+msgstr ""
+
+#: nodewords-edit-attributes.tpl.php:29
+msgid "Value"
+msgstr ""
+
+#: nodewords-edit-attributes.tpl.php:30 nodewords-list.tpl.php:36
+msgid "Weight"
+msgstr ""
+
+#: nodewords-edit-attributes.tpl.php:46
+msgid "No meta tag attributes available."
+msgstr ""
+
+#: nodewords-edit-defaults.tpl.php:28
+msgid "Context"
+msgstr ""
+
+#: nodewords-edit-defaults.tpl.php:29
+msgid "Output in HEAD?"
+msgstr ""
+
+#: nodewords-edit-defaults.tpl.php:30
+msgid "Editable?"
+msgstr ""
+
+#: nodewords-edit-defaults.tpl.php:31
+msgid "Default value"
+msgstr ""
+
+#: nodewords-list.tpl.php:33 nodewords.admin.inc:166
+msgid "Type"
+msgstr ""
+
+#: nodewords-list.tpl.php:34 nodewords.module:111
+msgid "Widget"
+msgstr ""
+
+#: nodewords-list.tpl.php:35 nodewords.admin.inc:146 nodewords.inc:456;532;715;778
+msgid "Description"
+msgstr ""
+
+#: nodewords-list.tpl.php:37
+msgid "Operations"
+msgstr ""
+
+#: nodewords-list.tpl.php:56
+msgid "No meta tags available."
+msgstr ""
+
+#: nodewords.admin.inc:30
+msgid "Ignored"
+msgstr ""
+
+#: nodewords.admin.inc:34
+msgid "edit"
+msgstr ""
+
+#: nodewords.admin.inc:35
+msgid "delete"
+msgstr ""
+
+#: nodewords.admin.inc:42
+msgid "Save meta tags"
+msgstr ""
+
+#: nodewords.admin.inc:63
+msgid "The meta tag settings have been updated."
+msgstr ""
+
+#: nodewords.admin.inc:101
+msgid "Are you sure you want to delete the %tag_name meta tag?"
+msgstr ""
+
+#: nodewords.admin.inc:103
+msgid "This action cannot be undone."
+msgstr ""
+
+#: nodewords.admin.inc:104;224
+msgid "Delete meta tag"
+msgstr ""
+
+#: nodewords.admin.inc:105
+msgid "Cancel"
+msgstr ""
+
+#: nodewords.admin.inc:115
+msgid "Deleted %tag_name meta tag."
+msgstr ""
+
+#: nodewords.admin.inc:129
+msgid "Edit %tag_name meta tag"
+msgstr ""
+
+#: nodewords.admin.inc:133;216
+msgid "Create new meta tag"
+msgstr ""
+
+#: nodewords.admin.inc:140
+msgid "The name of the meta tag."
+msgstr ""
+
+#: nodewords.admin.inc:147
+msgid "Short description for administrators."
+msgstr ""
+
+#: nodewords.admin.inc:160
+msgid "<p>Select one of the available meta tag types.</p>"
+msgstr ""
+
+#: nodewords.admin.inc:175
+msgid "Content construction"
+msgstr ""
+
+#: nodewords.admin.inc:182
+msgid "Use all inheritted values"
+msgstr ""
+
+#: nodewords.admin.inc:183
+msgid "The normal way of handling different context defaults is that the more specific context default overrides the broader one. For some meta tags (such as <code>keywords</code>) it is more useful to use all defaults from all broader contexts. Checking this option will use the user-inputted value and all context default values as values for this meta tag. If unsure, unselect this option."
+msgstr ""
+
+#: nodewords.admin.inc:188
+msgid "Allow empty value"
+msgstr ""
+
+#: nodewords.admin.inc:189
+msgid "If a meta tag value is empty, normally there is no use of outputting the meta tag. Check this option if you want to output an empty-valued meta tag."
+msgstr ""
+
+#: nodewords.admin.inc:194
+msgid "Suppress duplicate values"
+msgstr ""
+
+#: nodewords.admin.inc:195
+msgid "Normally there is no use of outputting the same value of a meta tag multiple times. For meta tags as <code>keywords</code> or <code>DC.Subject</code> this is even discouraged as it may lower your SEO ranking. Checking this option will remove duplicate values for this meta tag. If unsure, select this option."
+msgstr ""
+
+#: nodewords.admin.inc:200
+msgid "Combine multiple values"
+msgstr ""
+
+#: nodewords.admin.inc:201
+msgid "If a meta tag has multiple values, either by checking the option above or when the widget supports multiple values, one meta tag is outputted for each value. For some meta tags (such as <code>keywords</code>) it is more usefull to combine all those values into one single value. Checking this option will combine all inputted or automatic values into a single one separated by the separator below. If unsure, unselect this option."
+msgstr ""
+
+#: nodewords.admin.inc:206
+msgid "Separator"
+msgstr ""
+
+#: nodewords.admin.inc:207
+msgid "For the <em>Combine multiple values</em> option above we need a separator. If unsure, input <em>, (comma)</em>."
+msgstr ""
+
+#: nodewords.admin.inc:216
+msgid "Save meta tag"
+msgstr ""
+
+#: nodewords.admin.inc:240
+msgid "Updated %tag_name meta tag."
+msgstr ""
+
+#: nodewords.admin.inc:244
+msgid "Created new %tag_name meta tag."
+msgstr ""
+
+#: nodewords.admin.inc:270
+msgid "Edit %tag_name meta tag attributes"
+msgstr ""
+
+#: nodewords.admin.inc:273
+msgid "You can not set attributes for a meta tag which is an alias."
+msgstr ""
+
+#: nodewords.admin.inc:306
+msgid "Save attributes"
+msgstr ""
+
+#: nodewords.admin.inc:313
+msgid "Add new attribute"
+msgstr ""
+
+#: nodewords.admin.inc:344
+msgid "The name of an attribute can not be empty."
+msgstr ""
+
+#: nodewords.admin.inc:355
+msgid "Updated %tag_name meta tag attributes."
+msgstr ""
+
+#: nodewords.admin.inc:387
+msgid "Edit %tag_name meta tag widget"
+msgstr ""
+
+#: nodewords.admin.inc:413
+msgid "<p>Select the widget to use to edit this meta tag.</p>"
+msgstr ""
+
+#: nodewords.admin.inc:419
+msgid "Widget type"
+msgstr ""
+
+#: nodewords.admin.inc:428
+msgid "Widget options"
+msgstr ""
+
+#: nodewords.admin.inc:430
+msgid "Here you can customize the widget. The available options depend on the selected widget."
+msgstr ""
+
+#: nodewords.admin.inc:441
+msgid "There are no options available for this widget."
+msgstr ""
+
+#: nodewords.admin.inc:449
+msgid "Save widget"
+msgstr ""
+
+#: nodewords.admin.inc:480
+msgid "You have changed the widget to use, please fill in the widget options."
+msgstr ""
+
+#: nodewords.admin.inc:484
+msgid "Updated %tag_name meta tag widget."
+msgstr ""
+
+#: nodewords.admin.inc:492
+msgid "Edit %tag_name meta tag defaults"
+msgstr ""
+
+#: nodewords.admin.inc:501
+msgid "Inherit"
+msgstr ""
+
+#: nodewords.admin.inc:502
+msgid "Yes"
+msgstr ""
+
+#: nodewords.admin.inc:503
+msgid "No"
+msgstr ""
+
+#: nodewords.admin.inc:541
+msgid "Save defaults"
+msgstr ""
+
+#: nodewords.admin.inc:557
+msgid "Updated %tag_name meta tag defaults."
+msgstr ""
+
+#: nodewords.admin.inc:597
+msgid "Content length"
+msgstr ""
+
+#: nodewords.admin.inc:598
+msgid "The maximum number of characters the content of a meta tag can contain. Set to 0 to allow any length. If unsure, set it to 255 (a common cut-off length search engines use)."
+msgstr ""
+
+#: nodewords.admin.inc:605
+msgid "Repeat meta tags for lists"
+msgstr ""
+
+#: nodewords.admin.inc:606
+msgid "Some search engines punish sites that use the same meta tags on different pages. Check this option if you want to repeat the same meta tags on pages that use the pager (such as the default front page). If unchecked, Drupal will only display the meta tags on the first page and not for subsequent pages. If unsure, unselect this option."
+msgstr ""
+
+#: nodewords.admin.inc:612
+msgid "Use front page meta tags"
+msgstr ""
+
+#: nodewords.admin.inc:613
+msgid "Check this option if you want to use the meta tags for the front page even if the default front page specified is a view, panel or node - in this case, the meta tags specified for the view, panel or node will be ignored. If you want to use the meta tags of the view, panel or node instead, uncheck this option. If unsure, select this option and specify the meta tags you want on the meta tags for the front page."
+msgstr ""
+
+#: nodewords.inc:423
+msgid "Dublin Core schema"
+msgstr ""
+
+#: nodewords.inc:432
+msgid "Dublin Core Terms schema"
+msgstr ""
+
+#: nodewords.inc:441
+msgid "Dublin Core Title"
+msgstr ""
+
+#: nodewords.inc:444
+msgid "Title"
+msgstr ""
+
+#: nodewords.inc:453
+msgid "Dublin Core Description"
+msgstr ""
+
+#: nodewords.inc:460
+msgid "Dublin Core Abstract"
+msgstr ""
+
+#: nodewords.inc:463;519
+msgid "Abstract"
+msgstr ""
+
+#: nodewords.inc:484
+msgid "Dublin Core Date"
+msgstr ""
+
+#: nodewords.inc:493
+msgid "Dublin Core Created"
+msgstr ""
+
+#: nodewords.inc:502
+msgid "Dublin Core Modified"
+msgstr ""
+
+#: nodewords.inc:577
+msgid "No widget"
+msgstr ""
+
+#: nodewords.inc:578
+msgid "The user will not be able to edit the meta tag for a specific page. The auto-generated value (based on the context) will be used."
+msgstr ""
+
+#: nodewords.inc:581;684
+msgid "Alias"
+msgstr ""
+
+#: nodewords.inc:582
+msgid "The user will not be able to edit the meta tag for a specific page. The content of this meta tag will be taken from another meta tag instead. This can for example be used to output the same content for <code>DC.Subject</code> and <code>keywords</code> without the user having to input everything twice. Note that in this case the meta tag type (<em>Meta</em> or <em>Link</em>) will be ignored and the type of the meta tag this tag is an alias for will be used."
+msgstr ""
+
+#: nodewords.inc:585
+msgid "Text field"
+msgstr ""
+
+#: nodewords.inc:586
+msgid "A text field to input a short text."
+msgstr ""
+
+#: nodewords.inc:589
+msgid "Text area"
+msgstr ""
+
+#: nodewords.inc:590
+msgid "A text area to input a longer text, typically used for <code>DC.Description</code> or <code>description</code>."
+msgstr ""
+
+#: nodewords.inc:610
+msgid "Meta"
+msgstr ""
+
+#: nodewords.inc:611
+msgid "<code>&lt;meta name=\"...\" content=\"...\" /&gt;</code>. If unsure, select this option."
+msgstr ""
+
+#: nodewords.inc:615
+msgid "Link"
+msgstr ""
+
+#: nodewords.inc:616
+msgid "<code>&lt;link rel=\"...\" href=\"...\" /&gt;</code>."
+msgstr ""
+
+#: nodewords.inc:620
+msgid "Http-Equiv"
+msgstr ""
+
+#: nodewords.inc:621
+msgid "<code>&lt;meta http-equiv=\"...\" content=\"...\" /&gt;</code>."
+msgstr ""
+
+#: nodewords.inc:636
+msgid "Global default"
+msgstr ""
+
+#: nodewords.inc:637
+msgid "The <em>Global default</em> context is used for all pages of the site unless a more specific context is available."
+msgstr ""
+
+#: nodewords.inc:640
+msgid "Frontpage"
+msgstr ""
+
+#: nodewords.inc:641
+msgid "The <em>Frontpage</em> context is used for the front page of the site only."
+msgstr ""
+
+#: nodewords.inc:644
+msgid "Page not found"
+msgstr ""
+
+#: nodewords.inc:645
+msgid "The <em>Page not found</em> context is used for the pages that are not available for the user or that could not be found."
+msgstr ""
+
+#: nodewords.inc:648
+msgid "Content"
+msgstr ""
+
+#: nodewords.inc:649
+msgid "The <em>Content</em> context is used for all content pages (<em>Story</em>, <em>Page</em>, ...) unless a more specific default is set below."
+msgstr ""
+
+#: nodewords.inc:655
+msgid "@type content"
+msgstr ""
+
+#: nodewords.inc:656
+msgid "The %type content context is used for all pages of the %type content type."
+msgstr ""
+
+#: nodewords.inc:686
+msgid "Select the meta tag this tag is an alias for."
+msgstr ""
+
+#: nodewords.inc:709;772
+msgid "Label"
+msgstr ""
+
+#: nodewords.inc:710;773
+msgid "The label that will be used for this widget."
+msgstr ""
+
+#: nodewords.inc:716;779
+msgid "The description users see on the edit pages for this widget."
+msgstr ""
+
+#: nodewords.inc:729;792
+msgid "You need to specify a label for this widget."
+msgstr ""
+
+#: nodewords.module:33
+msgid "Below is a list of all the meta tags on your site."
+msgstr ""
+
+#: nodewords.module:37
+msgid "On this page you can configure how the meta tag will appear in the HTML HEAD section of your site."
+msgstr ""
+
+#: nodewords.module:40
+msgid "On this page you can configure how users can edit the meta tag."
+msgstr ""
+
+#: nodewords.module:43
+msgid "On this page you can configure the default values for the meta tag depending on the context. A default for a more specific context (such as <em>Story content</em>) will override the setting for a more general one (such as <em>Content</em> or <em>Global default</em>). Next to the default, you can also configure whether a meta tag will be outputted in the HTML HEAD for a given context and/or editable by users with the <em>edit meta tags</em> permission. Select <em>Inherit</em> to inherit those settings from the broader context."
+msgstr ""
+
+#: nodewords.module:46
+msgid "On this page you can configure the attributes for the meta tag. Examples include <code>scheme=\"DCTERMS.W3CDF\"</code> for specifying dates or <code>xml:lang=\"en\"</code> for specifying the language. If unsure, you can leave this empty."
+msgstr ""
+
+#: nodewords.module:49
+msgid "On this page you can create a new meta tag. You will be able to change the widget to use, the default values and/or the attributes once you have saved the new meta tag."
+msgstr ""
+
+#: nodewords.module:52
+msgid "On this page you can configure the meta tag module. Most options are for advanced usage only, so if unsure, reset them to the defaults."
+msgstr ""
+
+#: nodewords.module:72
+msgid "Configure which meta tags are defined, can be used and what their default values are."
+msgstr ""
+
+#: nodewords.module:145;153;71 nodewords.info:0
+msgid "Meta tags"
+msgstr ""
+
+#: nodewords.module:22
+msgid "administer meta tags"
+msgstr ""
+
+#: nodewords.module:23
+msgid "edit meta tags"
+msgstr ""
+
+#: nodewords.module:81
+msgid "List"
+msgstr ""
+
+#: nodewords.module:87
+msgid "Add"
+msgstr ""
+
+#: nodewords.module:94
+msgid "Settings"
+msgstr ""
+
+#: nodewords.module:101
+msgid "Edit meta tag"
+msgstr ""
+
+#: nodewords.module:106
+msgid "Basic"
+msgstr ""
+
+#: nodewords.module:117
+msgid "Defaults"
+msgstr ""
+
+#: nodewords.module:123
+msgid "Attributes"
+msgstr ""
+
+#: nodewords.module:0
+msgid "nodewords"
+msgstr ""
+
+#: nodewords.install:35
+msgid "List of the available tags."
+msgstr ""
+
+#: nodewords.install:38
+msgid "Unique identifier for a meta tag."
+msgstr ""
+
+#: nodewords.install:44
+msgid "Type of the meta tag (\"meta\", \"link\", \"http-equiv\")."
+msgstr ""
+
+#: nodewords.install:51
+msgid "Name of the meta tag."
+msgstr ""
+
+#: nodewords.install:58
+msgid "Description for the administrator."
+msgstr ""
+
+#: nodewords.install:64
+msgid "Type of the widget to use for editing this tag (\"none\", \"alias\", \"textfield\", \"textarea\", ...)."
+msgstr ""
+
+#: nodewords.install:71
+msgid "Other widget options (array)."
+msgstr ""
+
+#: nodewords.install:77
+msgid "Other special options for the content of the metatag (array)."
+msgstr ""
+
+#: nodewords.install:83
+msgid "Weight of the meta tag. Used in output and for the edit form."
+msgstr ""
+
+#: nodewords.install:94
+msgid "List of attributes for each meta tag."
+msgstr ""
+
+#: nodewords.install:97
+msgid "Unique identifier of the meta tag attribute."
+msgstr ""
+
+#: nodewords.install:103;138;180
+msgid "Unique identifier of the meta tag, see {nodewords_tags}."
+msgstr ""
+
+#: nodewords.install:110
+msgid "Name of the meta tag attribute."
+msgstr ""
+
+#: nodewords.install:117
+msgid "Value of the meta tag attribute."
+msgstr ""
+
+#: nodewords.install:124
+msgid "Weight of the meta tag attribute. Used in output."
+msgstr ""
+
+#: nodewords.install:135
+msgid "List of default values for each tag, depending on context."
+msgstr ""
+
+#: nodewords.install:145
+msgid "Context for this default value (\"default\", \"default:front\", \"default:error\", \"default:node\", \"default:node:story\", ...)."
+msgstr ""
+
+#: nodewords.install:152
+msgid "Default value."
+msgstr ""
+
+#: nodewords.install:159
+msgid "Whether the meta tag will be outputted for this context (NODEWORDS_ENABLED, NODEWORD_DISABLED, NODEWORDS_INHERIT)."
+msgstr ""
+
+#: nodewords.install:166
+msgid "Whether the meta tag is editable on the edit form for this context (NODEWORDS_ENABLED, NODEWORD_DISABLED, NODEWORDS_INHERIT)."
+msgstr ""
+
+#: nodewords.install:177
+msgid "User-inputted value for this tag for node contexts."
+msgstr ""
+
+#: nodewords.install:187
+msgid "Unique identifier of the node, see {node}."
+msgstr ""
+
+#: nodewords.install:194
+msgid "Unique identifier of a version of the node, see {node_revisions}."
+msgstr ""
+
+#: nodewords.install:201
+msgid "Delta for multiple values."
+msgstr ""
+
+#: nodewords.install:208
+msgid "The user-inputted value for this meta tag and node version."
+msgstr ""
+
+#: nodewords.info:0
+msgid "Allows users to add HTML meta tags."
+msgstr ""
+

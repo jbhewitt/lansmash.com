@@ -1,0 +1,491 @@
+<?php
+// $Id: og_rsvp.module,v 1.1.2.1 2008/12/20 20:57:12 mradcliffe Exp $
+
+ /**
+  * @File
+  * 	Organic groups RSVP module
+  *
+  * Matthew Radcliffe <mradcliffe@kosada.com>
+  */
+
+
+ /**
+  * hook_help implementation
+  */
+ function og_rsvp_help($path,$arg)
+ {
+	 switch($path)
+	 {
+		 case 'admin/help#og_rsvp':
+		 	return '<p>'.t('Extends event funcionality with invitations and rsvps to an entire group.');
+	 }
+ } // function og_rsvp_help
+
+
+ /**
+  * hook_menu implementation
+  * add the settings menu
+  */
+ function og_rsvp_menu()
+ {
+	 $items['admin/settings/og_rsvp'] = array(
+	 	'title' => t('Organic groups RSVP'),
+		'description' => t('Change mail settings for rsvps'),
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('og_rsvp_admin_settings'),
+		'access callback' => 'user_access',
+		'access arguments' => array('administrate organic groups'),
+		'type' => MENU_NORMAL_ITEM
+	 );
+
+	 return $items;
+ } // function og_rsvp_menu
+
+
+ /**
+  * admin settings callback for og_rsvp, creates form with default values
+  */
+ function og_rsvp_admin_settings()
+ {
+	 $default_mail_message = 'Dear !username,
+
+	 You hae been invited to attend the !title event. Please RSVP to this event by logging into the !site_name web site via the link below.
+
+	 HYPERLINK http://my.site.com/!node_url
+
+
+	 Sincerely,
+
+	 !author';
+
+
+	 $form['og_rsvp']['rsvp_mail'] = array(
+	 	'#type' => 'radios',
+		'#title' => t('RSVP Mail'),
+		'#description' => t('Toggle whether or not to send an e-mail to each attendee.'),
+		'#options' => array(0 => t('No'), 1 => t('Yes')),
+		'#default_value' => variable_get('rsvp_mail',0),
+	 );
+
+	 $form['og_rsvp']['rsvp_subject'] = array(
+	 	'#type' => 'textfield',
+		'#title' => t('RSVP Subject'),
+		'#description' => t('Write the default subject that will be sent by Drupal\'s mail system to each event attendee.'),
+		'#default_value' => variable_get('rsvp_subject',variable_get('site_name','Drupal').' RSVP Notification'),
+		'#required' => TRUE,
+	);
+
+	 $form['og_rsvp']['rsvp_message'] = array(
+	 	'#type' => 'textarea',
+		'#title' => t('RSVP Message'),
+		'#description' => t('Write the default message that will be sent by Drupal\'s mail system to each event attendee. Currently supports !username, !site_name, !author, !title, !body, !teaser, !node_url, !event_start, !event_end, !author_uid'),
+		'#default_value' => variable_get('rsvp_message',$default_mail_message),
+		'#required' => TRUE,
+	 );
+
+	 return system_settings_form($form);
+
+ } // function og_rsvp_admin_settings
+
+
+ /**
+  * hook_views_api implementation
+  */
+ function og_rsvp_views_api()
+ {
+	 return array('api' => '2','path' => drupal_get_path('module', 'og_rsvp'));
+ } // function og_rsvp_views_api
+
+
+ /**
+  * hook_mail implementation -- check to make sure we're only sending for rsvps and set up
+  * the variables to replace
+  */
+ function og_rsvp_mail($key,&$message,$params)
+ {
+	 $node_author = user_load($params['node']->uid);
+
+	 $variables = array(
+	    '!username' => $params['user']->name,
+		'!site_name' => variable_get('site_name','Drupal'),
+	 	'!author' => $node_author->name,
+		'!author_uid' => $node_author->uid,
+		'!node_url' => 'node/'.$params['node']->nid,
+		'!title' => $params['node']->title,
+		'!teaser' => $params['node']->teaser,
+		'!body' => $params['node']->body,
+		'!event_start' => $params['ev']->event_start, //FIXME should format as date
+		'!event_end' => $params['ev']->event_end, //FIXME should format as date
+	 );
+
+     if ( $key == 'rsvp' )
+     {
+     	$message['subject'] = t(variable_get('rsvp_subject', 'This is a bug subject') .' rsvp notification',$variables);
+     	$rsvp_body = variable_get('rsvp_message','ERROR: This is  bug.');
+		$message['body'][] = t($rsvp_body,$variables);
+     }
+ } // function og_rsvp_mail
+
+
+ /**
+  * hook_nodeapi
+  * when we're inserting or updating or deleting we need to do operations to add or remove
+  * users from the attendee list (og_rsvp).
+  * also when viewing the event node we need to display our attendees, non-attendees, and
+  * pending status members in a nice list.  As well we create a form here too for ease-of-use
+  * @param $node node object reference
+  * @param $op operation
+  */
+ function og_rsvp_nodeapi(&$node, $op)
+ {
+     if ($node->type <> 'event' )
+         return;
+
+	 switch ($op)
+	 {
+		 case 'validate':
+			// lets always form_set_error until we know that we've ot the right data!
+			//foreach( $node->attendees['attendees'] as $my_uid => $my_name)
+			//	drupal_set_message($my_uid.' is my uid','warning');
+			//form_set_error('attendees','TEST TEST TEST TEST');
+		 	break;
+
+		 case 'insert':
+            if ( !$node->og_groups ) 
+                break;
+            $attendees = array();
+            foreach( $node->og_groups as $gid)
+            {
+                $res = db_query("select * from {og_uid} ou where ou.nid = %d and ou.uid not in (select uid from {users_roles} where rid = 3) ",$gid);
+
+                while ( $usr = db_fetch_object($res) )
+                {
+                    $attendees[$usr->uid] = $usr->uid; // existing uids will not be duplicated
+                }
+            }
+
+		 	foreach ($attendees as $my_uid)
+			{
+				$usr = user_load($my_uid);
+				db_query("insert into {og_rsvp} values (%d,%d,-1)",$node->nid,$my_uid);
+				if ( variable_get('rsvp_mail',0) == 1)
+					drupal_mail('og_rsvp','rsvp',$user->mail,user_preferred_language($usr, NULL), $params = array('account' => $usr, 'node' => $node, 'event' => $ev));
+				//watchdog('og_rsvp',t('Sent an rsvp e-mail to %email',array('%email' => $user->mail)),NULL,WATCHDOG_NOTICE,NULL);
+			}
+		 	break;
+
+		 case 'update':
+            if ( !$node->og_groups ) 
+                break;
+            $attendees = array();
+            foreach( $node->og_groups as $gid)
+            {
+                $res = db_query("select * from {og_uid} ou where ou.nid = %d and ou.uid not in (select uid from {users_roles} where rid = 3) ",$gid);
+
+                while ( $usr = db_fetch_object($res) )
+                {
+                    $attendees[$usr->uid] = $usr->uid; // existing uids will not be duplicated
+                }
+            }
+
+		 	// we need to call a separate function to see who is missing from the list
+			// and who needs to be added.
+			_og_rsvp_update($node,$attendees);
+		 	break;
+
+		 case 'load':
+		 	// okay let's load our data :)
+			$res = db_query("select ea.status, ea.uid from {og_rsvp} ea where ea.nid = %d order by ea.status",$node->nid);
+
+			$attendees = array();
+
+			while ( $usr = db_fetch_object($res) )
+				$attendees[$usr->uid] = $usr->status;
+
+			$my_content = array( 'attendees' => $attendees );
+			unset($attendees);
+			return $my_content; // we really should break then return values...
+		 	break;
+
+		 case 'view':
+			$curstat = -1;
+			$atts = array();
+			$states = array( -1 => 'Pending', 0 => 'Not Attending', 1 => 'Attending');
+			if ( count($node->attendees) == 0 )
+			   break;
+		 	foreach ($node->attendees as $usrid => $status)
+			{
+				$att = user_load($usrid);
+				if ( function_exists(profile_load_profile) )
+					profile_load_profile($att);
+				if ($curstat != $status)
+					$curstat = $status;
+
+				$atts[$curstat][$usrid]['title'] = $att->name;
+				$atts[$curstat][$usrid]['href'] = 'user/'.$usrid;
+			}
+
+			foreach ($atts as $state => $att)
+			{
+				$node->content[$state] = array (
+					'#value' => '<div><span>'.$states[$state].'</span></div>'.theme('links',$att,$attributes = array('class' => 'links rsvp_'.$state)),
+					'#weight' => 10
+				);
+			}
+
+			/* event attendee status form */
+			/* if current node != this node then we're in a teaser and should not display it */
+				$is_curnode = 0;
+
+				if ( is_numeric(arg(1)) )
+					$pagenid = arg(1);
+
+				if ( $pagenid == $node->nid )
+					$is_curnode = 1;
+
+				if (/*! in_array('site administrator', array_values($user->roles)) &&*/ (count($atts) > 0) && ($is_curnode == 1) )
+                {
+					$rsvp_form = drupal_get_form('og_rsvp_rsvp');
+					$node->content['rsvp_form'] = array( '#value' => $rsvp_form, '#weight' => 15);
+                }	
+			
+		 	break;
+
+		 case 'delete':
+		 	db_query("delete from {og_rsvp} where nid = %d",$node->nid);
+		 	break;
+	 }
+
+ } // function og_rsvp_nodeapi
+
+
+ /**
+  * Update og_rsvp table
+  * This function inserts and deletes attendees from og_rsvp table based on whether
+  * the og_rsvp list for that node is different from our group list.
+  */
+ function _og_rsvp_update(&$node,$attendees)
+ {
+	/* first let's get our current attendees */
+	$curr_att = _og_rsvp_get_attendees($node->nid);
+
+	if ( is_numeric($curr_att) )
+	{
+		drupal_set_message('ERROR: No nid associated with this event? ','error');
+		return 0;
+	}
+
+	foreach($attendees as $my_uid)
+	{
+		if (! isset($curr_att[$my_uid]) ) // we have a new attendee to add
+			$new_att[] = $my_uid;
+	}
+
+	if ( count($curr_att) > 0 )
+	{
+		foreach($curr_att as $my_uid => $blah)
+		{
+			if ( ! isset($attendees[$my_uid]) ) // we're removing an attendee
+				$del_att[] = $my_uid;
+		}
+	}
+
+	if ( count($new_att) > 0 )
+		foreach($new_att as $my_uid)
+		{
+			$user = user_load($my_uid);
+			db_query("insert into {og_rsvp} values (%d,%d,-1)",$node->nid,$my_uid);
+			if ( variable_get('rsvp_mail',0) == 1)
+				drupal_mail('og_rsvp','rsvp',$user->mail,user_preferred_language($user,NULL), $params = array('account' => $user, 'node' => $node, 'event' => $ev));
+		//watchdog('og_rsvp',t('Sent an rsvp e-mail to %email',array('%email' => $user->mail)),NULL,WATCHDOG_NOTICE,NULL);
+		}
+
+	if ( count($del_att) > 0 )
+	{
+		foreach($del_att as $my_uid)
+		{
+			db_query("delete from {og_rsvp} where uid = %d and nid = %d",$my_uid,$node->nid);
+			drupal_set_message('removed uid '.$my_uid.' from the meeting','warning');
+		}
+	}
+
+ } // function _og_rsvp_update
+
+
+ /**
+  * Retrieve Attendee list
+  * Call to get the attendee list for a particular node.
+  */
+ function _og_rsvp_get_attendees($nid)
+ {
+	 if (! is_numeric($nid) )
+		 return 0;
+	 $res = db_query("select ea.uid  from {og_rsvp} ea where ea.nid = %d",$nid);
+	 
+	 while ( $usr = db_fetch_object($res) )
+		 $tmp[$usr->uid] = $usr->uid;
+	 return $tmp;
+
+ } // function _og_rsvp_get_attendees
+
+ 
+ /**
+  * Attendance Status Access Form
+  * We need this in case of public events that have a specific attendance list. This is
+  * ideal behavior as we all want to be able to look at a calendar in an organization, but
+  * not necessarily be in attendance.
+  * 
+  * @return boolean boolean value whether the user has access to this form or not
+  */
+ function og_rsvp_rsvp_access($node)
+ {
+	 global $user;
+
+     if ( $node->type <> 'event' )
+         return FALSE;
+
+	 // let's find our node id or path?
+	 $res = db_query("select ea.uid from {og_rsvp} ea where ea.nid = %d and ea.uid = %d",$node->nid,$user->uid);
+
+	 if ( db_fetch_object($res) )
+		 return TRUE;
+
+	 return FALSE;
+
+ } // function og_rsvp_rsvp_access
+
+
+ /**
+  * Attendance Status Form
+  * @return $form form array
+  */
+ function og_rsvp_rsvp()
+ {
+	 global $user;
+	 $my_node = node_load(arg(1)); // why isn't $node being passed thru?
+
+	 // we need to get a possible status here.
+	 $my_status = _og_rsvp_is_attending($my_node->nid, $user->uid);
+
+	 unset($my_node);
+
+	 if ($my_status == -1) 
+		 $my_status = 0;  // let's get rid of pending status the first time they visit the page.
+
+         $form['rsvp'] = array(
+	 	'#type' => 'fieldset',
+		'#title' => t('RSVP'),
+		'#description' => t('Please select your availability for this meeting.'),
+		'#collapsible' => TRUE,
+		'#collapsed' => FALSE,
+	 );
+
+	 $form['rsvp']['rsvp_status'] = array(
+		'#type' => 'radios',
+	 	'#title' => t(''),
+		'#description' => t(''),
+		'#default_value' => $my_status,
+		'#options' => array( 0 => t('Not Attending'), 1 => t('Attending') )
+	 );
+
+	 $form['submit'] = array(
+		'#type' => 'submit',
+		'#value' => t('Confirm'),
+	 );
+
+	return $form;
+ } // function og_rsvp_rsvp
+
+
+ /**
+  * Attendance Status Form submit callback
+  * Run an update on the og_rsvp for a particular node and user.
+  */
+ function og_rsvp_rsvp_submit($form, &$form_state)
+ {
+	 global $user;
+	 $node = node_load(arg(1)); 
+
+	 $r = db_query("UPDATE {og_rsvp} set status = %d WHERE uid = %d and nid = %d",$form_state['values']['rsvp_status'],$user->uid,$node->nid);
+
+	 if (!$r)
+		 drupal_set_message('Could not update your attendance status! Please contact the site administrator.','error');
+
+	 drupal_set_message('Updated your attendance status!','info');
+ } // function og_rsvp_rsvp_submit
+
+
+ /**
+ * hook_og implementation
+ * for a given operation on a group we may need to add or remove from the og_rsvp table
+ */
+ function og_rsvp_og($op, $gid, $uid, $args)
+ {
+     $user = user_load($uid);
+//     if ( in_array('site administrator',array_values($user->roles)) )
+//         return;
+	 
+     switch($op)
+     {
+         case 'user insert':
+            // we need to get all events for this group after today.
+            $events = _og_rsvp_get_future_og_events($gid);
+            foreach ( $events as $ev )
+            {
+                db_query("insert into {og_rsvp} values (%d,%d,-1)",$ev->nid,$uid);
+				if ( variable_get('rsvp_mail',0) == 1)
+		        	drupal_mail('og_rsvp','rsvp',$user->mail,user_preferred_language($user,NULL), $params = array('account' => $user, 'node' => $ev,'event' => $event));
+		//watchdog('og_rsvp',t('Sent an rsvp e-mail to %email',array('%email' => $user->mail)),NULL,WATCHDOG_NOTICE,NULL);
+            }
+            break;
+         case 'user delete':
+            // we need to get all events for this group after today.
+            $events = _og_rsvp_get_future_og_events($gid);
+            foreach ( $events as $ev )
+            {
+                db_query("delete from {og_rsvp} where nid = %d and uid = %d",$ev->nid,$uid);
+            }
+            break;
+     }
+
+ } // function og_rsvp_og
+ 
+ /**
+  * Is Attending
+  * A basic boolean function to see if a particular user is attending a particular node event
+  * @param $nid node id
+  * @param $uid user id
+  * @return boolean boolean
+  */
+ function _og_rsvp_is_attending($nid,$uid)
+ {
+
+	 $res = db_query("SELECT ea.status FROM {og_rsvp} ea WHERE ea.nid = %d and ea.uid = %d",$nid,$uid);
+
+	 while ($ea = db_fetch_object($res) )
+		 return($ea->status);
+
+	 return -1;
+ } // function _og_rsvp_is_attending
+
+
+ /**
+  * Retrieve future events
+  * We call this to return an array of node objects for future events. This way we can remove
+  * or add users from the attendance list when they are modified by Organic groups.
+  * @param $gid group node id
+  * @return $tmp array of node objects
+  */
+ function _og_rsvp_get_future_og_events($gid)
+ {
+     $tmp = array();
+     if ( !is_numeric($gid) )
+         return 0;
+
+     $res = db_query("select n.nid from {node} n INNER JOIN {og_ancestry} oa ON n.nid = oa.nid INNER JOIN {event} e ON n.nid = e.nid where n.type = 'event' and oa.group_nid = %d and e.event_start > current_date()",$gid);
+
+     while ( $node = db_fetch_object($res) )
+         $tmp[] = $node;
+
+     return $tmp;
+ } // function _og_rsvp_get_future_og_events

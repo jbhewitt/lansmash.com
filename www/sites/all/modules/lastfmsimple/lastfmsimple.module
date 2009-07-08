@@ -1,0 +1,376 @@
+<?php
+// $Id: lastfmsimple.module,v 1.1 2008/04/16 16:08:05 dietrich Exp $
+
+/**
+ * @defgroup lastfmsimple Last.fm Simple Stats: simple Last.fm user statistics parser.
+ *
+ * This module can fetch user statistics from Last.fm's Audioscrobbler web
+ * services, cache them in the database and perform customisable and intelligent
+ * updates.
+ */
+
+/**
+ * @file
+ * Last.fm Simple Stats module file.
+ *
+ * @ingroup lastfmsimple
+ */
+
+define('LASTFMSIMPLE_UPDATE_CRON', 0);
+define('LASTFMSIMPLE_UPDATE_REQUEST', 1);
+define('LASTFMSIMPLE_UPDATE_DEFAULT', LASTFMSIMPLE_UPDATE_REQUEST);
+
+/**
+ * Implementation of hook_help().
+ */
+function lastfmsimple_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#lastfmsimple':
+      return '<p>'. t('This module ables you to load in user statistics from Last.fm\'s Audioscrobbler web services. The statistics can be shown using <code>lastfmsimple_show_feed($user, $type, $count)</code>, which returns an array of item objects.') .'</p>';
+  }
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function lastfmsimple_menu() {
+  return array(
+    'admin/settings/lastfmsimple' => array(
+      'title' => 'Last.fm Simple Stats',
+      'description' => 'Configure Last.fm Simple Stats settings.',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('lastfmsimple_admin'),
+      'access callback' => 'user_access',
+      'access arguments' => array('administer site configuration'),
+    ),
+  );
+}
+
+/**
+ * Shows the admin settings form for this module.
+ *
+ * @ingroup forms
+ */
+function lastfmsimple_admin() {
+  return system_settings_form(array(
+    'lastfmsimple_update_method' => array(
+      '#type' => 'radios',
+      '#title' => t('Update method'),
+      '#description' => t('Whether feeds are updated through Drupal cron or on request. Please note updating on request might cause some slowness.'),
+      '#options' => array(
+        LASTFMSIMPLE_UPDATE_CRON => t('Drupal cron'),
+        LASTFMSIMPLE_UPDATE_REQUEST => t('On request'),
+      ),
+      '#default_value' => variable_get('lastfmsimple_update_method', LASTFMSIMPLE_UPDATE_DEFAULT),
+      '#required' => TRUE,
+    ),
+    'lastfmsimple_interval' => array(
+      '#type' => 'select',
+      '#title' => t('Update interval'),
+      '#description' => t('Select the interval fetched data should be updated. This does not apply when a feed has a usable Expires header.'),
+      '#options' => array(
+        0 => t('Check always'),
+        5 => t('@minutes minutes', array('@minutes' => 5)),
+        15 => t('@minutes minutes', array('@minutes' => 15)),
+        30 => t('@minutes minutes', array('@minutes' => 30)),
+        60 => t('Hourly'),
+        120 => t('@hours hours', array('@hours' => 2)),
+        180 => t('@hours hours', array('@hours' => 3)),
+        360 => t('@hours hours', array('@hours' => 6)),
+        720 => t('@hours hours', array('@hours' => 12)),
+        1440 => t('Daily'),
+      ),
+      '#default_value' => variable_get('lastfmsimple_interval', 5),
+      '#required' => TRUE,
+    ),
+  ));
+}
+
+/**
+ * Return an array of item objects for a feed.
+ *
+ * @param $user
+ *   A string containing the Last.fm user name.
+ * @param $type
+ *   A string containing the feed type. By default: "recenttracks".
+ * @param $count
+ *   The number of items to be shown. By default: 10.
+ * @return
+ *   An array of item objects.
+ */
+function lastfmsimple_show_feed($user, $type = 'recenttracks', $count = 10) {
+  // Only these are tested/supported (for now).
+  if (!in_array($type, array('recenttracks', 'weeklyartistchart'))) {
+    return array();
+  }
+  
+  // Get the feed.
+  $feed = db_fetch_object(db_query("SELECT * FROM {lastfmsimple_feed} WHERE user = '%s' AND feed_type = '%s'", $user, $type));
+  
+  if ($feed === FALSE) {
+    // New feed.
+    $id = _lastfmsimple_new_feed($user, $type, $count);
+  }
+  else {
+    // Existing feed.
+    
+    if ($count > $feed->current_count && $count <= $feed->max_count) {
+      // Need more items while possible, update.
+      _lastfmsimple_update_feed($feed, $count);
+    }
+    elseif ((int) variable_get('lastfmsimple_update_method', LASTFMSIMPLE_UPDATE_DEFAULT) === LASTFMSIMPLE_UPDATE_REQUEST) {
+      // Updating is done on request.
+      
+      if ($feed->expires > 0) {
+        // There's an Expires header set, update when it's in the past.
+        $update = ($feed->expires <= time());
+      }
+      else {
+        // When the interval is zero (update always), do so;
+        // otherwise, update when the previous update is too long ago.
+        $interval = (int) variable_get('lastfmsimple_interval', 5);
+        $update = $interval === 0 ? TRUE : ($feed->updated <= (time() - $interval * 60));
+      }
+  
+      // Do the update.
+      if ($update) {
+        _lastfmsimple_update_feed($feed);
+      }
+    }
+    
+    $id = $feed->fid;
+  }
+  
+  // Get the items for this feed.
+  $result = db_query_range("SELECT name, url, item_data FROM {lastfmsimple_item} WHERE fid = %d ORDER BY iid ASC", $id, 0, $count);
+  
+  // Fetch items as objects into an array.
+  $items = array();
+  while ($item = db_fetch_object($result)) {
+    // Unserialize item_data and assign values as properties, if present.
+    if (!empty($item->item_data)) {
+      foreach (unserialize($item->item_data) as $key => $val) {
+        $item->$key = $val;
+      }
+    }
+    
+    // Unset item_data.
+    unset($item->item_data);
+    
+    $items[] = $item;
+  }
+  
+  return $items;
+}
+
+/**
+ * Implementation of hook_cron().
+ */
+function lastfmsimple_cron() {
+  // Cron is unused.
+  if ((int) variable_get('lastfmsimple_update_method', LASTFMSIMPLE_UPDATE_DEFAULT) !== LASTFMSIMPLE_UPDATE_CRON) {
+    return;
+  }
+  
+  $interval = (int) variable_get('lastfmsimple_interval', 5);
+  
+  if ($interval === 0) {
+    // Update all the feeds without Expires and with an Expires in the past.
+    $result = db_query("SELECT * FROM {lastfmsimple_feed} WHERE expires <= %d", time());
+  }
+  else {
+    // Update all the feeds without Expires but updated too long ago or with an Expires in the past.
+    $result = db_query("SELECT * FROM {lastfmsimple_feed} WHERE (expires = 0 AND updated <= %d) OR (expires > 0 AND expires <= %d)", (time() - $interval * 60), time());
+  }
+  
+  // Update all of them.
+  while ($feed = db_fetch_object($result)) {
+    _lastfmsimple_update_feed($feed);
+  }
+}
+
+/**
+ * Create a new feed that is not yet in the database.
+ *
+ * @param $user
+ *   A string containing the Last.fm user name.
+ * @param $type
+ *   A string containing the feed type.
+ * @param $count
+ *   The number of items to be shown.
+ * @return
+ *   The ID for the feed just created.
+ */
+function _lastfmsimple_new_feed($user, $type, $count) {
+  // Fetch the feed.
+  $request = _lastfmsimple_fetch_feed($user, $type);
+  
+  if ($request === FALSE) {
+    return;
+  }
+  
+  // Insert into the database.
+  db_query("INSERT INTO {lastfmsimple_feed} (user, feed_type, updated, modified, expires, current_count, max_count, fetches, updates) VALUES ('%s', '%s', %d, %d, %d, %d, %d, 1, 1)", $user, $type, time(), $request['headers']['Last-Modified'], $request['headers']['Expires'], $count, $request['max_count']);
+  
+  // Feed ID.
+  $id = db_last_insert_id('lastfmsimple_feed', 'fid');
+  
+  // Parse the feed data.
+  _lastfmsimple_parse_feed($request['data'], $id, $request['element'], $count);
+  
+  return $id;
+}
+
+/**
+ * Update an existing feed.
+ *
+ * Supplying a $count will disable the usage of If-Modified-Since, thus always
+ * parsing the feed.
+ *
+ * @param $feed
+ *   The feed object.
+ * @param $count
+ *   Optional number of items, when being changed.
+ */
+function _lastfmsimple_update_feed(&$feed, $count = NULL) {
+  if ($count === NULL) {
+    // Count is not being changed, use the current count and fetch using the Last-Modified header.
+    $count = (int) $feed->current_count;
+    $request = _lastfmsimple_fetch_feed($feed->user, $feed->feed_type, $feed->modified);
+  }
+  else {
+    // Count is being changed, fetch without the Last-Modified header.
+    $request = _lastfmsimple_fetch_feed($feed->user, $feed->feed_type);
+  }
+  
+  if ($request === FALSE) {
+    return;
+  }
+  
+  // The feed was not modified, update the feed's row and return.
+  if ($request['not_modified']) {
+    db_query("UPDATE {lastfmsimple_feed} SET updated = %d, fetches = fetches + 1 WHERE fid = %d", time(), $feed->fid);
+    
+    return;
+  }
+  
+  // Remove existing items.
+  db_query("DELETE FROM {lastfmsimple_item} WHERE fid = %d", $feed->fid);
+  
+  // Parse the feed data.
+  _lastfmsimple_parse_feed($request['data'], $feed->fid, $request['element'], $count);
+  
+  // Update the feed's row.
+  db_query("UPDATE {lastfmsimple_feed} SET updated = %d, modified = %d, expires = %d, current_count = %d, max_count = %d, fetches = fetches + 1, updates = updates + 1 WHERE fid = %d", time(), $request['headers']['Last-Modified'], $request['headers']['Expires'], $count, $request['max_count'], $feed->fid);
+}
+
+/**
+ * Fetch a feed.
+ *
+ * @param $user
+ *   A string containing the Last.fm user name.
+ * @param $type
+ *   A string containing the feed type.
+ * @param $modified_since
+ *   UNIX timestamp containing Modified-Since date (optional).
+ * @return
+ *   Array containing data, array of headers, not_modified boolean, element name and max_count.
+ */
+function _lastfmsimple_fetch_feed($user, $type, $modified_since = 0) {
+  // Use an If-Modified-Since header when possible.
+  $headers = $modified_since > 0 ? array('If-Modified-Since' => gmdate('D, d M Y H:i:s', $modified_since)) : array();
+  
+  // Do a HTTP request.
+  $request = drupal_http_request('http://ws.audioscrobbler.com/1.0/user/'. urlencode($user) .'/'. $type .'.xml', $headers);
+  
+  // Response code.
+  $code = (int) $request->code;
+  
+  // Something went wrong.
+  if (!in_array($code, array(200, 302, 304, 307))) {
+    watchdog('lastfmsimple', 'Feed %feed for user %user could not be fetched: %error.', array(
+      '%user' => $user,
+      '%feed' => $type,
+      '%error' => $request->code .' '. $request->error
+    ), WATCHDOG_WARNING);
+    
+    return FALSE;
+  }
+  
+  // What's the item's element?
+  $element = array(
+    'recenttracks' => 'track',
+    'weeklyartistchart' => 'artist'
+  );
+  $element = $element[$type];
+  
+  $expires = array_key_exists('Expires', $request->headers) ? strtotime($request->headers['Expires']) : 0;
+  
+  return array(
+    'data' => $request->data,
+    'headers' => array(
+      'Last-Modified' => array_key_exists('Last-Modified', $request->headers) ? strtotime($request->headers['Last-Modified']) : 0,
+      // Do not use Expires when it's in the past.
+      'Expires' => $expires > time() ? $expires : 0,
+    ),
+    // Feed was not modified when we got response code 304.
+    'not_modified' => ($code === 304),
+    'element' => $element,
+    // Number of feed items present.
+    'max_count' => substr_count($request->data, '<'. $element),
+  );
+}
+
+/**
+ * Parse a feed's data.
+ *
+ * @param $data
+ *   String of feed data.
+ * @param $id
+ *   Feed ID.
+ * @param $element
+ *   String containing item's element name.
+ * @param $count
+ *   Number of items to parse.
+ */
+function _lastfmsimple_parse_feed(&$data, $id, $element, $count) {
+  // Create the parser and get the array.
+  $parser = drupal_xml_parser_create($data);
+  xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 1);
+  xml_parse_into_struct($parser, $data, $values);
+  
+  // Get a nice array of items.
+  $items = array();
+  $i = 0;
+  foreach ($values as $value) {
+    // Current feed item has ended, start a new one.
+    if (strtolower($value['tag']) == $element && $value['type'] == 'close') {
+      $i++;
+      
+      // We do not need any more items.
+      if ($i === $count) {
+        break;
+      }
+      
+      continue;
+    }
+    
+    // This is a property we want to save.
+    if ($value['type'] == 'complete') {
+      $items[$i][strtolower($value['tag'])] = $value['value'];
+    }
+  }
+  
+  // Insert each item.
+  foreach ($items as $item) {
+    $name = $item['name'];
+    $url = $item['url'];
+    unset($item['name'], $item['url']);
+    
+    // Serialize the remaining properties.
+    $item_data = count($item) > 0 ? serialize($item) : '';
+    
+    // Insert new feed item.
+    db_query("INSERT INTO {lastfmsimple_item} (fid, name, url, item_data) VALUES (%d, '%s', '%s', '%s')", $id, $name, $url, $item_data);
+  }
+}
